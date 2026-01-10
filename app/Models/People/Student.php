@@ -6,11 +6,13 @@ use App\Enum\AssessmentRating;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Laravel\Scout\Searchable;
+use Spatie\Permission\Traits\HasRoles;
 
 class Student extends Model
 {
-    use HasFactory, HasUuids, Searchable;
+    use HasFactory, HasUuids, Searchable, HasRoles, SoftDeletes;
 
     protected $fillable = [
         'first_name',
@@ -56,6 +58,7 @@ class Student extends Model
         'talent_areas' => 'array',
         'special_medical_needs' => 'array',
         'allergies' => 'array',
+        'learning_support' => 'boolean',
         'assessment_rating' => AssessmentRating::class
     ];
 }
