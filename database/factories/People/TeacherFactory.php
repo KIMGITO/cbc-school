@@ -19,7 +19,7 @@ class TeacherFactory extends Factory
     public function definition(): array
     {
         return [
-            'user_id' => User::factory(),
+            'user_id' => User::factory(), 
             'department_id' => Department::factory(),
             'tsc_number' => $this->faker->unique()->regexify('[A-Z0-9]{8}'),
             'hire_date' => $this->faker->date(),

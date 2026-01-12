@@ -70,7 +70,6 @@ class StudentFactory extends Factory
             'academic_status' => $this->faker->randomElement(['active', 'inactive', 'transferred', 'graduated']),
             'exit_date' => null,
             'exit_reason' => null,
-            'archived_at' => null,
             'crated_by' => 1,
         ];
     }
