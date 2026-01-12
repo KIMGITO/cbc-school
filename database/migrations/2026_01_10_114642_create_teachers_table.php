@@ -14,18 +14,18 @@ return new class extends Migration
         Schema::create('teachers', function (Blueprint $table) {
             $table->id();
             $table->uuid('uuid')->unique();
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-            $table->foreignId('department_id')->constrained('departments')->onDelete('set null')->nullable();
+            $table->foreignId('user_id')->constrained('users')->nullOnDelete();
+            $table->foreignId('department_id')->nullable()->constrained('departments')->onDelete('set null');
             $table->string('tsc_number')->unique();
             $table->date('hire_date');
             $table->json('qualifications')->nullable();
             $table->string('phone_number')->unique();
-            $table->string('phone_number_2')->nullable()->unique();
+            $table->string('phone_number_2')->nullable();
             $table->boolean('is_active')->default(true);
             $table->softDeletes();
             $table->timestamp('archived_at')->nullable();
             $table->timestamps();
-            $table->index(['tsc_number', 'qualifications', 'phone_number', 'phone_number_2']);
+            $table->index(['tsc_number', 'phone_number', 'phone_number_2']);
         });
     }
 
