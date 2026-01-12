@@ -23,7 +23,6 @@ return new class extends Migration
             $table->rememberToken();
             $table->timestamps();
             $table->softDeletes();
-            $table->timestamp('archived_at');
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {

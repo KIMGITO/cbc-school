@@ -18,7 +18,9 @@ class DatabaseSeeder extends Seeder
             PermissionSeeder::class,
         ]);
         User::factory()->create([
-            'name' => 'Test User',
+            'first_name' => 'Test',
+            'sir_name' => 'User',
+            'other_names' => 'Super',
             'email' => 'test@example.com',
         ]);
     }
