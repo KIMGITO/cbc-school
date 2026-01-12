@@ -27,12 +27,10 @@ class Guardian extends Model
         'ward',
         'location',
         'sub_location',
-        'archived_at',
     ];
 
     // Casts
     protected $casts = [
         'user_id' => 'integer',
-        'archived_at' => 'date',
     ];
 }

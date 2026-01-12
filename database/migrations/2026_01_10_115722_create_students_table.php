@@ -36,8 +36,7 @@ return new class extends Migration
             $table->json('special_medical_needs')->nullable();
 
             // school and admission
-            $table->unsignedTinyInteger('grade_level')->nullable();
-            $table->foreignId('stream_id')->nullable()->constrained('streams')->onDelete('set null');
+            $table->foreignId('stream_id')->nullable()->constrained('streams')->nullOnDelete();
             $table->date('admission_date')->nullable();
             $table->enum('enrollment_type', ['new', 'transfer'])->nullable();
             $table->enum('boarding_status', ['day', 'boarding'])->nullable();
@@ -54,8 +53,6 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
             $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();
-            $table->timestamp('archived_at')->nullable();
-            $table->index(['adm_no', 'upi_number', 'stream_id', 'grade_level', 'crated_by', 'talent_areas', 'assessment_rating', '']);
         });
     }
 

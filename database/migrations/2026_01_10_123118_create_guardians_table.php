@@ -40,7 +40,6 @@ return new class extends Migration
             $table->string('location')->nullable();
             $table->string('sub_location')->nullable();
             $table->softDeletes();
-            $table->timestamp('archived_at')->nullable();
             $table->index(['national_id', 'phone_number', 'phone_number_2', 'location', 'sub_county', 'sub_location', 'county']);
         });
     }

@@ -23,7 +23,6 @@ return new class extends Migration
             $table->string('phone_number_2')->nullable();
             $table->boolean('is_active')->default(true);
             $table->softDeletes();
-            $table->timestamp('archived_at')->nullable();
             $table->timestamps();
             $table->index(['tsc_number', 'phone_number', 'phone_number_2']);
         });

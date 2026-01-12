@@ -23,7 +23,6 @@ class Teacher extends Model
         'phone_number',
         'phone_number_2',
         'is_active',
-        'archived_at'
 
     ];
 
@@ -35,6 +34,5 @@ class Teacher extends Model
         'qualifications' => 'array',
         'user_id' => 'integer',
         'department_id' => 'integer',
-        'archived_at' => 'date',
     ];
 }

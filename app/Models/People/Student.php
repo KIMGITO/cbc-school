@@ -34,7 +34,6 @@ class Student extends Model
         'allergies',
         'special_medical_needs',
         // school and admission
-        'grade_level',
         'stream_id',
         'admission_date',
         'enrollment_type',
@@ -42,12 +41,10 @@ class Student extends Model
         // cbc 
         'talent_areas',
         'learning_support',
-        'assessment_rating',
         // academic related
         'academic_status',
         'exit_date',
         'exit_reason',
-        'archived_at',
         'crated_by',
 
     ];
@@ -62,8 +59,6 @@ class Student extends Model
         'special_medical_needs' => 'array',
         'allergies' => 'array',
         'learning_support' => 'boolean',
-        'assessment_rating' => AssessmentRating::class,
-        'archived_at' => 'date',
         'crated_by' => 'integer',
     ];
 }
