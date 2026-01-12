@@ -16,7 +16,7 @@ class Student extends Model
 
     protected $fillable = [
         'first_name',
-        'last_name',
+        'other_names',
         'sir_name',
         'adm_no',
         'date_of_birth',
@@ -47,6 +47,9 @@ class Student extends Model
         'academic_status',
         'exit_date',
         'exit_reason',
+        'archived_at',
+        'crated_by',
+
     ];
 
     // Casts.
@@ -59,6 +62,8 @@ class Student extends Model
         'special_medical_needs' => 'array',
         'allergies' => 'array',
         'learning_support' => 'boolean',
-        'assessment_rating' => AssessmentRating::class
+        'assessment_rating' => AssessmentRating::class,
+        'archived_at' => 'date',
+        'crated_by' => 'integer',
     ];
 }

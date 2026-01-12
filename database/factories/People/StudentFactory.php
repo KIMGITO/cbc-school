@@ -18,7 +18,7 @@ class StudentFactory extends Factory
     {
         return [
             'first_name' => $this->faker->firstName(),
-            'last_name' => $this->faker->lastName(),
+            'other_names' => $this->faker->lastName(),
             'sir_name' => $this->faker->lastName(),
             'adm_no' => $this->faker->unique()->regexify('[A-Z0-9]{5,10}'),
             'date_of_birth' => $this->faker->date('Y-m-d', '-6 years'),
@@ -70,6 +70,8 @@ class StudentFactory extends Factory
             'academic_status' => $this->faker->randomElement(['active', 'inactive', 'transferred', 'graduated']),
             'exit_date' => null,
             'exit_reason' => null,
+            'archived_at' => null,
+            'crated_by' => 1,
         ];
     }
 }

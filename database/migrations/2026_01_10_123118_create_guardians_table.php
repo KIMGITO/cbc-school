@@ -15,9 +15,6 @@ return new class extends Migration
             $table->id();
             $table->uuid('uuid')->unique();
             $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('set null');
-            $table->string('first_name');
-            $table->string('last_name');
-            $table->string('sir_name')->nullable();
             $table->string('national_id', 12)->unique();
             $table->string('phone_number')->unique();
             $table->string('phone_number_2')->nullable();
@@ -43,7 +40,8 @@ return new class extends Migration
             $table->string('location')->nullable();
             $table->string('sub_location')->nullable();
             $table->softDeletes();
-            $table->timestamps();
+            $table->timestamp('archived_at')->nullable();
+            $table->index(['national_id', 'phone_number', 'phone_number_2', 'location', 'sub_county', 'sub_location', 'county']);
         });
     }
 

@@ -15,9 +15,6 @@ class Guardian extends Model
     use HasFactory, HasUuids, SoftDeletes, HasRoles, Searchable;
     protected $fillable = [
         'user_id',
-        'first_name',
-        'last_name',
-        'sir_name',
         'national_id',
         'phone_number',
         'phone_number_2',
@@ -30,10 +27,12 @@ class Guardian extends Model
         'ward',
         'location',
         'sub_location',
+        'archived_at',
     ];
 
     // Casts
     protected $casts = [
         'user_id' => 'integer',
+        'archived_at' => 'date',
     ];
 }

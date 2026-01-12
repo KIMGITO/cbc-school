@@ -18,9 +18,6 @@ class GuardianFactory extends Factory
     {
         return [
             'user_id' => null,
-            'first_name' => $this->faker->firstName(),
-            'last_name' => $this->faker->lastName(),
-            'sir_name' => $this->faker->lastName(),
             'national_id' => $this->faker->unique()->regexify('[0-9]{8,12}'),
             'phone_number' => $this->faker->unique()->phoneNumber(),
             'phone_number_2' => $this->faker->optional()->phoneNumber(),
