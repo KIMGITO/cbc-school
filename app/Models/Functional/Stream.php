@@ -2,6 +2,8 @@
 
 namespace App\Models\Functional;
 
+use App\Models\People\Student;
+use App\Models\People\Teacher;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -21,4 +23,34 @@ class Stream extends Model
         // add other fields as necessary
     ];
 
+
+    /**
+     * Many-to-One (Inverse) relationship.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function gradeLevel()
+    {
+        return $this->belongsTo(GradeLevel::class);
+    }
+
+    /**
+     * One-to-Many relationship.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function students()
+    {
+        return $this->hasMany(Student::class);
+    }
+
+    /**
+     * Many-to-One (Inverse) relationship.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function teacher()
+    {
+        return $this->belongsTo(Teacher::class);
+    }
 }

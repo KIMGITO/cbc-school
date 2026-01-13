@@ -2,6 +2,7 @@
 
 namespace App\Models\Cores;
 
+use App\Models\People\Teacher;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -21,5 +22,24 @@ class Department extends Model
     protected $casts = [
         'active' => 'boolean',
     ];
-    // add other casts as necessary
+
+    /**
+     * One-to-Many relationship.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function teachers()
+    {
+        return $this->hasMany(Teacher::class);
+    }
+
+    /**
+     * One-to-Many relationship.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function courses()
+    {
+        return $this->hasMany(Course::class);
+    }
 }

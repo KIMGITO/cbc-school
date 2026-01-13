@@ -26,6 +26,16 @@ class AcademicYear extends Model
     ];
 
     /**
+     * One-to-Many relationship.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function terms()
+    {
+        return $this->hasMany(Term::class);
+    }
+
+    /**
      * Scope a query to only include active academic years.
      *
      * @param \Illuminate\Database\Eloquent\Builder $query

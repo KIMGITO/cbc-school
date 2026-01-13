@@ -3,6 +3,8 @@
 namespace App\Models\People;
 
 use App\Enum\AssessmentRating;
+use App\Models\Functional\GradeLevel;
+use App\Models\Functional\Stream;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -61,4 +63,23 @@ class Student extends Model
         'learning_support' => 'boolean',
         'crated_by' => 'integer',
     ];
+
+    /**
+     * Student - Stream relationship
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<Stream, Student>
+     */
+    public function  stream()
+    {
+        return $this->belongsTo(Stream::class);
+    }
+
+    public function guardians()
+    {
+        return $this->belongsToMany(Guardian::class)->withPivot([
+            'relationship',
+            'is_primary',
+            'can_pick_student',
+            'can_pay_fees'
+        ])->withTimestamps();
+    }
 }

@@ -19,19 +19,7 @@ return new class extends Migration
             $table->string('phone_number')->unique();
             $table->string('phone_number_2')->nullable();
             $table->string('email')->unique()->nullable();
-            $table->enum('relationship', [
-                'father',
-                'mother',
-                'guardian',
-                'stepfather',
-                'stepmother',
-                'aunt',
-                'uncle',
-                'grandparent',
-                'brother',
-                'sister',
-                'well_wisher'
-            ]);
+            
             $table->string('occupation')->nullable();
             $table->string('address')->nullable();
             $table->string('county')->nullable();

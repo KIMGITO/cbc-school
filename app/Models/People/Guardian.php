@@ -2,6 +2,7 @@
 
 namespace App\Models\People;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -12,14 +13,13 @@ use Spatie\Permission\Traits\HasRoles;
 class Guardian extends Model
 {
     /** @use HasFactory<\Database\Factories\People\GuardianFactory> */
-    use HasFactory, HasUuids, SoftDeletes, HasRoles, Searchable;
+    use HasFactory, HasUuids, SoftDeletes, Searchable;
     protected $fillable = [
         'user_id',
         'national_id',
         'phone_number',
         'phone_number_2',
         'email',
-        'relationship',
         'occupation',
         'address',
         'county',
@@ -33,4 +33,29 @@ class Guardian extends Model
     protected $casts = [
         'user_id' => 'integer',
     ];
+
+    /**
+     * Many-to-One (Inverse) relationship.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Many-to-Many relationship.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function students()
+    {
+        return $this->belongsToMany(Student::class)->withPivot([
+            'relationship',
+            'can_pick_student',
+            'can_pay_fees',
+            'is_primary'
+        ])->withTimestamps();
+    }
 }

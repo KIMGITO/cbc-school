@@ -4,6 +4,8 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 
+use App\Models\People\Guardian;
+use App\Models\People\Teacher;
 use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
@@ -71,5 +73,26 @@ class User extends Authenticatable
         return Attribute::make(
             get: fn() => trim($this->first_name . ' ' . $this->sir_name),
         );
+    }
+
+    /**
+     * One-to-One relationship.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function guardian()
+    {
+        return $this->hasOne(Guardian::class);
+    }
+
+
+    /**
+     * One-to-One relationship.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function teacher()
+    {
+        return $this->hasOne(Teacher::class);
     }
 }

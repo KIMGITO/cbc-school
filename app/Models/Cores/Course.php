@@ -2,6 +2,7 @@
 
 namespace App\Models\Cores;
 
+use App\Models\People\Teacher;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -18,4 +19,24 @@ class Course extends Model
         'department_id',
         'active'
     ];
+
+    /**
+     * Many-to-One (Inverse) relationship.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function department()
+    {
+        return $this->belongsTo(Department::class);
+    }
+
+    /**
+     * Many-to-Many relationship.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function teachers()
+    {
+        return $this->belongsToMany(Teacher::class, 'course_teacher')->withPivot(['relationship','experience'])->withTimestamps();
+    }
 }

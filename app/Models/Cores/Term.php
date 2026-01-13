@@ -25,4 +25,14 @@ class Term extends Model
         'end_date' => 'date',
         'is_active' => 'boolean',
     ];
+
+    /**
+     * Many-to-One (Inverse) relationship.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function academicYear()
+    {
+        return $this->belongsTo(AcademicYear::class);
+    }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Models\Functional;
 
+use App\Models\People\Student;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -20,4 +21,24 @@ class GradeLevel extends Model
     protected $casts = [
         'active' => 'boolean',
     ];
+
+    /**
+     * One-to-Many relationship.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function streams()
+    {
+        return $this->hasMany(Stream::class);
+    }
+
+    /**
+     * Has Many Through relationship.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasManyThrough
+     */
+    public function students()
+    {
+        return $this->hasManyThrough(Student::class, Stream::class);
+    }
 }
