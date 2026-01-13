@@ -34,7 +34,9 @@ class PermissionSeeder extends Seeder
         $admin = User::firstOrCreate(
             ['email' => 'admin@cbcschool.edu'],
             [
-                'name' => 'System Administrator',
+                'first_name' => 'System',
+                'other_names' => 'Administrator',
+                'sir_name' => 'Default',
                 'password' => bcrypt('admin123'), // Change this in production!
                 'email_verified_at' => now(),
             ]

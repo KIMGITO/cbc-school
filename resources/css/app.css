@@ -227,21 +227,54 @@
     --sidebar-border: oklch(0.269 0 0);
     --sidebar-ring: oklch(0.439 0 0);
 
-    /* Gradient Colors - Dark Mode */
-    --gradient-primary-start: oklch(0.4 0.15 240);
-    --gradient-primary-end: oklch(0.3 0.2 250);
-    --gradient-secondary-start: oklch(0.45 0.1 270);
-    --gradient-secondary-end: oklch(0.35 0.15 280);
-    --gradient-accent-start: oklch(0.45 0.15 30);
-    --gradient-accent-end: oklch(0.35 0.2 40);
-    --gradient-success-start: oklch(0.4 0.15 140);
-    --gradient-success-end: oklch(0.3 0.2 150);
-    --gradient-warning-start: oklch(0.45 0.15 80);
-    --gradient-warning-end: oklch(0.35 0.2 90);
-    --gradient-destructive-start: oklch(0.4 0.2 25);
-    --gradient-destructive-end: oklch(0.3 0.25 35);
-    --subtle-gradient-start: oklch(0.205 0 0);
-    --subtle-gradient-end: oklch(0.25 0.05 0);
+    /* Primary (from your example - high contrast) */
+    --gradient-primary: linear-gradient(
+        135deg,
+        oklch(0.7 0.17 240) 0%,
+        oklch(0.2 0.2 250) 100%
+    );
+
+    /* Secondary (Purple) - high contrast */
+    --gradient-secondary: linear-gradient(
+        135deg,
+        oklch(0.7 0.12 270) 0%,
+        oklch(0.2 0.15 280) 100%
+    );
+
+    /* Accent (Orange) - high contrast */
+    --gradient-accent: linear-gradient(
+        135deg,
+        oklch(0.7 0.17 30) 0%,
+        oklch(0.2 0.22 40) 100%
+    );
+
+    /* Success (Green) - high contrast */
+    --gradient-success: linear-gradient(
+        135deg,
+        oklch(0.7 0.17 140) 0%,
+        oklch(0.2 0.22 150) 100%
+    );
+
+    /* Warning (Yellow-Green) - high contrast */
+    --gradient-warning: linear-gradient(
+        135deg,
+        oklch(0.7 0.17 80) 0%,
+        oklch(0.2 0.22 90) 100%
+    );
+
+    /* Destructive (Red) - high contrast */
+    --gradient-destructive: linear-gradient(
+        135deg,
+        oklch(0.7 0.22 25) 0%,
+        oklch(0.2 0.27 35) 100%
+    );
+
+    /* Subtle (Gray/Black) - high contrast */
+    --gradient-subtle: linear-gradient(
+        135deg,
+        oklch(0.7 0.02 0) 0%,
+        oklch(0.2 0.07 0) 100%
+    );
 
     /* Additional Semantic Colors - Dark Mode */
     --info: oklch(0.4 0.1 240);

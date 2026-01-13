@@ -23,6 +23,7 @@ class ProfileController extends Controller
             'status' => $request->session()->get('status'),
         ]);
     }
+    
 
     /**
      * Update the user's profile settings.
