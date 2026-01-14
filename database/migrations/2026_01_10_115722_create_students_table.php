@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('other_names');
             $table->string('sir_name');
             $table->string('adm_no')->unique();
-            $table->date('date_of_birth');
+            $table->text('date_of_birth');
             $table->enum('gender', ['male', 'female']);
             $table->string('profile_photo')->nullable();
 
@@ -28,12 +28,12 @@ return new class extends Migration
             $table->string('ward')->nullable();
             $table->string('location')->nullable();
             $table->string('sub_location')->nullable();
-            $table->string('upi_number')->unique()->nullable();
+            $table->text('upi_number')->unique()->nullable();
 
             // medical safety
-            $table->string('blood_group', 3)->nullable();
-            $table->json('allergies')->nullable();
-            $table->json('special_medical_needs')->nullable();
+            $table->text('blood_group')->nullable();
+            $table->text('allergies')->nullable();
+            $table->text('special_medical_needs')->nullable();
 
             // school and admission
             $table->foreignId('stream_id')->nullable()->constrained('streams')->nullOnDelete();
