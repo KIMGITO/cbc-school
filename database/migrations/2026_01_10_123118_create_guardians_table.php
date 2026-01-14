@@ -15,11 +15,11 @@ return new class extends Migration
             $table->id();
             $table->uuid('uuid')->unique();
             $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('set null');
-            $table->string('national_id', 12)->unique();
-            $table->string('phone_number')->unique();
-            $table->string('phone_number_2')->nullable();
+            $table->text('national_id', 12)->unique();
+            $table->text('phone_number')->unique();
+            $table->text('phone_number_2')->nullable();
             $table->string('email')->unique()->nullable();
-            
+
             $table->string('occupation')->nullable();
             $table->string('address')->nullable();
             $table->string('county')->nullable();
@@ -28,7 +28,6 @@ return new class extends Migration
             $table->string('location')->nullable();
             $table->string('sub_location')->nullable();
             $table->softDeletes();
-            $table->index(['phone_number', 'phone_number_2']);
         });
     }
 

@@ -32,6 +32,10 @@ class Guardian extends Model
     // Casts
     protected $casts = [
         'user_id' => 'integer',
+        'national_id' => 'encrypted',
+        'phone_number' => 'encrypted',
+        'phone_number_2' => 'encrypted',
+
     ];
 
     /**
@@ -59,3 +63,4 @@ class Guardian extends Model
         ])->withTimestamps();
     }
 }
+ 

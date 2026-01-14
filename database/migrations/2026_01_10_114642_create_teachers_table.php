@@ -16,15 +16,14 @@ return new class extends Migration
             $table->uuid('uuid')->unique();
             $table->foreignId('user_id')->nullable()->constrained('users')->nullOnDelete();
             $table->foreignId('department_id')->nullable()->constrained('departments')->onDelete('set null');
-            $table->string('tsc_number')->unique();
+            $table->text('tsc_number')->unique();
             $table->date('hire_date');
             $table->json('qualifications')->nullable();
-            $table->string('phone_number')->unique();
-            $table->string('phone_number_2')->nullable();
+            $table->text('phone_number')->unique();
+            $table->text('phone_number_2')->nullable();
             $table->boolean('is_active')->default(true);
             $table->softDeletes();
             $table->timestamps();
-            $table->index(['tsc_number', 'phone_number', 'phone_number_2']);
         });
     }
 

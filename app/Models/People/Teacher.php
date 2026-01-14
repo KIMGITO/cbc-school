@@ -30,14 +30,15 @@ class Teacher extends Model
 
     ];
 
-    public $searchable = [];
-
     protected $casts = [
         'is_active' => 'boolean',
         'hire_date' => 'date',
         'qualifications' => 'array',
         'user_id' => 'integer',
         'department_id' => 'integer',
+        'tsc_number' => 'encrypted',
+        'phone_number' => 'encrypted',
+        'phone_number_2' => 'encrypted'
     ];
 
     /**
