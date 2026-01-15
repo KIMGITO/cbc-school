@@ -21,6 +21,7 @@ class Student extends Model
     use HasFactory, HasUuids, Searchable, HasRoles, SoftDeletes;
 
     protected $fillable = [
+        //Profile Information
         'first_name',
         'other_names',
         'sir_name',
