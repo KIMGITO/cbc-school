@@ -302,10 +302,9 @@ const FormField: React.FC<FormFieldProps> = ({
                                 selected={value}
                                 onSelect={handleCalendarChange}
                                 initialFocus
-                                disabled={disabled}
+                                disabled={disabled || disabledDates}
                                 fromDate={fromDate}
                                 toDate={toDate}
-                                disabled={disabledDates}
                                 defaultMonth={defaultMonth}
                             />
                         </PopoverContent>

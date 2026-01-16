@@ -12,9 +12,19 @@ import {
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
 import { type NavItem } from '@/types';
-import { Link } from '@inertiajs/react';
-import { BookOpen, Folder, LayoutGrid, UserPlus2Icon } from 'lucide-react';
+import { Link, router } from '@inertiajs/react';
+import {
+    BarChart,
+    BookOpen,
+    LayoutGrid,
+    School,
+    Settings,
+    ShieldIcon,
+    UserPlus2Icon,
+    Users,
+} from 'lucide-react';
 import AppLogo from './app-logo';
+import { NavMainGroup } from './nav-main-group';
 
 const mainNavItems: NavItem[] = [
     {
@@ -23,22 +33,61 @@ const mainNavItems: NavItem[] = [
         icon: LayoutGrid,
     },
     {
-        title: 'Students',
+        title: 'Student Admission Form.',
         href: '/students/create',
         icon: UserPlus2Icon,
     },
 ];
 
-const footerNavItems: NavItem[] = [
+const navGroups = [
     {
-        title: 'Repository',
-        href: 'https://github.com/laravel/react-starter-kit',
-        icon: Folder,
+        title: 'Dashboard',
+        items: [
+            { title: 'Overview', href: '/', icon: BarChart },
+            {
+                title: 'Analytics',
+                href: '/analytics',
+                icon: BarChart,
+                badge: '5',
+            },
+        ],
+        icon: BarChart,
+        defaultOpen: false,
     },
     {
-        title: 'Documentation',
-        href: 'https://laravel.com/docs/starter-kits#react',
-        icon: BookOpen,
+        title: 'Students',
+        items: [
+            {
+                title: 'All Students',
+                href: '/students',
+                icon: Users,
+                badge: '0',
+            },
+            {
+                title: 'Admissions',
+                href: '/admissions',
+                icon: Users,
+                badge: '12',
+            },
+            { title: 'Classes', href: '/classes', icon: School },
+        ],
+        icon: Users,
+        defaultOpen: false,
+        showAddButton: true,
+        addUrl: '/students/create',
+        badge: 154,
+    },
+    
+];
+const footerNavItems = [
+    {
+        title: 'Administration',
+        items: [
+            { title: 'Settings', href: '/settings', icon: Settings },
+            { title: 'Users', href: '/users', icon: Users },
+        ],
+        icon: ShieldIcon,
+        defaultOpen: false,
     },
 ];
 
@@ -58,11 +107,38 @@ export function AppSidebar() {
             </SidebarHeader>
 
             <SidebarContent>
-                <NavMain items={mainNavItems} />
+                {/* <NavMain items={mainNavItems} /> */}
+                {navGroups.map((group) => (
+                    <NavMainGroup
+                        key={group.title}
+                        title={group.title}
+                        items={group.items}
+                        defaultOpen={group.defaultOpen}
+                        showAddButton={group.showAddButton}
+                        onAddClick={() => {
+                            router.get(`${group.addUrl}`);
+                        }}
+                        icon={group.icon}
+                        badge={group.badge}
+                        groupClassName="border-t border-gray-200 dark:border-gray-800 pt-2 first:border-t-0 first:pt-0"
+                    />
+                ))}
             </SidebarContent>
 
             <SidebarFooter>
-                <NavFooter items={footerNavItems} className="mt-auto" />
+                {footerNavItems.map((group) => (
+                    <NavMainGroup
+                        key={group.title}
+                        title={group.title}
+                        items={group.items}
+                        defaultOpen={group.defaultOpen}
+                        
+                        icon={group.icon}
+                        badge={'0'}
+                        groupClassName="border-t border-gray-200 dark:border-gray-800 pt-2 first:border-t-0 first:pt-0"
+                    />
+                ))}
+
                 <NavUser />
             </SidebarFooter>
         </Sidebar>

@@ -1,7 +1,7 @@
 import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
 import { VariantProps, cva } from "class-variance-authority"
-import { PanelLeftCloseIcon, PanelLeftOpenIcon } from "lucide-react"
+import { ChevronDown, MoreVertical, PanelLeftCloseIcon, PanelLeftOpenIcon, Plus } from "lucide-react"
 
 import { useIsMobile } from "@/hooks/use-mobile"
 import { cn } from "@/lib/utils"
@@ -22,6 +22,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+import { ReactNode } from "react"
 
 const SIDEBAR_COOKIE_NAME = "sidebar_state"
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7
@@ -39,6 +40,41 @@ type SidebarContext = {
   isMobile: boolean
   toggleSidebar: () => void
 }
+interface SidebarMenuGroupButtonProps {
+    title: string;
+    icon?: React.ComponentType<{ className?: string }>;
+    defaultOpen?: boolean;
+    isActive?: boolean;
+    tooltip?: string | React.ComponentProps<typeof TooltipContent>;
+    showAddButton?: boolean;
+    showMenuButton?: boolean;
+    onAddClick?: () => void;
+    onMenuClick?: () => void;
+    badge?: string | number;
+    className?: string;
+    children?: ReactNode;
+}
+
+const sidebarMenuGroupButtonVariants = {
+    root: "group w-full",
+    trigger: cn(
+        "flex w-full items-center justify-between rounded-md px-2 py-1.5 text-sm outline-none",
+        "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+        "focus-visible:bg-sidebar-accent focus-visible:text-sidebar-accent-foreground focus-visible:outline-none",
+        "data-[active=true]:bg-blue-50 data-[active=true]:text-blue-700",
+        "data-[state=open]:bg-sidebar-accent dark:data-[state=open]:bg-sidebar-accent",
+        "transition-colors duration-150"
+    ),
+    content: cn(
+        "mt-1 space-y-0.5 overflow-hidden transition-all duration-200 ease-in-out",
+        "data-[state=open]:grid-rows-[1fr] data-[state=closed]:grid-rows-[0fr]"
+    ),
+    icon: "mr-2 h-4 w-4 shrink-0",
+    badge: cn(
+        "ml-auto rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium",
+        "text-blue-700 dark:bg-blue-900 dark:text-blue-300"
+    ),
+};
 
 const SidebarContext = React.createContext<SidebarContext | null>(null)
 
@@ -540,6 +576,131 @@ function SidebarMenuButton({
   )
 }
 
+function SidebarMenuGroupButton({
+    title,
+    icon: Icon,
+    defaultOpen = false,
+    isActive = false,
+    tooltip,
+    showAddButton = false,
+    showMenuButton = false,
+    onAddClick,
+    onMenuClick,
+    badge,
+    className,
+    children,
+    ...props
+}: SidebarMenuGroupButtonProps & React.ComponentProps<typeof SidebarMenuButton>) {
+    const [isOpen, setIsOpen] = React.useState(defaultOpen);
+    const { isMobile, state: sidebarState } = useSidebar();
+
+    const triggerButton = (
+        <SidebarMenuButton
+            data-slot="sidebar-menu-group-button"
+            data-sidebar="menu-group-button"
+            data-active={isActive}
+            data-state={isOpen ? 'open' : 'closed'}
+            className={cn(
+                sidebarMenuGroupButtonVariants.trigger,
+                className
+            )}
+            onClick={() => setIsOpen(!isOpen)}
+            {...props}
+        >
+            <div className="flex flex-1 items-center">
+                {Icon && (
+                    <Icon className={cn(
+                        sidebarMenuGroupButtonVariants.icon,
+                        isActive && "text-blue-600 dark:text-blue-400"
+                    )} />
+                )}
+                <span className="flex-1 text-left font-medium">
+                    {title}
+                </span>
+                {badge && (
+                    <span className={sidebarMenuGroupButtonVariants.badge}>
+                        {badge}
+                    </span>
+                )}
+            </div>
+            
+            <div className="flex items-center gap-1 ">
+                {showAddButton && (
+                    <button
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onAddClick?.();
+                        }}
+                        className="rounded-md p-0.5 hover:bg-sidebar-border"
+                        title={`Add ${title}`}
+                    >
+                        <Plus className="h-3.5 w-3.5" />
+                    </button>
+                )}
+                {showMenuButton && (
+                    <button
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onMenuClick?.();
+                        }}
+                        className="rounded-md p-0.5 hover:bg-sidebar-border"
+                        title="More options"
+                    >
+                        <MoreVertical className="h-3.5 w-3.5" />
+                    </button>
+                )}
+                <ChevronDown className={cn(
+                    "ml-1 h-4 w-4 transition-transform duration-400",
+                    isOpen && "rotate-180 "
+                )} />
+            </div>
+        </SidebarMenuButton>
+    );
+
+    const content = (
+        <SidebarGroupContent 
+            className={cn(sidebarMenuGroupButtonVariants.content)}
+            data-state={isOpen ? 'open' : 'closed'}
+        >
+            <SidebarMenu className="overflow-hidden pl-6">
+                {children}
+            </SidebarMenu>
+        </SidebarGroupContent>
+    );
+
+    if (!tooltip) {
+        return (
+            <div className={sidebarMenuGroupButtonVariants.root}>
+                {triggerButton}
+                {isOpen && content}
+            </div>
+        );
+    }
+
+    if (typeof tooltip === 'string') {
+        tooltip = {
+            children: tooltip,
+        };
+    }
+
+    return (
+        <Tooltip>
+            <TooltipTrigger asChild>
+                <div className={sidebarMenuGroupButtonVariants.root}>
+                    {triggerButton}
+                    {isOpen && content}
+                </div>
+            </TooltipTrigger>
+            <TooltipContent
+                side="right"
+                align="center"
+                hidden={sidebarState !== 'collapsed' || isMobile}
+                {...tooltip}
+            />
+        </Tooltip>
+    );
+}
+
 function SidebarMenuAction({
   className,
   asChild = false,
@@ -718,4 +879,5 @@ export {
   SidebarSeparator,
   SidebarTrigger,
   useSidebar,
+  SidebarMenuGroupButton,
 }

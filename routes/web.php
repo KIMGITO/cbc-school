@@ -16,6 +16,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
         return Inertia::render('dashboard');
     })->name('dashboard');
 
+    // System Settings
+
+    Route::get('/school/setting', function () {
+        return Inertia::render('system/settings');
+    });
+
     // Students Managements.
     Route::resource('students', StudentController::class);
 });
