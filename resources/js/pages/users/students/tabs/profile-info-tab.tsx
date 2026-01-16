@@ -1,29 +1,19 @@
-
 import FormField from '@/components/custom/form-field';
 import FormGrid from '@/components/custom/form-grid';
 import FormSection from '@/components/custom/form-section';
-import { Button } from '@/components/ui/button';
-import { Calendar } from '@/components/ui/calendar';
+import { Badge } from '@/components/ui/badge';
 import {
     Dialog,
     DialogContent,
     DialogDescription,
     DialogHeader,
     DialogTitle,
-    DialogTrigger,
 } from '@/components/ui/dialog';
-import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-} from '@/components/ui/popover';
-import { cn } from '@/lib/utils';
-import { format } from 'date-fns';
-import { CalendarIcon, Camera, Check, Image, ImageOffIcon, Trash2, Upload, UserCircle2Icon, X } from 'lucide-react';
+import { Camera, ImageOffIcon, Upload, UserCircle2Icon, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import Webcam from 'react-webcam';
 import CaptureImageDialog from '../capture-dialog';
-import { Badge } from '@/components/ui/badge';
+import InputError from '@/components/input-error';
 
 interface ProfileInfoTabProps {
     data?: {
@@ -34,11 +24,20 @@ interface ProfileInfoTabProps {
         gender?: string;
         profile_photo?: File | null;
     };
+    errors?: {
+        first_name?: string ;
+        other_names?: string ;
+        sir_name?: string ;
+        date_of_birth?: string ;
+        gender?: string ;
+        profile_photo?: string ;
+    };
     onChange?: (field: string, value: any) => void;
 }
 
 export default function ProfileInfoTab({
     data = {},
+    errors = {},
     onChange,
 }: ProfileInfoTabProps) {
     const [showWebcam, setShowWebcam] = useState(false);
@@ -108,15 +107,13 @@ export default function ProfileInfoTab({
 
     const deleteImage = () => {
         setCapturedImage(null);
-    }
+    };
 
     const videoConstraints = {
         width: 720,
         height: 720,
         facingMode: 'user',
     };
-
-    
 
     // Cleanup webcam on unmount
     useEffect(() => {
@@ -138,6 +135,7 @@ export default function ProfileInfoTab({
             >
                 <FormGrid cols={2} gap="md">
                     <FormField
+                        error={errors.sir_name}
                         name="sir_name"
                         label="Sir Name"
                         value={data.sir_name || ''}
@@ -149,6 +147,7 @@ export default function ProfileInfoTab({
                     />
 
                     <FormField
+                        error={errors.first_name}
                         name="first_name"
                         label="First Name"
                         value={data.first_name || ''}
@@ -162,6 +161,7 @@ export default function ProfileInfoTab({
 
                 <FormGrid cols={2} gap="md">
                     <FormField
+                        error={errors.other_names}
                         name="other_names"
                         label="Other Names"
                         value={data.other_names || ''}
@@ -173,6 +173,7 @@ export default function ProfileInfoTab({
                     />
 
                     <FormField
+                        error={errors.gender}
                         name="gender"
                         label="Gender"
                         type="select"
@@ -199,17 +200,19 @@ export default function ProfileInfoTab({
             >
                 <FormGrid cols={2} gap="md">
                     <FormField
+                        error={errors.date_of_birth}
                         name="date_of_birth"
                         label="Date Of Birth"
                         value={data.date_of_birth || ''}
                         onChange={handleChange}
                         required
                         placeholder="Pick a date"
-                        type='calendar'
+                        type="calendar"
                     />
-                    
 
-                    <div className="space-y-2 rounded border p-2">
+                    <div
+                        className={`space-y-2 rounded border p-2 ${errors.profile_photo ? 'border-red-500' : ''}`}
+                    >
                         <div className="flex items-center justify-between">
                             <label className="text-sm font-medium">
                                 Profile Photo
@@ -221,18 +224,6 @@ export default function ProfileInfoTab({
                                 open={showWebcam}
                                 onOpenChange={setShowWebcam}
                             >
-                                {/* <DialogTrigger asChild>
-                                    <Button
-                                        type="button"
-                                        variant="outline"
-                                        onClick={openWebcamDialog}
-                                        className="gap-2"
-                                        size="sm"
-                                    >
-                                        <Camera className="h-4 w-4" />
-                                        Take Photo
-                                    </Button>
-                                </DialogTrigger> */}
                                 <DialogContent className="sm:max-w-md">
                                     <DialogHeader>
                                         <DialogTitle>
@@ -317,14 +308,22 @@ export default function ProfileInfoTab({
                                     />
                                 </div>
 
-                                <div className="space-y-1 text-xs text-gray-500">
-                                    <p>• Recommended: Square image, max 2MB</p>
-                                    <p>• File types: JPG, PNG, WebP</p>
-                                    <p>
-                                        • Ensure face is clearly visible and
-                                        well-lit
-                                    </p>
-                                </div>
+                                {errors.profile_photo ? (
+                                    <InputError
+                                        message={errors.profile_photo  }
+                                    />
+                                ) : (
+                                    <div className="space-y-1 text-xs text-gray-500">
+                                        <p>
+                                            • Recommended: Square image, max 2MB
+                                        </p>
+                                        <p>• File types: JPG, PNG, WebP</p>
+                                        <p>
+                                            • Ensure face is clearly visible and
+                                            well-lit
+                                        </p>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>

@@ -1,31 +1,24 @@
 import FormField from '@/components/custom/form-field';
 import FormGrid from '@/components/custom/form-grid';
-import FormSection from '@/components/custom/form-section';
 import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select';
 import { School } from 'lucide-react';
 
+interface schoolDataInterface {
+    stream_id?: string;
+    admission_date?: Date | string;
+    enrollment_type?: string;
+    boarding_status?: string;
+}
 interface SchoolDataTabProps {
-    data?: {
-        stream_id?: string;
-        admission_date?: Date;
-        adm_no?: string;
-        enrollment_type?: string;
-        boarding_status?: string;
-    };
+    data?: schoolDataInterface;
+    errors?: schoolDataInterface;
     onChange?: (field: string, value: any) => void;
     onSubmit?: () => void;
 }
 
 export default function SchoolDataTab({
     data = {},
+    errors = {},
     onChange,
     onSubmit,
 }: SchoolDataTabProps) {
@@ -67,17 +60,12 @@ export default function SchoolDataTab({
                         School & Admission Details
                     </h2>
                 </div>
-                <p className="">
-                    {'ADM. NO: '}
-                    <span className="text-2xl font-bold border p-0.5 rounded px-1 uppercase">
-                        {' '}
-                        {data.adm_no}
-                    </span>
-                </p>
+
             </div>
 
             <FormGrid gap="lg" cols={2}>
                 <FormField
+                    error={errors.stream_id}
                     name="stream_id"
                     label="Stream / Class"
                     required
@@ -88,6 +76,7 @@ export default function SchoolDataTab({
                 />
 
                 <FormField
+                    error={errors.admission_date?.toString()}
                     name="admission_date"
                     label="Admission Date"
                     type="calendar"
@@ -100,6 +89,7 @@ export default function SchoolDataTab({
 
             <FormGrid gap="lg" cols={2}>
                 <FormField
+                    error={errors.enrollment_type}
                     name="enrollment_type"
                     label="Enrollment Type"
                     required
@@ -110,6 +100,7 @@ export default function SchoolDataTab({
                 />
 
                 <FormField
+                    error={errors.boarding_status}
                     name="boarding_status"
                     label="Boarding Status"
                     required

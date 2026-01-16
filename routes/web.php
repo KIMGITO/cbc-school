@@ -18,8 +18,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // System Settings
 
-    Route::get('/school/setting', function () {
-        return Inertia::render('system/settings');
+
+
+    Route::get('/school/administration', function () {
+        return Inertia::render('administration/school/structure');
     });
 
     // Students Managements.

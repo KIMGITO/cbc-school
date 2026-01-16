@@ -3,43 +3,17 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardTitle } from '@/components/ui/card';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import AppLayout from '@/layouts/app-layout';
+import axios from 'axios';
 import { Save, Send, Trash } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { emptyStudentData, emptyStudentErrors } from '../empty-data';
+import { StudentFormData, StudentFormErrors } from '../interfaces';
 import AddressInfoTab from './tabs/address-info-tab';
 import MedicalInfoTab from './tabs/medical-info-tab';
 import ProfileInfoTab from './tabs/profile-info-tab';
 import SchoolDataTab from './tabs/school-data-tab';
 
 // Define the complete form data interface
-export interface StudentFormData {
-    // Profile Info
-    first_name: string;
-    other_names: string;
-    sir_name: string;
-    adm_no: string;
-    date_of_birth: Date | null;
-    gender: string;
-    profile_photo: File | null;
-
-    // Address Info
-    county: string;
-    sub_county: string;
-    ward: string;
-    location: string;
-    sub_location: string;
-    upi_number: string;
-
-    // Medical Info
-    blood_group: string;
-    allergies: string;
-    special_medical_needs: string;
-
-    // School Data
-    stream_id: string;
-    admission_date: Date | null;
-    enrollment_type: string;
-    boarding_status: string;
-}
 
 // Define props for each tab component
 interface TabComponentProps {
@@ -74,35 +48,10 @@ export default function StudentAdmission() {
     const [activeTab, setActiveTab] = useState('profile');
 
     // Initialize form data state
-    const [formData, setFormData] = useState<StudentFormData>({
-        // Profile Info
-        first_name: '',
-        other_names: '',
-        sir_name: '',
-        date_of_birth: null,
-        gender: '',
-        profile_photo: null,
+    const [formData, setFormData] = useState<StudentFormData>(emptyStudentData);
 
-        // Address Info
-        county: '',
-        sub_county: '',
-        ward: '',
-        location: '',
-        sub_location: '',
-        upi_number: '',
-
-        // Medical Info
-        blood_group: '',
-        allergies: '',
-        special_medical_needs: '',
-
-        // School Data
-        stream_id: '',
-        adm_no: 'std 1161',
-        admission_date: null,
-        enrollment_type: '',
-        boarding_status: '',
-    });
+    const [formDataErrors, setFormDataErrors] =
+        useState<StudentFormErrors>(emptyStudentErrors);
 
     // Handle field changes
     const handleFieldChange = (field: keyof StudentFormData, value: any) => {
@@ -131,7 +80,6 @@ export default function StudentAdmission() {
         // 4. Handle response
 
         // Example validation check
-        
 
         // Prepare FormData for file upload
         const formDataToSend = new FormData();
@@ -149,12 +97,22 @@ export default function StudentAdmission() {
             }
         });
 
-        // Simulate API call
-        console.log(
-            'Submitting form data:',
-            Object.fromEntries(formDataToSend),
-        );
-        alert('Form submitted successfully! (Check console for data)');
+        axios
+            .post('/students', formDataToSend)
+            .catch((error) => {
+                const errors = error.response.data.errors;
+                setFormDataErrors((prev) => ({
+                    ...prev,
+                    ...Object.keys(prev).reduce((acc, key) => {
+                        const err = errors[key];
+                        acc[key] = Array.isArray(err) ? err[0] : (err ?? null);
+                        return acc;
+                    }, {} as StudentFormErrors),
+                }));
+
+            })
+            .then(() => {})
+            .finally();
     };
 
     // Handle save as draft
@@ -191,7 +149,6 @@ export default function StudentAdmission() {
             // School Data
             stream_id: '',
             adm_no: 'std 1161',
-            admission_date: null,
             enrollment_type: '',
             boarding_status: '',
         });
@@ -233,7 +190,7 @@ export default function StudentAdmission() {
                     <div className="flex gap-2">
                         <Button
                             variant="destructive"
-                            type='reset'
+                            type="reset"
                             onClick={handleClearDraft}
                             className="gap-2"
                         >
@@ -308,7 +265,7 @@ export default function StudentAdmission() {
                                 <ActiveComponent
                                     data={formData}
                                     onChange={handleFieldChange}
-                                    // Add any additional props if needed
+                                    errors={formDataErrors}
                                 />
                             )}
                         </CardContent>

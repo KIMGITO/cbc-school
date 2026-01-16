@@ -1,17 +1,14 @@
 import FormField from '@/components/custom/form-field';
 import FormGrid from '@/components/custom/form-grid';
-import { Label } from '@/components/ui/label';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select';
 import { AlertTriangle } from 'lucide-react';
 
 interface MedicalInfoTabProps {
     data?: {
+        blood_group?: string;
+        allergies?: string;
+        special_medical_needs?: string;
+    };
+    errors?: {
         blood_group?: string;
         allergies?: string;
         special_medical_needs?: string;
@@ -21,6 +18,7 @@ interface MedicalInfoTabProps {
 
 export default function MedicalInfoTab({
     data = {},
+    errors = {},
     onChange,
 }: MedicalInfoTabProps) {
     const handleChange = (field: string, value: string) => {
@@ -56,9 +54,11 @@ export default function MedicalInfoTab({
 
             <FormGrid gap="lg" cols={3}>
                 <FormField
+                    error={errors.blood_group}
                     name="blood_group"
                     label="Blood Group"
                     type="select"
+                    required={false}
                     value={data.blood_group || ''}
                     onChange={handleChange}
                     options={bloodGroups}
@@ -66,43 +66,43 @@ export default function MedicalInfoTab({
             </FormGrid>
 
             <FormGrid gap="lg" cols={2}>
-                
                 <FormField
-                    label="Allergies"
+                    error={errors.allergies}
+                    label="Allergies?"
                     name="allergies"
                     type="textarea"
+                    placeholder="No if none"
                     value={data.allergies || ''}
-                    onChange={(value) => handleChange('allergies', value)}
+                    onChange={handleChange}
                     rows={4}
                     description="Specify allergens and reactions e.g (Eggs, Meat, Beans)"
                 />
 
                 <FormField
-                    label="Special Medical Needs/Conditions"
+                    error={errors.special_medical_needs}
+                    label="Special Medical Needs/Conditions ?"
                     name="special_medical_needs"
                     type="textarea"
                     value={data.special_medical_needs || ''}
-                    onChange={(value) =>
-                        handleChange('special_medical_needs', value)
-                    }
+                    required={false}
+                    onChange={handleChange}
                     placeholder="Describe any chronic conditions, disabilities, or special needs"
                     rows={4}
                     description="Include conditions like asthma, diabetes, physical disabilities, etc."
                 />
-                </FormGrid>
+            </FormGrid>
 
-                <div className="rounded-lg border border-blue-100 bg-blue-50 p-4">
-                    <h3 className="mb-2 font-medium text-blue-800">
-                        Medical Information Notice
-                    </h3>
-                    <p className="text-sm text-blue-700">
-                        This information will only be accessible to authorized
-                        school medical staff and will be used solely for the
-                        student's health and safety. Please ensure all
-                        information is accurate and up-to-date.
-                    </p>
-                </div>
+            <div className="rounded-lg border border-blue-100 bg-blue-50 p-4">
+                <h3 className="mb-2 font-medium text-blue-800">
+                    Medical Information Notice
+                </h3>
+                <p className="text-sm text-blue-700">
+                    This information will only be accessible to authorized
+                    school medical staff and will be used solely for the
+                    student's health and safety. Please ensure all information
+                    is accurate and up-to-date.
+                </p>
             </div>
-    
+        </div>
     );
 }
