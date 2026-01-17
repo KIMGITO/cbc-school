@@ -1,38 +1,15 @@
 'use client';
 
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import {
-    Dialog,
-    DialogContent,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select';
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from '@/components/ui/table';
-import axios from 'axios';
-import { CheckCircle, Edit, Trash2, XCircle } from 'lucide-react';
+import { router } from '@inertiajs/react';
+import { Plus } from 'lucide-react';
 import { useState } from 'react';
+import CrudFormModal from '../../components/crud-form';
+import CrudTable from '../../components/crud-table';
 
 interface StreamsTabProps {
     data: any[];
-    onDataUpdate: (type: 'streams', data: any[]) => void;
+    onDataUpdate: (type: string, data: any[]) => void;
     onRefresh: () => void;
 }
 
@@ -41,306 +18,192 @@ export default function StreamsTab({
     onDataUpdate,
     onRefresh,
 }: StreamsTabProps) {
-    const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingStream, setEditingStream] = useState<any>(null);
-    const [formData, setFormData] = useState({
-        name: '',
-        code: '',
-        level_id: '',
-        capacity: 50,
-    });
     const [loading, setLoading] = useState(false);
 
-    // Mock levels data - in reality, this would come from your API
-    const levels = [
-        { id: '1', name: 'Form 1' },
-        { id: '2', name: 'Form 2' },
-        { id: '3', name: 'Form 3' },
-        { id: '4', name: 'Form 4' },
+    const columns = [
+        { key: 'name', header: 'Stream Name' },
+        { key: 'code', header: 'Code' },
+        {
+            key: 'level_id',
+            header: 'Level',
+            render: (value: string) => (
+                <span className="font-medium">
+                    {data.find((s) => s.id === value)?.level_name || value}
+                </span>
+            ),
+        },
+        { key: 'capacity', header: 'Capacity' },
+        { key: 'status', header: 'Status' },
+        { key: 'actions', header: '', className: 'text-right' },
     ];
 
-    const handleInputChange = (field: string, value: any) => {
-        if (editingStream) {
-            setEditingStream((prev) => ({ ...prev, [field]: value }));
-        } else {
-            setFormData((prev) => ({ ...prev, [field]: value }));
-        }
-    };
+    const formFields = [
+        [
+            {
+                name: 'name',
+                label: 'Stream Name',
+                type: 'text',
+                required: true,
+                placeholder: 'e.g., North Stream',
+            },
+            {
+                name: 'code',
+                label: 'Stream Code',
+                type: 'text',
+                required: true,
+                placeholder: 'e.g., NTH',
+            },
+        ],
+        [
+            {
+                name: 'level_id',
+                label: 'Level',
+                type: 'select',
+                required: true,
+                options: [
+                    { value: '1', label: 'Form 1' },
+                    { value: '2', label: 'Form 2' },
+                ],
+            },
+            {
+                name: 'capacity',
+                label: 'Capacity',
+                type: 'number',
+                required: true,
+                placeholder: 'e.g., 50',
+            },
+        ],
+    ];
 
     const handleEdit = (stream: any) => {
         setEditingStream(stream);
-        setIsDialogOpen(true);
-    };
-
-    const handleCreate = () => {
-        setEditingStream(null);
-        setFormData({
-            name: '',
-            code: '',
-            level_id: '',
-            capacity: 50,
-        });
-        setIsDialogOpen(true);
-    };
-
-    const handleSubmit = async () => {
-        setLoading(true);
-        try {
-            if (editingStream) {
-                // Update existing stream
-                const response = await axios.put(
-                    `/api/admin/configuration/streams/${editingStream.id}`,
-                    editingStream,
-                );
-                onDataUpdate(
-                    'streams',
-                    data.map((s) =>
-                        s.id === editingStream.id ? response.data.data : s,
-                    ),
-                );
-            } else {
-                // Create new stream
-                const response = await axios.post(
-                    '/api/admin/configuration/streams',
-                    formData,
-                );
-                onDataUpdate('streams', [...data, response.data.data]);
-            }
-            setIsDialogOpen(false);
-            onRefresh();
-        } catch (error) {
-            console.error('Error saving stream:', error);
-        } finally {
-            setLoading(false);
-        }
+        setIsModalOpen(true);
     };
 
     const handleDelete = async (id: string) => {
         if (!confirm('Are you sure you want to delete this stream?')) return;
 
         setLoading(true);
-        try {
-            await axios.delete(`/api/admin/configuration/streams/${id}`);
-            onDataUpdate(
-                'streams',
-                data.filter((s) => s.id !== id),
-            );
-        } catch (error) {
-            console.error('Error deleting stream:', error);
-        } finally {
-            setLoading(false);
-        }
+        router.delete(`/admin/configuration/streams/${id}`, {
+            preserveState: true,
+            onSuccess: () => {
+                onDataUpdate(
+                    'streams',
+                    data.filter((s) => s.id !== id),
+                );
+                onRefresh();
+            },
+            onError: (errors) => {
+                console.error('Error deleting stream:', errors);
+            },
+            onFinish: () => {
+                setLoading(false);
+            },
+        });
     };
 
-    const toggleStatus = async (stream: any) => {
+    const handleStatusChange = async (stream: any, newStatus: string) => {
         setLoading(true);
-        try {
-            const newStatus =
-                stream.status === 'active' ? 'inactive' : 'active';
-            const response = await axios.patch(
-                `/api/admin/configuration/streams/${stream.id}/status`,
-                {
-                    status: newStatus,
+        router.patch(
+            `/admin/configuration/streams/${stream.id}/status`,
+            {
+                status: newStatus,
+            },
+            {
+                preserveState: true,
+                onSuccess: () => {
+                    onDataUpdate(
+                        'streams',
+                        data.map((s) =>
+                            s.id === stream.id
+                                ? { ...s, status: newStatus }
+                                : s,
+                        ),
+                    );
                 },
-            );
-            onDataUpdate(
-                'streams',
-                data.map((s) => (s.id === stream.id ? response.data.data : s)),
-            );
-        } catch (error) {
-            console.error('Error updating status:', error);
-        } finally {
-            setLoading(false);
-        }
+                onFinish: () => {
+                    setLoading(false);
+                },
+            },
+        );
+    };
+
+    const handleSubmit = async (formData: any) => {
+        setLoading(true);
+
+        const method = editingStream ? 'put' : 'post';
+        const url = editingStream
+            ? `/admin/configuration/streams/${editingStream.id}`
+            : '/admin/configuration/streams';
+
+        router[method](url, formData, {
+            preserveState: true,
+            onSuccess: (page) => {
+                if (page.props.success) {
+                    setIsModalOpen(false);
+                    setEditingStream(null);
+                    onRefresh();
+                }
+            },
+            onError: (errors) => {
+                console.error('Error saving stream:', errors);
+            },
+            onFinish: () => {
+                setLoading(false);
+            },
+        });
     };
 
     return (
         <div className="space-y-6">
             <div className="flex items-center justify-between">
                 <div>
-                    <h2 className="text-2xl font-bold">Stream Management</h2>
+                    <h2 className="text-2xl font-bold text-gray-900">
+                        Stream Management
+                    </h2>
                     <p className="text-gray-600">
-                        Manage all streams in the system
+                        Create and manage class streams
                     </p>
                 </div>
-                <Button onClick={handleCreate} className="gap-2">
+                <Button
+                    onClick={() => {
+                        setEditingStream(null);
+                        setIsModalOpen(true);
+                    }}
+                    className="gap-2"
+                >
+                    <Plus className="h-4 w-4" />
                     Add New Stream
                 </Button>
             </div>
 
-            <div className="rounded-md border">
-                <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead>Stream Name</TableHead>
-                            <TableHead>Code</TableHead>
-                            <TableHead>Level</TableHead>
-                            <TableHead>Capacity</TableHead>
-                            <TableHead>Status</TableHead>
-                            <TableHead className="text-right">
-                                Actions
-                            </TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {data.map((stream) => (
-                            <TableRow key={stream.id}>
-                                <TableCell className="font-medium">
-                                    {stream.name}
-                                </TableCell>
-                                <TableCell>
-                                    <Badge variant="outline">
-                                        {stream.code}
-                                    </Badge>
-                                </TableCell>
-                                <TableCell>
-                                    {levels.find(
-                                        (l) => l.id === stream.level_id,
-                                    )?.name || stream.level_id}
-                                </TableCell>
-                                <TableCell>{stream.capacity}</TableCell>
-                                <TableCell>
-                                    <Badge
-                                        variant={
-                                            stream.status === 'active'
-                                                ? 'default'
-                                                : 'secondary'
-                                        }
-                                        className="cursor-pointer"
-                                        onClick={() => toggleStatus(stream)}
-                                    >
-                                        {stream.status === 'active' ? (
-                                            <CheckCircle className="mr-1 h-3 w-3" />
-                                        ) : (
-                                            <XCircle className="mr-1 h-3 w-3" />
-                                        )}
-                                        {stream.status}
-                                    </Badge>
-                                </TableCell>
-                                <TableCell className="text-right">
-                                    <div className="flex justify-end gap-2">
-                                        <Button
-                                            variant="ghost"
-                                            size="icon"
-                                            onClick={() => handleEdit(stream)}
-                                        >
-                                            <Edit className="h-4 w-4" />
-                                        </Button>
-                                        <Button
-                                            variant="ghost"
-                                            size="icon"
-                                            onClick={() =>
-                                                handleDelete(stream.id)
-                                            }
-                                        >
-                                            <Trash2 className="h-4 w-4 text-red-500" />
-                                        </Button>
-                                    </div>
-                                </TableCell>
-                            </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
-            </div>
+            <CrudTable
+                data={data}
+                columns={columns}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+                onStatusChange={handleStatusChange}
+                loading={loading}
+                emptyTitle="No streams found"
+                emptyDescription="Get started by creating your first stream"
+            />
 
-            {/* Create/Edit Dialog */}
-            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                <DialogContent className="sm:max-w-[500px]">
-                    <DialogHeader>
-                        <DialogTitle>
-                            {editingStream
-                                ? 'Edit Stream'
-                                : 'Create New Stream'}
-                        </DialogTitle>
-                    </DialogHeader>
-                    <div className="grid gap-4 py-4">
-                        <div className="grid gap-2">
-                            <Label htmlFor="name">Stream Name</Label>
-                            <Input
-                                id="name"
-                                value={editingStream?.name || formData.name}
-                                onChange={(e) =>
-                                    handleInputChange('name', e.target.value)
-                                }
-                                placeholder="e.g., North Stream"
-                            />
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="grid gap-2">
-                                <Label htmlFor="code">Stream Code</Label>
-                                <Input
-                                    id="code"
-                                    value={editingStream?.code || formData.code}
-                                    onChange={(e) =>
-                                        handleInputChange(
-                                            'code',
-                                            e.target.value,
-                                        )
-                                    }
-                                    placeholder="e.g., NTH"
-                                />
-                            </div>
-                            <div className="grid gap-2">
-                                <Label htmlFor="capacity">Capacity</Label>
-                                <Input
-                                    id="capacity"
-                                    type="number"
-                                    value={
-                                        editingStream?.capacity ||
-                                        formData.capacity
-                                    }
-                                    onChange={(e) =>
-                                        handleInputChange(
-                                            'capacity',
-                                            parseInt(e.target.value),
-                                        )
-                                    }
-                                />
-                            </div>
-                        </div>
-                        <div className="grid gap-2">
-                            <Label htmlFor="level">Level</Label>
-                            <Select
-                                value={
-                                    editingStream?.level_id || formData.level_id
-                                }
-                                onValueChange={(value) =>
-                                    handleInputChange('level_id', value)
-                                }
-                            >
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Select level" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {levels.map((level) => (
-                                        <SelectItem
-                                            key={level.id}
-                                            value={level.id}
-                                        >
-                                            {level.name}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
-                    </div>
-                    <DialogFooter>
-                        <Button
-                            variant="outline"
-                            onClick={() => setIsDialogOpen(false)}
-                        >
-                            Cancel
-                        </Button>
-                        <Button onClick={handleSubmit} disabled={loading}>
-                            {loading
-                                ? 'Saving...'
-                                : editingStream
-                                  ? 'Update'
-                                  : 'Create'}
-                        </Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
+            <CrudFormModal
+                isOpen={isModalOpen}
+                onClose={() => {
+                    setIsModalOpen(false);
+                    setEditingStream(null);
+                }}
+                title={editingStream ? 'Edit Stream' : 'Create New Stream'}
+                description="Streams are subdivisions within a level/class"
+                fields={formFields}
+                initialData={editingStream || {}}
+                onSubmit={handleSubmit}
+                loading={loading}
+                submitLabel={editingStream ? 'Update' : 'Create'}
+            />
         </div>
     );
 }

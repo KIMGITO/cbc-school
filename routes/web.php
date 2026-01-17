@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\System\Configuration\GradeLevelController;
 use App\Http\Controllers\Users\StudentController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -20,10 +21,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 
 
-    Route::get('/school/administration', function () {
-        return Inertia::render('administration/school/structure');
+    Route::prefix('system/config')->group(function () {
+        Route::resource('levels', GradeLevelController::class)->names('system.config.levels');
     });
-
     // Students Managements.
     Route::resource('students', StudentController::class);
 });

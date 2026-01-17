@@ -85,10 +85,10 @@ const footerNavItems = [
         items: [
             {
                 title: 'Settings',
-                href: '/school/administration',
+                href: '/system/config/levels',
                 icon: Settings,
             },
-            { title: 'Users', href: '/users', icon: Users },
+            // { title: 'Users', href: '/users', icon: Users },
         ],
         icon: ShieldIcon,
         defaultOpen: false,

@@ -1,5 +1,9 @@
 'use client';
 
+import FormField from '@/components/custom/form-field';
+import FormGrid from '@/components/custom/form-grid';
+import FormSection from '@/components/custom/form-section';
+import InputError from '@/components/input-error';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -9,8 +13,6 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import {
     Table,
     TableBody,
@@ -19,15 +21,23 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
-import { Textarea } from '@/components/ui/textarea';
 import axios from 'axios';
-import { ArrowUpDown, CheckCircle, Edit, Trash2, XCircle } from 'lucide-react';
+import { CheckCircle, Edit, Trash2, XCircle } from 'lucide-react';
 import { useState } from 'react';
+import { route } from 'ziggy-js';
 
 interface LevelsTabProps {
     data: any[];
     onDataUpdate: (type: 'levels', data: any[]) => void;
     onRefresh: () => void;
+}
+
+interface FormErrors {
+    name?: string;
+    code?: string;
+    description?: string;
+    order?: string;
+    [key: string]: string | undefined;
 }
 
 export default function LevelsTab({
@@ -44,8 +54,14 @@ export default function LevelsTab({
         order: 0,
     });
     const [loading, setLoading] = useState(false);
+    const [formErrors, setFormErrors] = useState<FormErrors>({});
 
     const handleInputChange = (field: string, value: any) => {
+        // Clear error for this field when user starts typing
+        if (formErrors[field]) {
+            setFormErrors((prev) => ({ ...prev, [field]: undefined }));
+        }
+
         if (editingLevel) {
             setEditingLevel((prev) => ({ ...prev, [field]: value }));
         } else {
@@ -55,11 +71,13 @@ export default function LevelsTab({
 
     const handleEdit = (level: any) => {
         setEditingLevel(level);
+        setFormErrors({});
         setIsDialogOpen(true);
     };
 
     const handleCreate = () => {
         setEditingLevel(null);
+        setFormErrors({});
         setFormData({
             name: '',
             code: '',
@@ -69,7 +87,33 @@ export default function LevelsTab({
         setIsDialogOpen(true);
     };
 
+    const validateForm = () => {
+        const errors: FormErrors = {};
+        const currentData = editingLevel || formData;
+
+        if (!currentData.name?.trim()) {
+            errors.name = 'Level name is required';
+        }
+
+        if (!currentData.code?.trim()) {
+            errors.code = 'Level code is required';
+        } else if (currentData.code.length > 10) {
+            errors.code = 'Code must be less than 10 characters';
+        }
+
+        if (currentData.order <= 0) {
+            errors.order = 'Order must be greater than 0';
+        }
+
+        setFormErrors(errors);
+        return Object.keys(errors).length === 0;
+    };
+
     const handleSubmit = async () => {
+        if (!validateForm()) {
+            return;
+        }
+
         setLoading(true);
         try {
             if (editingLevel) {
@@ -87,15 +131,30 @@ export default function LevelsTab({
             } else {
                 // Create new level
                 const response = await axios.post(
-                    '/api/admin/configuration/levels',
+                    route('system.config.level.store'),
                     formData,
-                );
+                ).catch((errors) => {
+                    console.log('errors')
+                });
                 onDataUpdate('levels', [...data, response.data.data]);
             }
             setIsDialogOpen(false);
+            setFormErrors({});
             onRefresh();
-        } catch (error) {
-            console.error('Error saving level:', error);
+        } catch (error: any) {
+            if (error.response?.data?.errors) {
+                // Handle server-side validation errors
+                setFormErrors(error.response.data.errors);
+            } else if (error.response?.data?.message) {
+                // Handle general error message
+                setFormErrors({ _general: error.response.data.message });
+            } else {
+                console.error('Error saving level:', error);
+                setFormErrors({
+                    _general:
+                        'An error occurred while saving. Please try again.',
+                });
+            }
         } finally {
             setLoading(false);
         }
@@ -111,8 +170,9 @@ export default function LevelsTab({
                 'levels',
                 data.filter((l) => l.id !== id),
             );
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error deleting level:', error);
+            alert(error.response?.data?.message || 'Failed to delete level');
         } finally {
             setLoading(false);
         }
@@ -174,7 +234,6 @@ export default function LevelsTab({
                 <Table>
                     <TableHeader>
                         <TableRow>
-                            <TableHead className="w-16">Order</TableHead>
                             <TableHead>Level Name</TableHead>
                             <TableHead>Code</TableHead>
                             <TableHead>Description</TableHead>
@@ -185,50 +244,9 @@ export default function LevelsTab({
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {data
-                            .sort((a, b) => a.order - b.order)
-                            .map((level, index) => (
+                        {data &&
+                            data.map((level, index) => (
                                 <TableRow key={level.id}>
-                                    <TableCell>
-                                        <div className="flex items-center gap-1">
-                                            <span className="font-mono">
-                                                {level.order}
-                                            </span>
-                                            <div className="flex flex-col">
-                                                <Button
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    className="h-4 w-4"
-                                                    onClick={() =>
-                                                        moveLevelOrder(
-                                                            level,
-                                                            'up',
-                                                        )
-                                                    }
-                                                    disabled={index === 0}
-                                                >
-                                                    <ArrowUpDown className="h-3 w-3 rotate-90" />
-                                                </Button>
-                                                <Button
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    className="h-4 w-4"
-                                                    onClick={() =>
-                                                        moveLevelOrder(
-                                                            level,
-                                                            'down',
-                                                        )
-                                                    }
-                                                    disabled={
-                                                        index ===
-                                                        data.length - 1
-                                                    }
-                                                >
-                                                    <ArrowUpDown className="h-3 w-3 -rotate-90" />
-                                                </Button>
-                                            </div>
-                                        </div>
-                                    </TableCell>
                                     <TableCell className="font-medium">
                                         {level.name}
                                     </TableCell>
@@ -294,73 +312,83 @@ export default function LevelsTab({
                             {editingLevel ? 'Edit Level' : 'Create New Level'}
                         </DialogTitle>
                     </DialogHeader>
+
+                    {/* Display general errors */}
+                    {formErrors._general && (
+                        <div className="mb-4 rounded-md bg-red-50 p-4">
+                            <InputError message={formErrors._general} />
+                        </div>
+                    )}
+
                     <div className="grid gap-4 py-4">
-                        <div className="grid gap-2">
-                            <Label htmlFor="name">Level Name</Label>
-                            <Input
-                                id="name"
-                                value={editingLevel?.name || formData.name}
-                                onChange={(e) =>
-                                    handleInputChange('name', e.target.value)
-                                }
-                                placeholder="e.g., Form 1"
-                            />
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="grid gap-2">
-                                <Label htmlFor="code">Level Code</Label>
-                                <Input
-                                    id="code"
+                        <FormSection
+                            title="Level Information"
+                            description="Enter the basic details for the level"
+                            border={false}
+                            spacing="md"
+                        >
+                            <FormGrid cols={2} gap="md">
+                                <FormField
+                                    error={formErrors.name}
+                                    name="name"
+                                    label="Level Name"
+                                    value={editingLevel?.name || formData.name}
+                                    onChange={handleInputChange}
+                                    required={true}
+                                    placeholder="e.g., Form 1"
+                                    containerClassName="space-y-2"
+                                />
+
+                                <FormField
+                                    error={formErrors.code}
+                                    name="code"
+                                    label="Level Code"
                                     value={editingLevel?.code || formData.code}
-                                    onChange={(e) =>
-                                        handleInputChange(
-                                            'code',
-                                            e.target.value,
-                                        )
-                                    }
+                                    onChange={handleInputChange}
+                                    required={true}
                                     placeholder="e.g., F1"
+                                    containerClassName="space-y-2"
                                 />
-                            </div>
-                            <div className="grid gap-2">
-                                <Label htmlFor="order">Display Order</Label>
-                                <Input
-                                    id="order"
-                                    type="number"
-                                    value={
-                                        editingLevel?.order || formData.order
-                                    }
-                                    onChange={(e) =>
-                                        handleInputChange(
-                                            'order',
-                                            parseInt(e.target.value),
-                                        )
-                                    }
-                                />
-                            </div>
-                        </div>
-                        <div className="grid gap-2">
-                            <Label htmlFor="description">Description</Label>
-                            <Textarea
-                                id="description"
+                            </FormGrid>
+
+                            <FormField
+                                error={formErrors.order}
+                                name="order"
+                                label="Display Order"
+                                type="number"
+                                value={editingLevel?.order || formData.order}
+                                onChange={handleInputChange}
+                                required={true}
+                                placeholder="Enter order number"
+                                containerClassName="space-y-2"
+                                inputClassName="w-full"
+                            />
+
+                            <FormField
+                                error={formErrors.description}
+                                name="description"
+                                label="Description"
+                                type="textarea"
                                 value={
                                     editingLevel?.description ||
                                     formData.description
                                 }
-                                onChange={(e) =>
-                                    handleInputChange(
-                                        'description',
-                                        e.target.value,
-                                    )
-                                }
+                                onChange={handleInputChange}
                                 placeholder="Optional description for this level"
                                 rows={3}
+                                containerClassName="space-y-2"
                             />
-                        </div>
+                        </FormSection>
                     </div>
+
                     <DialogFooter>
                         <Button
                             variant="outline"
-                            onClick={() => setIsDialogOpen(false)}
+                            onClick={() => {
+                                setIsDialogOpen(false);
+                                setFormErrors({});
+                            }}
+                            disabled={loading}
                         >
                             Cancel
                         </Button>
