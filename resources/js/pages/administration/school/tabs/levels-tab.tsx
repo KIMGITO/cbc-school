@@ -111,7 +111,7 @@ export default function LevelsTab({
             if (editingLevel) {
                 // Update existing level
                 const response = await axios.put(
-                    `/api/admin/configuration/levels/${editingLevel.id}`,
+                    `/system/config/levels/${editingLevel.id}`,
                     editingLevel,
                 );
                 onDataUpdate(
@@ -172,21 +172,24 @@ export default function LevelsTab({
     const toggleStatus = async (level: any) => {
         setLoading(true);
         try {
-            const newActive = !level.active; 
+            const newActive = !level.active;
             const response = await axios.patch(
-                `/api/admin/configuration/levels/${level.id}/status`,
+                `/system/config/levels/${level.id}/status`,
                 {
-                    active: newActive, // Send boolean
+                    active: newActive,
                 },
             );
-            onDataUpdate(
-                'levels',
-                data.map((l) =>
-                    l.id === level.id ? { ...l, active: newActive } : l,
-                ),
-            );
-        } catch (error) {
-            console.error('Error updating status:', error);
+
+            if (response.status == 200) {
+                onDataUpdate(
+                    'levels',
+                    data.map((l) =>
+                        l.id === level.id
+                            ? { ...l, active: response.data.data.active }
+                            : l,
+                    ),
+                );
+            }
         } finally {
             setLoading(false);
         }
@@ -214,9 +217,7 @@ export default function LevelsTab({
             <div className="flex items-center justify-between">
                 <div>
                     <h2 className="text-2xl font-bold">Level Management</h2>
-                    <p className="text-gray-600">
-                        Manage Grades/Levels
-                    </p>
+                    <p className="text-gray-600">Manage Grades/Levels</p>
                 </div>
                 <Button onClick={handleCreate} className="gap-2">
                     Add New Level

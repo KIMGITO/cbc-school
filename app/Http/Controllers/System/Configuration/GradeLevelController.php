@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\System\Configuration\GradeLevelRequest;
 use App\Models\Functional\GradeLevel;
 use App\Traits\HandlesResponses;
+use Exception;
 
 class GradeLevelController extends Controller
 {
@@ -36,5 +37,36 @@ class GradeLevelController extends Controller
         } catch (\Exception $e) {
             return $this->error($request,    $e->getMessage());
         }
+    }
+
+    public function toggleActive(Request $request, GradeLevel $level)
+    {
+
+        try{
+        $validated = $request->validate([
+            'active' => ['required', 'boolean']
+        ]);
+
+        $level->active = $validated['active'];
+        $level->save();
+
+        return $this->respond($request, ['success' => true, 'active' => $level->active ]);
+
+    }catch(Exception $e){
+            return $this->respond($request, ['success' => false, 'active' => $level->active]);
+        }
+
+    }
+    public function update(GradeLevelRequest $request, GradeLevel $level)
+    {
+        $data = $request->validated();
+        $level->update($data);
+        $levels = GradeLevel::get();
+
+        return $this->respond(
+            $request,
+            $level,
+            viewData: ['initialData' => ['levels' => $levels]]
+        );
     }
 }

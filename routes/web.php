@@ -12,7 +12,7 @@ Route::get('/', function () {
     ]);
 })->name('home');
 
-Route::middleware(['auth', 'web','verified'])->group(function () {
+Route::middleware(['auth', 'web', 'verified'])->group(function () {
     Route::get('dashboard', function () {
         return Inertia::render('dashboard');
     })->name('dashboard');
@@ -21,7 +21,11 @@ Route::middleware(['auth', 'web','verified'])->group(function () {
 
 
     Route::prefix('system/config')->group(function () {
+        Route::patch('/levels/{level}/status', [GradeLevelController::class, 'toggleActive']);
         Route::resource('levels', GradeLevelController::class)->names('system.config.levels');
+
+        // Route::patch('/streams/{stream}/status', [::class, 'toggleActive']);
+        // Route::resource('streams', GradestreamController::class)->names('system.config.streams');
     });
 
     // Students Managements.
