@@ -14,9 +14,10 @@ return new class extends Migration
         Schema::create('streams', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('name');
-            $table->text('description')->nullable();
-            $table->boolean('is_active')->default(true);
-            $table->foreignUuid('grade_level_id')->constrained('grade_levels')->onDelete('cascade');
+            $table->string('code')->unique();
+            $table->string('capacity');
+            $table->boolean('active')->default(true);
+            $table->foreignUuid('level_id')->constrained('grade_levels')->onDelete('cascade');
             $table->foreignUuid('teacher_id')->nullable()->constrained('users')->onDelete('set null');
             $table->softDeletes();
             $table->timestamps();

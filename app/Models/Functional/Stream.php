@@ -16,11 +16,11 @@ class Stream extends Model
 
     protected $fillable = [
         'name',
-        'description',
-        'is_active',
-        'grade_level_id',
+        'active',
+        'capacity',
+        'code',
+        'level_id',
         'teacher_id',
-        // add other fields as necessary
     ];
 
 

@@ -18,7 +18,7 @@ class GradeLevelController extends Controller
 
         return $this->respond(
             request: $request,
-            data: null,
+            data: $levels,
             viewPath: 'administration/school/structure',
             viewData: ['initialData' => ['levels' => $levels]]
         );
@@ -34,7 +34,7 @@ class GradeLevelController extends Controller
             $levels = GradeLevel::get();
 
             return $this->respond($request, $level,  viewData: ['initialData' => ['levels' => $levels]]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->error($request,    $e->getMessage());
         }
     }
@@ -42,31 +42,34 @@ class GradeLevelController extends Controller
     public function toggleActive(Request $request, GradeLevel $level)
     {
 
-        try{
-        $validated = $request->validate([
-            'active' => ['required', 'boolean']
-        ]);
+        try {
+            $validated = $request->validate([
+                'active' => ['required', 'boolean']
+            ]);
 
-        $level->active = $validated['active'];
-        $level->save();
+            $level->active = $validated['active'];
+            $level->save();
 
-        return $this->respond($request, ['success' => true, 'active' => $level->active ]);
-
-    }catch(Exception $e){
+            return $this->respond(
+                $request,
+                ['success' => true, 'active' => $level->active]
+            );
+        } catch (Exception $e) {
             return $this->respond($request, ['success' => false, 'active' => $level->active]);
         }
-
     }
     public function update(GradeLevelRequest $request, GradeLevel $level)
     {
-        $data = $request->validated();
-        $level->update($data);
-        $levels = GradeLevel::get();
+        try {
+            $data = $request->validated();
+            $level->update($data);
 
-        return $this->respond(
-            $request,
-            $level,
-            viewData: ['initialData' => ['levels' => $levels]]
-        );
+            return $this->success(
+                $request,
+                $level,
+            );
+        } catch (Exception $e) {
+            return $this->error($request);
+        }
     }
 }

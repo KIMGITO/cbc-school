@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\System\Configuration\GradeLevelController;
+use App\Http\Controllers\System\Configuration\StreamController;
 use App\Http\Controllers\Users\StudentController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -24,8 +25,8 @@ Route::middleware(['auth', 'web', 'verified'])->group(function () {
         Route::patch('/levels/{level}/status', [GradeLevelController::class, 'toggleActive']);
         Route::resource('levels', GradeLevelController::class)->names('system.config.levels');
 
-        // Route::patch('/streams/{stream}/status', [::class, 'toggleActive']);
-        // Route::resource('streams', GradestreamController::class)->names('system.config.streams');
+        Route::patch('/streams/{stream}/status', [StreamController::class, 'toggleActive']);
+        Route::resource('streams', StreamController::class)->names('system.config.streams');
     });
 
     // Students Managements.

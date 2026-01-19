@@ -238,7 +238,7 @@ export default function LevelsTab({
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {data &&
+                        {data && data.length > 0 ? (
                             data.map((level, index) => (
                                 <TableRow key={level.id}>
                                     <TableCell className="font-medium">
@@ -295,7 +295,18 @@ export default function LevelsTab({
                                         </div>
                                     </TableCell>
                                 </TableRow>
-                            ))}
+                            ))
+                        ) : (
+                            <TableRow>
+                                <TableCell
+                                    colSpan={5}
+                                    className="py-8 text-center text-gray-500"
+                                >
+                                    No Level  found. Click "Add New Level" to
+                                    create one.
+                                </TableCell>
+                            </TableRow>
+                        )}
                     </TableBody>
                 </Table>
             </div>
