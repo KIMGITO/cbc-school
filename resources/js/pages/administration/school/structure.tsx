@@ -4,7 +4,6 @@ import LoadingSpinner from '@/components/custom/loading-spinner';
 import { Card, CardContent } from '@/components/ui/card';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import AppLayout from '@/layouts/app-layout';
-import { router } from '@inertiajs/react';
 import {
     BarChart3,
     Bell,
@@ -20,36 +19,68 @@ import {
     Shield,
     Users,
 } from 'lucide-react';
-import { useState } from 'react';
-import { route } from 'ziggy-js';
+import { useEffect, useState } from 'react';
 import ConfigurationCard from '../components/configuration-card';
 import ConfigurationHeader from '../components/configuration-header';
 import EmptyState from '../components/empty-states';
 import LevelsTab from './tabs/levels-tab';
 import StreamsTab from './tabs/streams-tab';
 
+// Type definitions
+interface Level {
+    id: string;
+    name: string;
+    code: string;
+    description?: string;
+    active: boolean;
+    order?: number;
+    created_at?: string;
+    updated_at?: string;
+}
+
+interface Stream {
+    id: string;
+    name: string;
+    code: string;
+    level_id?: string;
+    capacity?: number;
+    active: boolean;
+    created_at?: string;
+    updated_at?: string;
+}
+
 interface ConfigurationData {
-    streams: [];
-    levels: [];
-    terms: [];
-    subjects: [];
-    houses: [];
-    notifications: [];
-    departments: [];
-    roles: [];
-    fees: [];
-    exams: [];
-    grading: [];
-    academicYears: [];
+    streams: Stream[];
+    levels: Level[];
+    terms: any[];
+    subjects: any[];
+    houses: any[];
+    notifications: any[];
+    departments: any[];
+    roles: any[];
+    fees: any[];
+    exams: any[];
+    grading: any[];
+    academicYears: any[];
+}
+
+interface ConfigurationSection {
+    label: string;
+    value: keyof ConfigurationData;
+    icon: React.ComponentType<any>;
+    component: React.ComponentType<any> | null;
+    description: string;
+    color: string;
 }
 
 export default function ConfigurationAdmin({
     initialData,
 }: {
     initialData?: Partial<ConfigurationData>;
-    }) {
-    console.log('Initial data', initialData)
-    const sections = [
+}) {
+
+    // Define sections
+    const sections: ConfigurationSection[] = [
         {
             label: 'Academic Levels',
             value: 'levels',
@@ -57,7 +88,6 @@ export default function ConfigurationAdmin({
             component: LevelsTab,
             description: 'Manage Classes/Grades',
             color: 'bg-blue-500',
-            count: initialData?.levels?.length || 0,
         },
         {
             label: 'Streams',
@@ -66,7 +96,6 @@ export default function ConfigurationAdmin({
             component: StreamsTab,
             description: 'Class subdivisions',
             color: 'bg-green-500',
-            count: initialData?.streams?.length || 0,
         },
         {
             label: 'Subjects',
@@ -75,16 +104,14 @@ export default function ConfigurationAdmin({
             component: null,
             description: 'Curriculum subjects',
             color: 'bg-purple-500',
-            count: initialData?.subjects?.length || 0,
         },
         {
             label: 'Academic Years',
-            value: 'academic-years',
+            value: 'academicYears',
             icon: CalendarDays,
             component: null,
             description: 'School years',
             color: 'bg-orange-500',
-            count: initialData?.academicYears?.length || 0,
         },
         {
             label: 'Terms/Semesters',
@@ -93,7 +120,6 @@ export default function ConfigurationAdmin({
             component: null,
             description: 'Term/semester management',
             color: 'bg-yellow-500',
-            count: initialData?.terms?.length || 0,
         },
         {
             label: 'Departments',
@@ -102,7 +128,6 @@ export default function ConfigurationAdmin({
             component: null,
             description: 'School departments',
             color: 'bg-indigo-500',
-            count: initialData?.departments?.length || 0,
         },
         {
             label: 'Houses',
@@ -111,7 +136,6 @@ export default function ConfigurationAdmin({
             component: null,
             description: 'Student house system',
             color: 'bg-pink-500',
-            count: initialData?.houses?.length || 0,
         },
         {
             label: 'Fee Structure',
@@ -120,7 +144,6 @@ export default function ConfigurationAdmin({
             component: null,
             description: 'Fee categories & amounts',
             color: 'bg-emerald-500',
-            count: initialData?.fees?.length || 0,
         },
         {
             label: 'Exams & Tests',
@@ -129,7 +152,6 @@ export default function ConfigurationAdmin({
             component: null,
             description: 'Examination types',
             color: 'bg-red-500',
-            count: initialData?.exams?.length || 0,
         },
         {
             label: 'Grading System',
@@ -138,7 +160,6 @@ export default function ConfigurationAdmin({
             component: null,
             description: 'Grade scales & points',
             color: 'bg-cyan-500',
-            count: initialData?.grading?.length || 0,
         },
         {
             label: 'User Roles',
@@ -147,7 +168,6 @@ export default function ConfigurationAdmin({
             component: null,
             description: 'System permissions',
             color: 'bg-gray-500',
-            count: initialData?.roles?.length || 0,
         },
         {
             label: 'Notifications',
@@ -156,103 +176,266 @@ export default function ConfigurationAdmin({
             component: null,
             description: 'System alerts',
             color: 'bg-amber-500',
-            count: initialData?.notifications?.length || 0,
         },
     ];
 
-    const [activeTab, setActiveTab] = useState('levels');
-    const [loading, setLoading] = useState(false);
-    const [loadedData, setLoadedData] = useState<ConfigurationData>({
-        streams: initialData?.streams || [],
-        levels: initialData?.levels || [],
-        terms: [],
-        subjects: [],
-        houses: [],
-        notifications: [],
-        departments: [],
-        roles: [],
-        fees: [],
-        exams: [],
-        grading: [],
-        academicYears: [],
+    // State management
+    const [activeTab, setActiveTab] =
+        useState<keyof ConfigurationData>('levels');
+    const [isLoading, setIsLoading] = useState(false);
+    const [isRefreshing, setIsRefreshing] = useState(false);
+
+    // Initialize data with proper empty arrays
+    const [loadedData, setLoadedData] = useState<ConfigurationData>(() => {
+        const defaultData: ConfigurationData = {
+            streams: [],
+            levels: [],
+            terms: [],
+            subjects: [],
+            houses: [],
+            notifications: [],
+            departments: [],
+            roles: [],
+            fees: [],
+            exams: [],
+            grading: [],
+            academicYears: [],
+        };
+
+        // Merge initial data, ensuring arrays
+        if (initialData) {
+            Object.keys(defaultData).forEach((key) => {
+                const typedKey = key as keyof ConfigurationData;
+                if (Array.isArray(initialData[typedKey])) {
+                    defaultData[typedKey] = initialData[typedKey] as any;
+                }
+            });
+        }
+
+        return defaultData;
     });
 
-    const [tabLoaded, setTabLoaded] = useState<Record<string, boolean>>(
-        sections.reduce(
-            (acc, section) => ({
-                ...acc,
-                [section.value]:
-                    !!initialData?.[section.value as keyof ConfigurationData],
-            }),
-            {},
-        ),
+    // Track which tabs have been loaded
+    const [loadedTabs, setLoadedTabs] = useState<Set<keyof ConfigurationData>>(
+        () => {
+            const tabs = new Set<keyof ConfigurationData>();
+            if (initialData) {
+                Object.keys(initialData).forEach((key) => {
+                    const typedKey = key as keyof ConfigurationData;
+                    if (
+                        Array.isArray(initialData[typedKey]) &&
+                        initialData[typedKey]!.length > 0
+                    ) {
+                        tabs.add(typedKey);
+                    }
+                });
+            }
+            return tabs;
+        },
     );
 
-    // Get the active component
+    // Get active component
     const ActiveComponent = sections.find(
         (section) => section.value === activeTab,
     )?.component;
 
-    // Load data for a specific tab using Inertia
-    const loadTabData = async (tab: string) => {
-        if (tabLoaded[tab]) return;
+    // Helper function to safely get data
+    const getSafeData = <K extends keyof ConfigurationData>(
+        tab: K,
+    ): ConfigurationData[K] => {
+        const data = loadedData[tab];
+        return Array.isArray(data) ? data : [];
+    };
 
-        setLoading(true);
+    // Load tab data
+    const loadTabData = async (tab: keyof ConfigurationData) => {
+        // Skip if already loaded
+        if (loadedTabs.has(tab) && getSafeData(tab).length > 0) {
+            return;
+        }
+
+        setIsLoading(true);
+
         try {
-            console.log('data to lad');
-            router.get(
-                route(`system.config.${tab}.index`),
-                {},
-                {
-                    preserveState: true,
-                    onSuccess: (page) => {
-                        if (page.props[tab]) {
-                            setLoadedData((prev) => ({
-                                ...prev,
-                                [tab]: page.props[tab],
-                            }));
-                            setTabLoaded((prev) => ({
-                                ...prev,
-                                [tab]: true,
-                            }));
-                        }
-                    },
-                    onError: (errors) => {
-                        console.error(`Error loading ${tab}:`, errors);
-                    },
-                    onFinish: () => {
-                        setLoading(false);
-                    },
+            const response = await fetch(`/system/config/${tab}`, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    Accept: 'application/json',
+                    'X-CSRF-TOKEN':
+                        document
+                            .querySelector('meta[name="csrf-token"]')
+                            ?.getAttribute('content') || '',
                 },
-            );
+            });
+
+            if (!response.ok) {
+                throw new Error(`Failed to load ${tab}`);
+            }
+
+            const result = await response.json();
+
+            // Extract data from response - handle different response formats
+            let dataArray: any[] = [];
+
+            if (Array.isArray(result)) {
+                dataArray = result;
+            } else if (result && typeof result === 'object') {
+                if (Array.isArray(result.data)) {
+                    dataArray = result.data;
+                } else if (Array.isArray(result[tab])) {
+                    dataArray = result[tab];
+                } else if (result.success && Array.isArray(result.data)) {
+                    dataArray = result.data;
+                }
+            }
+
+            if (Array.isArray(dataArray)) {
+                // Update data
+                setLoadedData((prev) => ({
+                    ...prev,
+                    [tab]: dataArray,
+                }));
+
+                // Mark tab as loaded
+                setLoadedTabs((prev) => new Set([...prev, tab]));
+            } else {
+                console.warn(
+                    `No array data found for ${tab} in response:`,
+                    result,
+                );
+            }
         } catch (error) {
             console.error(`Error loading ${tab}:`, error);
-            setLoading(false);
+        } finally {
+            setIsLoading(false);
         }
     };
 
-
     // Handle tab change
-    const handleTabChange = (tab: string) => {
+    const handleTabChange = (tab: keyof ConfigurationData) => {
         setActiveTab(tab);
         loadTabData(tab);
     };
 
-    // Refresh current tab data
-    const handleRefresh = () => {
-        setTabLoaded((prev) => ({
-            ...prev,
-            [activeTab]: false,
-        }));
-        loadTabData(activeTab);
+    // Handle refresh
+    const handleRefresh = async () => {
+        setIsRefreshing(true);
+        try {
+            await loadTabData(activeTab);
+        } finally {
+            setIsRefreshing(false);
+        }
     };
 
     // Handle data updates from child components
-    const handleDataUpdate = (type: string, data: any) => {
+    const handleDataUpdate = (
+        type: keyof ConfigurationData,
+        newData: any[],
+    ) => {
         setLoadedData((prev) => ({
             ...prev,
-            [type]: data,
+            [type]: [...newData], // Create new array reference
         }));
+    };
+
+    // Load initial tab data on mount
+    useEffect(() => {
+        if (!loadedTabs.has('levels') || getSafeData('levels').length === 0) {
+            loadTabData('levels');
+        }
+    }, []);
+
+    
+    // Helper functions for stats
+    const getTotalConfigurations = (): number => {
+        return sections.reduce((total, section) => {
+            const data = getSafeData(section.value);
+            return total + (Array.isArray(data) ? data.length : 0);
+        }, 0);
+    };
+
+    const getActiveCount = <K extends keyof ConfigurationData>(
+        tab: K,
+    ): number => {
+        const data = getSafeData(tab);
+        if (!Array.isArray(data)) return 0;
+
+        return data.filter((item) => {
+            if (!item || typeof item !== 'object') return false;
+            const active = item.active;
+            return active === true || active === 'true' || active === 1;
+        }).length;
+    };
+
+    // Render content based on current state
+    const renderContent = () => {
+        const currentData = getSafeData(activeTab);
+        const isTabLoaded = loadedTabs.has(activeTab);
+        const hasData = true;
+
+
+        if (isLoading) {
+            return (
+                <div className="flex flex-col items-center justify-center py-12">
+                    <LoadingSpinner size="lg" />
+                    <p className="mt-4 text-gray-500">
+                        Loading{' '}
+                        {sections.find((s) => s.value === activeTab)?.label}...
+                    </p>
+                </div>
+            );
+        }
+
+        if (!isTabLoaded || !hasData) {
+            return (
+                <EmptyState
+                    icon={
+                        sections.find((s) => s.value === activeTab)?.icon ||
+                        Settings
+                    }
+                    title={isTabLoaded ? 'No Data Found' : 'Data Not Loaded'}
+                    description={
+                        isTabLoaded
+                            ? `No ${sections.find((s) => s.value === activeTab)?.label?.toLowerCase()} found`
+                            : `Click "Load Data" to load ${sections.find((s) => s.value === activeTab)?.label?.toLowerCase()}`
+                    }
+                    actionLabel={isTabLoaded ? 'Create New' : 'Load Data'}
+                    onAction={() => {
+                        if (isTabLoaded) {
+                            // Handle create new - this would need to be implemented
+                            renderContent()
+                        } else {
+                            loadTabData(activeTab);
+                        }
+                    }}
+                />
+            );
+        }
+
+        if (ActiveComponent) {
+            return (
+                <ActiveComponent
+                    key={`${activeTab}-${currentData.length}-${Date.now()}`}
+                    data={currentData}
+                    onDataUpdate={handleDataUpdate}
+                    onRefresh={handleRefresh}
+                />
+            );
+        }
+
+        return (
+            <div className="py-12 text-center">
+                <h3 className="text-lg font-semibold text-gray-900">
+                    {sections.find((s) => s.value === activeTab)?.label}
+                </h3>
+                <p className="mt-2 text-gray-600">
+                    This configuration section is under development.
+                </p>
+                <p className="mt-1 text-sm text-gray-500">
+                    Total items: {currentData.length}
+                </p>
+            </div>
+        );
     };
 
     return (
@@ -261,22 +444,21 @@ export default function ConfigurationAdmin({
                 <ConfigurationHeader
                     title="School Configuration"
                     description="Manage all system configurations in one place"
-                    loading={loading}
+                    loading={isLoading || isRefreshing}
                     onRefresh={handleRefresh}
                 />
 
-                {/* Horizontal Scrollable Tabs */}
+                {/* Tabs */}
                 <div className="relative">
                     <ScrollArea className="w-full whitespace-nowrap">
                         <div className="flex space-x-2 pb-4">
                             {sections.map((section) => {
                                 const Icon = section.icon;
                                 const isActive = activeTab === section.value;
-                                const isLoaded = tabLoaded[section.value];
-                                const count =
-                                    loadedData[
-                                        section.value as keyof ConfigurationData
-                                    ]?.length || 0;
+                                const data = getSafeData(section.value);
+                                const count = Array.isArray(data)
+                                    ? data.length
+                                    : 0;
 
                                 return (
                                     <button
@@ -323,107 +505,34 @@ export default function ConfigurationAdmin({
                     </ScrollArea>
                 </div>
 
-                {/* Main Content Area */}
+                {/* Main Content */}
                 <div className="mt-2">
                     <Card className="w-full border shadow-lg">
                         <CardContent className="p-6">
-                            {loading ? (
-                                <div className="flex flex-col items-center justify-center py-12">
-                                    <LoadingSpinner size="lg" />
-                                    <p className="mt-4 text-gray-500">
-                                        Loading{' '}
-                                        {
-                                            sections.find(
-                                                (s) => s.value === activeTab,
-                                            )?.label
-                                        }
-                                        ...
-                                    </p>
-                                </div>
-                            ) : !tabLoaded[activeTab] ? (
-                                <EmptyState
-                                    icon={
-                                        sections.find(
-                                            (s) => s.value === activeTab,
-                                        )?.icon || Settings
-                                    }
-                                    title="No Data Loaded"
-                                    description={`Click the "${sections.find((s) => s.value === activeTab)?.label}" tab to load data`}
-                                    actionLabel="Load Data"
-                                    onAction={() => loadTabData(activeTab)}
-                                />
-                            ) : ActiveComponent &&
-                              loadedData[
-                                  activeTab as keyof ConfigurationData
-                              ] ? (
-                                <ActiveComponent
-                                    data={
-                                        loadedData[
-                                            activeTab as keyof ConfigurationData
-                                        ]
-                                    }
-                                    onDataUpdate={handleDataUpdate}
-                                    onRefresh={handleRefresh}
-                                />
-                            ) : (
-                                <div className="py-12 text-center">
-                                    <h3 className="text-lg font-semibold text-gray-900">
-                                        {
-                                            sections.find(
-                                                (s) => s.value === activeTab,
-                                            )?.label
-                                        }
-                                    </h3>
-                                    <p className="mt-2 text-gray-600">
-                                        This configuration section is under
-                                        development.
-                                    </p>
-                                    <p className="mt-1 text-sm text-gray-500">
-                                        Total items:{' '}
-                                        {loadedData[
-                                            activeTab as keyof ConfigurationData
-                                        ]?.length || 0}
-                                    </p>
-                                </div>
-                            )}
+                            {renderContent()}
                         </CardContent>
                     </Card>
                 </div>
 
-                {/* Quick Stats */}
+                {/* Stats */}
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                     <ConfigurationCard
                         title="Total Configurations"
-                        value={sections.reduce(
-                            (sum, section) =>
-                                sum +
-                                (loadedData[
-                                    section.value as keyof ConfigurationData
-                                ]?.length || 0),
-                            0,
-                        )}
+                        value={getTotalConfigurations()}
                         icon={Settings}
                         description="Active configurations"
                         trend="up"
                     />
                     <ConfigurationCard
                         title="Active Levels"
-                        value={
-                            loadedData.levels?.filter(
-                                (l: any) => l.status === 'active',
-                            ).length || 0
-                        }
+                        value={getActiveCount('levels')}
                         icon={Layers}
                         description="Currently active"
                         color="blue"
                     />
                     <ConfigurationCard
                         title="Active Streams"
-                        value={
-                            loadedData.streams?.filter(
-                                (s: any) => s.status === 'active',
-                            ).length || 0
-                        }
+                        value={getActiveCount('streams')}
                         icon={BookOpen}
                         description="Currently active"
                         color="green"

@@ -12,13 +12,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('streams', function (Blueprint $table) {
-            $table->id();
-            $table->uuid('uuid')->unique();
+            $table->uuid('id')->primary();
             $table->string('name');
             $table->text('description')->nullable();
             $table->boolean('is_active')->default(true);
-            $table->foreignId('grade_level_id')->constrained('grade_levels')->onDelete('cascade');
-            $table->foreignId('teacher_id')->nullable()->constrained('users')->onDelete('set null');
+            $table->foreignUuid('grade_level_id')->constrained('grade_levels')->onDelete('cascade');
+            $table->foreignUuid('teacher_id')->nullable()->constrained('users')->onDelete('set null');
             $table->softDeletes();
             $table->timestamps();
         });

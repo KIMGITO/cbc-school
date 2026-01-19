@@ -12,10 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('terms', function (Blueprint $table) {
-            $table->id();
-            $table->uuid('uuid')->unique();
-            $table->foreignId('academic_year')
-                ->constrained('academic_years', 'id')
+            $table->uuid('id')->primary();
+            $table->foreignUuid('academic_year')
+                ->constrained('academic_years')
                 ->cascadeOnDelete();
             $table->string('name');
             $table->unsignedTinyInteger('number');

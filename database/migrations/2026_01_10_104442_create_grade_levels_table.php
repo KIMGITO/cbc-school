@@ -12,8 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('grade_levels', function (Blueprint $table) {
-            $table->id();
-            $table->uuid('uuid');
+            $table->uuid('id')->primary();
             $table->string('name');
             $table->string('code')->unique();
             $table->text('description')->nullable();

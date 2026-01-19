@@ -13,8 +13,9 @@ return new class extends Migration
     {
         Schema::create('guardian_student', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('student_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('guardian_id')->nullable()->constrained()->nullOnDelete();
+            $table->uuid('student_id');
+            $table->uuid('guardian_id');
+            // $table->primary(['guardian_id', 'student_id']);
             $table->enum('relationship', [
                 'father',
                 'mother',
@@ -32,6 +33,8 @@ return new class extends Migration
                 'sponsor',
                 'other',
             ])->default('mother');
+            $table->foreign('student_id')->references('id')->on('students')->onDelete('cascade');
+            $table->foreign('guardian_id')->references('id')->on('guardians')->onDelete('cascade');
             $table->boolean('is_primary')->default(true);
             $table->boolean('can_pay_fees')->default(true);
             $table->boolean('can_pick_student')->default(true);

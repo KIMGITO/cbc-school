@@ -12,7 +12,7 @@ Route::get('/', function () {
     ]);
 })->name('home');
 
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth', 'web','verified'])->group(function () {
     Route::get('dashboard', function () {
         return Inertia::render('dashboard');
     })->name('dashboard');
@@ -20,10 +20,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // System Settings
 
 
-
     Route::prefix('system/config')->group(function () {
         Route::resource('levels', GradeLevelController::class)->names('system.config.levels');
     });
+
     // Students Managements.
     Route::resource('students', StudentController::class);
 });

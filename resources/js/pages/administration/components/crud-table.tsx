@@ -40,7 +40,7 @@ interface CrudTableProps {
     onEdit?: (item: any) => void;
     onDelete?: (id: string) => void;
     onView?: (item: any) => void;
-    onStatusChange?: (item: any, newStatus: string) => void;
+    onStatusChange?: (item: any, newStatus: boolean) => void; // Changed to boolean
     emptyTitle?: string;
     emptyDescription?: string;
     loading?: boolean;
@@ -85,18 +85,20 @@ export default function CrudTable({
         }
 
         // Default renderers
-        if (column.key === 'status') {
+        if (column.key === 'active') {
+            // Handle boolean active field
+            const isActive = value === true || value === 'true' || value === 1;
             return (
                 <Badge
-                    variant={value === 'active' ? 'default' : 'secondary'}
+                    variant={isActive ? 'default' : 'secondary'}
                     className="gap-1"
                 >
-                    {value === 'active' ? (
+                    {isActive ? (
                         <CheckCircle className="h-3 w-3" />
                     ) : (
                         <XCircle className="h-3 w-3" />
                     )}
-                    {value}
+                    {isActive ? 'Active' : 'Inactive'}
                 </Badge>
             );
         }
@@ -133,16 +135,17 @@ export default function CrudTable({
                         <DropdownMenuContent align="end">
                             {onStatusChange && (
                                 <DropdownMenuItem
-                                    onClick={() =>
-                                        onStatusChange(
-                                            row,
-                                            row.status === 'active'
-                                                ? 'inactive'
-                                                : 'active',
-                                        )
-                                    }
+                                    onClick={() => {
+                                        const currentActive =
+                                            row.active === true ||
+                                            row.active === 'true' ||
+                                            row.active === 1;
+                                        onStatusChange(row, !currentActive);
+                                    }}
                                 >
-                                    {row.status === 'active'
+                                    {row.active === true ||
+                                    row.active === 'true' ||
+                                    row.active === 1
                                         ? 'Deactivate'
                                         : 'Activate'}
                                 </DropdownMenuItem>
@@ -150,7 +153,7 @@ export default function CrudTable({
                             {onDelete && (
                                 <DropdownMenuItem
                                     onClick={() => onDelete(row.id)}
-                                    className="text-red-600"
+                                    className="text-red-600 focus:text-red-600"
                                 >
                                     <Trash2 className="mr-2 h-4 w-4" />
                                     Delete

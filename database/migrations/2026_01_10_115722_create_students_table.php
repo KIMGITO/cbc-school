@@ -12,8 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('students', function (Blueprint $table) {
-            $table->id();
-            $table->uuid('uuid')->unique();
+            $table->uuid('id')->primary();
             $table->string('first_name');
             $table->string('other_names');
             $table->string('sir_name');
@@ -28,7 +27,7 @@ return new class extends Migration
             $table->string('ward')->nullable();
             $table->string('location')->nullable();
             $table->string('sub_location')->nullable();
-            $table->text('upi_number')->unique()->nullable();
+            $table->text('upi_number')->nullable();
 
             // medical safety
             $table->text('blood_group')->nullable();
@@ -36,7 +35,7 @@ return new class extends Migration
             $table->text('special_medical_needs')->nullable();
 
             // school and admission
-            $table->foreignId('stream_id')->nullable()->constrained('streams')->nullOnDelete();
+            $table->foreignUuid('stream_id')->nullable()->constrained('streams')->nullOnDelete();
             $table->date('admission_date')->nullable();
             $table->enum('enrollment_type', ['new', 'transfer'])->nullable();
             $table->enum('boarding_status', ['day', 'boarding'])->nullable();
@@ -52,7 +51,7 @@ return new class extends Migration
             $table->string('exit_reason')->nullable();
             $table->timestamps();
             $table->softDeletes();
-            $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();
+            $table->foreignUuid('created_by')->nullable()->constrained('users')->nullOnDelete();
         });
     }
 

@@ -12,11 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('guardians', function (Blueprint $table) {
-            $table->id();
-            $table->uuid('uuid')->unique();
-            $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('set null');
-            $table->text('national_id', 12)->unique();
-            $table->text('phone_number')->unique();
+            $table->uuid('id')->primary();
+            $table->foreignUuid('user_id')->constrained('users')->restrictOnDelete();
+            $table->string('national_id',)->unique();
+            $table->text('phone_number');
             $table->text('phone_number_2')->nullable();
             $table->string('email')->unique()->nullable();
 

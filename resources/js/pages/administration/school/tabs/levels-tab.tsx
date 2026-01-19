@@ -24,7 +24,6 @@ import {
 import axios from 'axios';
 import { CheckCircle, Edit, Trash2, XCircle } from 'lucide-react';
 import { useState } from 'react';
-import { route } from 'ziggy-js';
 
 interface LevelsTabProps {
     data: any[];
@@ -36,7 +35,6 @@ interface FormErrors {
     name?: string;
     code?: string;
     description?: string;
-    order?: string;
     [key: string]: string | undefined;
 }
 
@@ -97,12 +95,6 @@ export default function LevelsTab({
 
         if (!currentData.code?.trim()) {
             errors.code = 'Level code is required';
-        } else if (currentData.code.length > 10) {
-            errors.code = 'Code must be less than 10 characters';
-        }
-
-        if (currentData.order <= 0) {
-            errors.order = 'Order must be greater than 0';
         }
 
         setFormErrors(errors);
@@ -131,11 +123,10 @@ export default function LevelsTab({
             } else {
                 // Create new level
                 const response = await axios.post(
-                    route('system.config.level.store'),
+                    '/system/config/levels',
                     formData,
-                ).catch((errors) => {
-                    console.log('errors')
-                });
+                );
+
                 onDataUpdate('levels', [...data, response.data.data]);
             }
             setIsDialogOpen(false);
@@ -181,16 +172,18 @@ export default function LevelsTab({
     const toggleStatus = async (level: any) => {
         setLoading(true);
         try {
-            const newStatus = level.status === 'active' ? 'inactive' : 'active';
+            const newActive = !level.active; 
             const response = await axios.patch(
                 `/api/admin/configuration/levels/${level.id}/status`,
                 {
-                    status: newStatus,
+                    active: newActive, // Send boolean
                 },
             );
             onDataUpdate(
                 'levels',
-                data.map((l) => (l.id === level.id ? response.data.data : l)),
+                data.map((l) =>
+                    l.id === level.id ? { ...l, active: newActive } : l,
+                ),
             );
         } catch (error) {
             console.error('Error updating status:', error);
@@ -222,7 +215,7 @@ export default function LevelsTab({
                 <div>
                     <h2 className="text-2xl font-bold">Level Management</h2>
                     <p className="text-gray-600">
-                        Manage educational levels/forms in the system
+                        Manage Grades/Levels
                     </p>
                 </div>
                 <Button onClick={handleCreate} className="gap-2">
@@ -261,19 +254,21 @@ export default function LevelsTab({
                                     <TableCell>
                                         <Badge
                                             variant={
-                                                level.status === 'active'
+                                                level.active
                                                     ? 'default'
                                                     : 'secondary'
                                             }
                                             className="cursor-pointer"
                                             onClick={() => toggleStatus(level)}
                                         >
-                                            {level.status === 'active' ? (
+                                            {level.active ? (
                                                 <CheckCircle className="mr-1 h-3 w-3" />
                                             ) : (
                                                 <XCircle className="mr-1 h-3 w-3" />
                                             )}
-                                            {level.status}
+                                            {level.active
+                                                ? 'Active'
+                                                : 'Inactive'}
                                         </Badge>
                                     </TableCell>
                                     <TableCell className="text-right">
@@ -350,19 +345,6 @@ export default function LevelsTab({
                                     containerClassName="space-y-2"
                                 />
                             </FormGrid>
-
-                            <FormField
-                                error={formErrors.order}
-                                name="order"
-                                label="Display Order"
-                                type="number"
-                                value={editingLevel?.order || formData.order}
-                                onChange={handleInputChange}
-                                required={true}
-                                placeholder="Enter order number"
-                                containerClassName="space-y-2"
-                                inputClassName="w-full"
-                            />
 
                             <FormField
                                 error={formErrors.description}
