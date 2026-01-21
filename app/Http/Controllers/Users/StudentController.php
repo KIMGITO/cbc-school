@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers\Users;
 
-use App\Traits\HandlesResponses;
+use Exception;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
+use App\Models\Users\Student;
+use App\Traits\HandlesResponses;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Users\StudentRequest;
-use App\Models\People\Student;
-use Exception;
 
 class StudentController extends Controller
 {

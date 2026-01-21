@@ -1,11 +1,12 @@
 <?php
 
-use App\Http\Controllers\System\Configuration\GradeLevelController;
-use App\Http\Controllers\System\Configuration\StreamController;
-use App\Http\Controllers\Users\StudentController;
-use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Users\StudentController;
+use App\Http\Controllers\Users\GuardianController;
+use App\Http\Controllers\System\Configuration\StreamController;
+use App\Http\Controllers\System\Configuration\GradeLevelController;
 
 Route::get('/', function () {
     return Inertia::render('welcome', [
@@ -31,6 +32,7 @@ Route::middleware(['auth', 'web', 'verified'])->group(function () {
 
     // Students Managements.
     Route::resource('students', StudentController::class);
+    Route::resource('guardian', GuardianController::class);
 });
 
 require __DIR__ . '/settings.php';

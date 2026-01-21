@@ -2,7 +2,7 @@
 
 namespace App\Users;
 
-use App\Models\People\Student;
+use App\Models\Users\Student;
 
 class StudentService
 {

@@ -2,7 +2,7 @@
 
 namespace App\Observers\Users;
 
-use App\Models\People\Student;
+use App\Models\Users\Student;
 
 
 class StudentObserver

@@ -2,13 +2,14 @@
 
 namespace App\Models\Functional;
 
-use App\Models\People\Student;
-use App\Models\People\Teacher;
+use App\Models\Users\Student;
+use App\Models\Users\Teacher;
+use App\Models\Functional\GradeLevel;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Attributes\Boot;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Stream extends Model
 {

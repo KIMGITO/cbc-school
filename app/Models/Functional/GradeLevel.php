@@ -2,11 +2,12 @@
 
 namespace App\Models\Functional;
 
-use App\Models\People\Student;
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\Users\Student;
+use App\Models\Functional\Stream;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class GradeLevel extends Model
 {
@@ -40,5 +41,10 @@ class GradeLevel extends Model
     public function students()
     {
         return $this->hasManyThrough(Student::class, Stream::class);
+    }
+
+    protected static function booted(){
+
+        static::retrieved(fn ($level)=> $level->name = strtoupper($level->name));
     }
 }

@@ -9,8 +9,8 @@ import {
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
-import { type NavItem } from '@/types';
-import { Link, router } from '@inertiajs/react';
+import { SharedData, type NavItem } from '@/types';
+import { Link, router, usePage } from '@inertiajs/react';
 import {
     BarChart,
     GraduationCap,
@@ -24,83 +24,84 @@ import {
 import AppLogo from './app-logo';
 import { NavMainGroup } from './nav-main-group';
 
-const mainNavItems: NavItem[] = [
-    {
-        title: 'Dashboard',
-        href: dashboard(),
-        icon: LayoutGrid,
-    },
-    {
-        title: 'Student Admission Form.',
-        href: '/students/create',
-        icon: UserPlus2Icon,
-    },
-];
-
-const navGroups = [
-    {
-        title: 'Dashboard',
-        items: [
-            { title: 'Overview', href: '/', icon: BarChart },
-            {
-                title: 'Analytics',
-                href: '/analytics',
-                icon: BarChart,
-                badge: '5',
-            },
-        ],
-        icon: BarChart,
-        defaultOpen: false,
-    },
-    {
-        title: 'Students',
-        items: [
-            {
-                title: 'All Students',
-                href: '/students',
-                icon: GraduationCap,
-                badge: '0', 
-            },
-            // {
-            //     title: 'Admissions',
-            //     href: '/admissions',
-            //     icon: Users,
-            //     badge: '12',
-            // },
-        ],
-        icon: Users,
-        defaultOpen: false,
-        showAddButton: true,
-        addUrl: '/students/create',
-        badge: 154,
-    },
-    {
-        title: 'Parent/Guardian',
-        icon: Users2,
-        defaultOpen: false,
-        showAddButton: true,
-        addUrl: '/guardian/create',
-        badge: 100,
-        items: [],
-    },
-];
-const footerNavItems = [
-    {
-        title: 'Administration',
-        items: [
-            {
-                title: 'Settings',
-                href: '/system/config/levels',
-                icon: Settings,
-            },
-            // { title: 'Users', href: '/users', icon: Users },
-        ],
-        icon: ShieldIcon,
-        defaultOpen: false,
-    },
-];
-
 export function AppSidebar() {
+    const mainNavItems: NavItem[] = [
+        {
+            title: 'Dashboard',
+            href: dashboard(),
+            icon: LayoutGrid,
+        },
+        {
+            title: 'Student Admission Form.',
+            href: '/students/create',
+            icon: UserPlus2Icon,
+        },
+    ];
+
+    const footerNavItems = [
+        {
+            title: 'Administration',
+            items: [
+                {
+                    title: 'Settings',
+                    href: '/system/config/levels',
+                    icon: Settings,
+                },
+                // { title: 'Users', href: '/users', icon: Users },
+            ],
+            icon: ShieldIcon,
+            defaultOpen: false,
+        },
+    ];
+
+    const { studentCount } = usePage<SharedData>().props;
+    const navGroups = [
+        {
+            title: 'Dashboard',
+            items: [
+                { title: 'Overview', href: '/', icon: BarChart },
+                {
+                    title: 'Analytics',
+                    href: '/analytics',
+                    icon: BarChart,
+                    badge: '5',
+                },
+            ],
+            icon: BarChart,
+            defaultOpen: false,
+        },
+        {
+            title: 'Students',
+            items: [
+                {
+                    title: 'All Students',
+                    href: '/students',
+                    icon: GraduationCap,
+                    badge: 123,
+                },
+                // {
+                //     title: 'Admissions',
+                //     href: '/admissions',
+                //     icon: Users,
+                //     badge: '12',
+                // },
+            ],
+            icon: Users,
+            defaultOpen: false,
+            showAddButton: true,
+            addUrl: '/students/create',
+            badge: 123,
+        },
+        {
+            title: 'Parent/Guardian',
+            icon: Users2,
+            defaultOpen: false,
+            showAddButton: true,
+            addUrl: '/guardian/create',
+            badge: 100,
+            items: [],
+        },
+    ];
     return (
         <Sidebar collapsible="icon" variant="inset">
             <SidebarHeader>

@@ -46,3 +46,36 @@ export const emptyStudentData = {
     enrollment_type: '',
     boarding_status: '',
 };
+
+// guardians/empty-data.ts
+import { GuardianFormData, GuardianFormErrors } from '@/types/guardian';
+
+export const emptyGuardianData: GuardianFormData = {
+    first_name: '',
+    middle_name: '',
+    last_name: '',
+    national_id: '',
+    occupation: '',
+    phone_number: '',
+    phone_number_2: '',
+    email: '',
+    address: '',
+    county: '',
+    sub_county: '',
+    ward: '',
+    location: '',
+    sub_location: '',
+    student_id: '',
+    relationship_type: 'parent',
+    is_primary: false,
+};
+
+export const emptyGuardianErrors: GuardianFormErrors = {
+    first_name: '',
+    last_name: '',
+    national_id: '',
+    phone_number: '',
+    email: '',
+    address: '',
+    student_id: '',
+};

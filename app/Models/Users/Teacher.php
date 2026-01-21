@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models\People;
+namespace App\Models\Users;
 
 use App\Models\Cores\Course;
 use App\Models\Cores\Department;
