@@ -64,7 +64,7 @@ class Student extends Model
         'blood_group' => 'encrypted',
         'admission_date' => 'date',
         'exit_date' => 'date',
-        'stream_id' => 'integer',
+        'stream_id' => 'string',
         'talent_areas' => 'array',
         'special_medical_needs' => 'encrypted:array',
         'allergies' => 'encrypted:array',
@@ -74,7 +74,8 @@ class Student extends Model
 
     protected $appends = [
         'age',
-        'address'
+        'address',
+        'name'
     ];
 
 
@@ -85,7 +86,7 @@ class Student extends Model
      */
     public function  stream()
     {
-        return $this->belongsTo(Stream::class);
+        return $this->belongsTo(Stream::class, 'stream_id', 'id');
     }
 
     public function guardians()
@@ -118,7 +119,19 @@ class Student extends Model
                     $this->location . ' Location, ' .
                     $this->sub_location . ' Sub Location';
 
-                return $address;
+                return ucwords($address);
+            }
+        );
+    }
+
+    public function name(): Attribute
+    {
+        return Attribute::make(
+            get: function () {
+                $s = strtoupper($this->sir_name);
+                $f = ucfirst($this->first_name);
+                $l = ucwords($this->other_names);
+                return "$s $f $l";
             }
         );
     }

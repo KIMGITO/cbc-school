@@ -207,7 +207,7 @@ export default function ProfileInfoTab({
                         onChange={handleChange}
                         required
                         placeholder="Pick a date"
-                        type="calendar"
+                        type="calendar-enhanced"
                     />
 
                     <div

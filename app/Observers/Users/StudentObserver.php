@@ -18,7 +18,6 @@ class StudentObserver
      */
     public function created(Student $student): void
     {
-        //
     }
 
     /**

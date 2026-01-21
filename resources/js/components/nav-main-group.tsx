@@ -7,7 +7,7 @@ import {
 } from '@/components/ui/sidebar';
 import { useActiveUrl } from '@/hooks/use-active-url';
 import { type NavItem } from '@/types';
-import { Link } from '@inertiajs/react';
+import { router } from '@inertiajs/react';
 
 interface NavGroupProps {
     title: string;
@@ -37,23 +37,34 @@ export function NavMainGroup({
     // Check if any item in the group is active
     const hasActiveItem = items.some((item) => urlIsActive(item.href));
 
+    const handleLinkClick = (
+        e: React.MouseEvent<HTMLAnchorElement>,
+        href: string,
+    ) => {
+        e.stopPropagation(); // Stop event from bubbling to parent
+
+        // Only navigate if it's a new URL
+        if (window.location.pathname !== href) {
+            router.get(href);
+        }
+    };
+
     return (
         <SidebarGroup className={groupClassName}>
-            {/* Use SidebarMenuGroupButton as the trigger */}
             <SidebarMenuGroupButton
                 title={title}
                 icon={Icon}
                 badge={badge}
-                defaultOpen={defaultOpen}
+                defaultOpen={defaultOpen || hasActiveItem} // Auto-open if has active item
                 isActive={hasActiveItem}
                 showAddButton={showAddButton}
                 onAddClick={onAddClick}
                 className="group data-[state=open]:bg-blue-50 dark:data-[state=open]:bg-blue-950/20"
             >
-                {/* Render the menu items as children */}
                 <SidebarMenu className="overflow-hidden pl-6">
                     {items.map((item) => {
                         const isActive = urlIsActive(item.href);
+
                         return (
                             <SidebarMenuItem key={item.title}>
                                 <SidebarMenuButton
@@ -66,7 +77,13 @@ export function NavMainGroup({
                                     }`}
                                     tooltip={{ children: item.title }}
                                 >
-                                    <Link href={item.href} prefetch>
+                                    <a
+                                        href={item.href}
+                                        onClick={(e) =>
+                                            handleLinkClick(e, item.href)
+                                        }
+                                        className="flex w-full items-center gap-2 px-2 py-1.5 text-sm"
+                                    >
                                         {item.icon && (
                                             <item.icon
                                                 className={`h-4 w-4 ${
@@ -77,7 +94,7 @@ export function NavMainGroup({
                                             />
                                         )}
                                         <span
-                                            className={`${
+                                            className={`flex-1 ${
                                                 isActive
                                                     ? 'font-medium'
                                                     : 'font-normal'
@@ -90,7 +107,7 @@ export function NavMainGroup({
                                                 {item.badge}
                                             </span>
                                         )}
-                                    </Link>
+                                    </a>
                                 </SidebarMenuButton>
                             </SidebarMenuItem>
                         );

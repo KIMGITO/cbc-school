@@ -13,6 +13,7 @@ import { type NavItem } from '@/types';
 import { Link, router } from '@inertiajs/react';
 import {
     BarChart,
+    GraduationCap,
     LayoutGrid,
     Settings,
     ShieldIcon,
@@ -53,20 +54,20 @@ const navGroups = [
     },
     {
         title: 'Students',
-        // items: [
-        //     {
-        //         title: 'All Students',
-        //         href: '/students',
-        //         icon: Users,
-        //         badge: '0',
-        //     },
-        //     {
-        //         title: 'Admissions',
-        //         href: '/admissions',
-        //         icon: Users,
-        //         badge: '12',
-        //     },
-        // ],
+        items: [
+            {
+                title: 'All Students',
+                href: '/students',
+                icon: GraduationCap,
+                badge: '0', 
+            },
+            // {
+            //     title: 'Admissions',
+            //     href: '/admissions',
+            //     icon: Users,
+            //     badge: '12',
+            // },
+        ],
         icon: Users,
         defaultOpen: false,
         showAddButton: true,

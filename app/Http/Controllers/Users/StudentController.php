@@ -18,6 +18,28 @@ class StudentController extends Controller
     //     $this->authorizeResource(Student::class, 'student');
     // }
 
+
+    public function index(Request $request)
+    {
+        $students = Student::select([
+            'id',
+            'first_name',
+            'other_names',
+            'sir_name',
+            'adm_no',
+            'gender',
+            'profile_photo',
+            'stream_id',
+            'admission_date',
+            'academic_status',
+        ])
+            ->with(['stream:id,name'])
+            ->orderBy('created_at', 'desc')
+            ->paginate(50);
+        $count = Student::where('academic_status', 'active')->count();
+
+        return $this->respond($request, $students, 'users/students/index', ['students' => $students, 'studentCount' => $count]);
+    }
     public function create()
     {
 

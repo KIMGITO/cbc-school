@@ -1,7 +1,7 @@
 import FormField from '@/components/custom/form-field';
 import FormGrid from '@/components/custom/form-grid';
 import { Button } from '@/components/ui/button';
-import axios from 'axios';
+import { getStreamsOptions } from '@/helpers/selection-options';
 import { School } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
@@ -40,25 +40,14 @@ export default function SchoolDataTab({
             label: 'Select Streams',
         },
     ]);
-     useEffect(() => {
-         getStreams();
-     }, []);
 
-     const getStreams = async () => {
-         const response = await axios.get('/system/config/streams');
-
-         if (response.data.data && Array.isArray(response.data.data)) {
-             const streams = response.data.data;
-             const streamOptions = streams.map((stream: any) => ({
-                 value: stream.id,
-                 label: stream.name,
-             }));
-             setStreamOptions(streamOptions);
-         
-         }
-     };
-
-
+    useEffect(() => {
+        async function fetchStreams() {
+            const streams = await getStreamsOptions()();
+            setStreamOptions(streams);
+        }
+        fetchStreams();
+    }, []);
 
     const enrollmentTypes = [
         { value: 'new', label: 'New Student' },
@@ -90,7 +79,7 @@ export default function SchoolDataTab({
                     type="select"
                     value={data.stream_id || ''}
                     options={streamOptions}
-                    emptyOption='Select Streams'
+                    emptyOption="Select Streams"
                     onChange={handleChange}
                 />
 
@@ -98,7 +87,8 @@ export default function SchoolDataTab({
                     error={errors.admission_date?.toString()}
                     name="admission_date"
                     label="Admission Date"
-                    type="calendar"
+                    type="calendar-enhanced"
+                    disabledDays={[0, 6]}
                     value={data.admission_date}
                     onChange={handleChange}
                     required={true}

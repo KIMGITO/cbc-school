@@ -17,8 +17,8 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
-import { CalendarIcon } from 'lucide-react';
-import React from 'react';
+import { CalendarIcon, ChevronLeft, ChevronRight } from 'lucide-react';
+import React, { useState } from 'react';
 
 export type FieldType =
     | 'input'
@@ -26,6 +26,7 @@ export type FieldType =
     | 'select'
     | 'date'
     | 'calendar'
+    | 'calendar-enhanced'
     | 'email'
     | 'password'
     | 'number';
@@ -106,6 +107,171 @@ export type FormFieldProps = BaseFieldProps &
     CalendarSpecificProps & {
         // You can add custom props here if needed
     };
+
+// Enhanced Calendar Component with Year Selection
+const EnhancedCalendar = ({
+    selected,
+    onSelect,
+    disabled,
+    fromDate,
+    toDate,
+    disabledDates,
+    disabledDays,
+    defaultMonth,
+}: {
+    selected?: Date;
+    onSelect?: (date?: Date) => void;
+    disabled?: boolean;
+    fromDate?: Date;
+    toDate?: Date;
+    disabledDates?: Date[];
+    disabledDays?: number[];
+    defaultMonth?: Date;
+}) => {
+    const [currentMonth, setCurrentMonth] = useState<Date>(
+        defaultMonth || selected || new Date(),
+    );
+    const [showYearPicker, setShowYearPicker] = useState(false);
+
+    // Generate years range
+    const startYear = fromDate?.getFullYear() || 1900;
+    const endYear = toDate?.getFullYear() || 2100;
+    const years = Array.from(
+        { length: endYear - startYear + 1 },
+        (_, i) => startYear + i,
+    );
+
+    const handleYearSelect = (year: number) => {
+        const newDate = new Date(currentMonth);
+        newDate.setFullYear(year);
+        setCurrentMonth(newDate);
+        setShowYearPicker(false);
+    };
+
+    const handleMonthNavigation = (direction: 'prev' | 'next') => {
+        const newDate = new Date(currentMonth);
+        newDate.setMonth(newDate.getMonth() + (direction === 'prev' ? -1 : 1));
+        setCurrentMonth(newDate);
+    };
+
+    const currentYear = currentMonth.getFullYear();
+
+    return (
+        <div className="space-y-3">
+            {/* Custom Navigation */}
+            <div className="flex items-center justify-between px-3">
+                <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => handleMonthNavigation('prev')}
+                    disabled={disabled}
+                    className="h-7 w-7"
+                >
+                    <ChevronLeft className="h-4 w-4" />
+                </Button>
+
+                <div className="flex items-center gap-2">
+                    {showYearPicker ? (
+                        <Select
+                            value={currentYear.toString()}
+                            onValueChange={(value) =>
+                                handleYearSelect(parseInt(value))
+                            }
+                        >
+                            <SelectTrigger className="h-7 w-24 text-sm">
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent className="max-h-60">
+                                {years.map((year) => (
+                                    <SelectItem
+                                        key={year}
+                                        value={year.toString()}
+                                    >
+                                        {year}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    ) : (
+                        <div className="flex items-center gap-1">
+                            <span className="text-sm font-medium">
+                                {currentMonth.toLocaleDateString('en-US', {
+                                    month: 'long',
+                                })}
+                            </span>
+                            <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                className="h-7 px-2 text-sm font-medium"
+                                onClick={() => setShowYearPicker(true)}
+                            >
+                                {currentYear}
+                            </Button>
+                        </div>
+                    )}
+                </div>
+
+                <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => handleMonthNavigation('next')}
+                    disabled={disabled}
+                    className="h-7 w-7"
+                >
+                    <ChevronRight className="h-4 w-4" />
+                </Button>
+            </div>
+
+            {/* Calendar */}
+            <Calendar
+                mode="single"
+                selected={selected}
+                onSelect={onSelect}
+                disabled={disabled}
+                fromDate={fromDate}
+                toDate={toDate}
+                disabledDates={disabledDates}
+                disabledDays={disabledDays}
+                month={currentMonth}
+                onMonthChange={setCurrentMonth}
+                className="p-0"
+                classNames={{
+                    months: 'space-y-0',
+                    month: 'space-y-3',
+                    caption: 'hidden',
+                    caption_label: 'hidden',
+                    nav: 'hidden',
+                    table: 'w-full border-collapse space-y-1',
+                    head_row: 'flex justify-between',
+                    head_cell:
+                        'text-muted-foreground rounded-md w-8 font-normal text-[0.8rem]',
+                    row: 'flex w-full justify-between mt-1',
+                    cell: cn(
+                        'relative p-0 text-center text-sm focus-within:relative focus-within:z-20',
+                        'h-8 w-8 rounded-md [&:has([aria-selected])]:bg-accent',
+                    ),
+                    day: cn(
+                        'h-8 w-8 rounded-md p-0 font-normal aria-selected:opacity-100',
+                        'hover:bg-accent hover:text-accent-foreground',
+                        'focus:bg-accent focus:text-accent-foreground',
+                        'aria-selected:bg-primary aria-selected:text-primary-foreground',
+                    ),
+                    day_selected:
+                        'bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground',
+                    day_today: 'bg-accent text-accent-foreground',
+                    day_outside: 'text-muted-foreground opacity-50',
+                    day_disabled: 'text-muted-foreground opacity-50',
+                    day_range_middle:
+                        'aria-selected:bg-accent aria-selected:text-accent-foreground',
+                    day_hidden: 'invisible',
+                }}
+            />
+        </div>
+    );
+};
 
 const FormField: React.FC<FormFieldProps> = ({
     // Base props
@@ -265,6 +431,52 @@ const FormField: React.FC<FormFieldProps> = ({
                     </Select>
                 );
 
+            case 'calendar-enhanced':
+                return (
+                    <Popover>
+                        <PopoverTrigger asChild>
+                            <Button
+                                variant="outline"
+                                className={cn(
+                                    'w-full justify-start text-left font-normal',
+                                    !value && 'text-muted-foreground',
+                                    commonProps.className,
+                                )}
+                                disabled={disabled}
+                                aria-invalid={!!error}
+                                aria-describedby={
+                                    error
+                                        ? `${fieldId}-error`
+                                        : description
+                                          ? `${fieldId}-description`
+                                          : undefined
+                                }
+                            >
+                                <CalendarIcon className="mr-2 h-4 w-4" />
+                                {value ? (
+                                    format(value, 'PPP')
+                                ) : (
+                                    <span>
+                                        {placeholder || 'Select a date'}
+                                    </span>
+                                )}
+                            </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-3" align="start">
+                            <EnhancedCalendar
+                                selected={value}
+                                onSelect={handleCalendarChange}
+                                disabled={disabled}
+                                fromDate={fromDate}
+                                toDate={toDate}
+                                disabledDates={disabledDates}
+                                disabledDays={disabledDays}
+                                defaultMonth={defaultMonth}
+                            />
+                        </PopoverContent>
+                    </Popover>
+                );
+
             case 'calendar':
                 return (
                     <Popover>
@@ -296,15 +508,17 @@ const FormField: React.FC<FormFieldProps> = ({
                                 )}
                             </Button>
                         </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0">
+                        <PopoverContent className="w-auto p-0" align="start">
                             <Calendar
                                 mode="single"
                                 selected={value}
                                 onSelect={handleCalendarChange}
                                 initialFocus
-                                disabled={disabled || disabledDates}
+                                disabled={disabled}
                                 fromDate={fromDate}
                                 toDate={toDate}
+                                disabledDates={disabledDates}
+                                disabledDays={disabledDays}
                                 defaultMonth={defaultMonth}
                             />
                         </PopoverContent>

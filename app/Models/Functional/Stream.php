@@ -4,6 +4,7 @@ namespace App\Models\Functional;
 
 use App\Models\People\Student;
 use App\Models\People\Teacher;
+use Illuminate\Database\Eloquent\Attributes\Boot;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -21,6 +22,10 @@ class Stream extends Model
         'code',
         'level_id',
         'teacher_id',
+    ];
+
+    protected $cast = [
+        'id' => 'string',
     ];
 
 
@@ -41,7 +46,7 @@ class Stream extends Model
      */
     public function students()
     {
-        return $this->hasMany(Student::class);
+        return $this->hasMany(Student::class, 'stream_id', 'id');
     }
 
     /**
@@ -52,5 +57,12 @@ class Stream extends Model
     public function teacher()
     {
         return $this->belongsTo(Teacher::class);
+    }
+
+
+    protected static function booted(){
+        static::retrieved(function ($stream) {
+            return $stream->name = strtoupper($stream->name);
+        });
     }
 }
