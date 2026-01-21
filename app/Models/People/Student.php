@@ -5,6 +5,7 @@ namespace App\Models\People;
 use App\Enum\AssessmentRating;
 use App\Models\Functional\GradeLevel;
 use App\Models\Functional\Stream;
+use App\Users\StudentService;
 use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -120,5 +121,16 @@ class Student extends Model
                 return $address;
             }
         );
+    }
+
+    /**
+     * The "booted" method of the model.
+     *
+     */
+    protected static function booted()
+    {
+        static::creating(function ($student) {
+            StudentService::generateAdmissionNumber($student);
+        });
     }
 }

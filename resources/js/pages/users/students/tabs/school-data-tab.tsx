@@ -1,7 +1,9 @@
 import FormField from '@/components/custom/form-field';
 import FormGrid from '@/components/custom/form-grid';
 import { Button } from '@/components/ui/button';
+import axios from 'axios';
 import { School } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 interface schoolDataInterface {
     stream_id?: string;
@@ -16,6 +18,11 @@ interface SchoolDataTabProps {
     onSubmit?: () => void;
 }
 
+interface StreamProps {
+    value: string;
+    label: string;
+}
+
 export default function SchoolDataTab({
     data = {},
     errors = {},
@@ -27,19 +34,31 @@ export default function SchoolDataTab({
             onChange(field, value);
         }
     };
+    const [streamOptions, setStreamOptions] = useState<StreamProps[]>([
+        {
+            value: '0',
+            label: 'Select Streams',
+        },
+    ]);
+     useEffect(() => {
+         getStreams();
+     }, []);
 
-    // Define array for stream/class options for use in map
-    const streamOptions = [
-        { value: 'form1a', label: 'Form 1A' },
-        { value: 'form1b', label: 'Form 1B' },
-        { value: 'form1c', label: 'Form 1C' },
-        { value: 'form2a', label: 'Form 2A' },
-        { value: 'form2b', label: 'Form 2B' },
-        { value: 'form3a', label: 'Form 3A' },
-        { value: 'form3b', label: 'Form 3B' },
-        { value: 'form4a', label: 'Form 4A' },
-        { value: 'form4b', label: 'Form 4B' },
-    ];
+     const getStreams = async () => {
+         const response = await axios.get('/system/config/streams');
+
+         if (response.data.data && Array.isArray(response.data.data)) {
+             const streams = response.data.data;
+             const streamOptions = streams.map((stream: any) => ({
+                 value: stream.id,
+                 label: stream.name,
+             }));
+             setStreamOptions(streamOptions);
+         
+         }
+     };
+
+
 
     const enrollmentTypes = [
         { value: 'new', label: 'New Student' },
@@ -60,7 +79,6 @@ export default function SchoolDataTab({
                         School & Admission Details
                     </h2>
                 </div>
-
             </div>
 
             <FormGrid gap="lg" cols={2}>
@@ -72,6 +90,7 @@ export default function SchoolDataTab({
                     type="select"
                     value={data.stream_id || ''}
                     options={streamOptions}
+                    emptyOption='Select Streams'
                     onChange={handleChange}
                 />
 

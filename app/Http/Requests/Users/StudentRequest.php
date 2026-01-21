@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests\Users;
 
+use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StudentRequest extends FormRequest
@@ -21,6 +23,8 @@ class StudentRequest extends FormRequest
      */
     public function rules(): array
     {
+
+        $studentId = $this->route('student');
         return [
             'first_name' => ['required', 'string', 'max:255'],
             'other_names' => ['required', 'string', 'max:255'],
@@ -33,7 +37,12 @@ class StudentRequest extends FormRequest
             'ward' => ['required', 'string', 'max:100'],
             'location' => ['required', 'string', 'max:100'],
             'sub_location' => ['required', 'string', 'max:100'],
-            // 'upi_number' => ['nullable', 'string', 'max:50'],
+            'upi_number' => [
+                'nullable',
+                'string',
+                'max:50',
+                Rule::unique('students')->ignore($studentId)
+            ],
 
             'blood_group' => ['nullable', 'string', 'max:10'],
             'allergies' => ['required', 'string', 'max:255'],
@@ -43,7 +52,7 @@ class StudentRequest extends FormRequest
             'admission_date' => ['required', 'date'],
             'enrollment_type' => ['required', 'in:new,transferred'],
             'boarding_status' => ['required', 'in:day,boarding'],
-            'crated_by' => ['required', 'integer', 'exists:users,id'],
+            'created_by' => ['required', 'string', 'exists:users,id'],
         ];
     }
 
@@ -79,5 +88,14 @@ class StudentRequest extends FormRequest
             'boarding_status.in' => ' Boarding status must be day or boarding.',
             'crated_by.required' => 'Log in first for this action.',
         ];
+    }
+
+    public function prepareForValidation()
+    {
+        if (Auth::check()) {
+            $this->merge([
+                'created_by' => Auth::id(),
+            ]);
+        }
     }
 }

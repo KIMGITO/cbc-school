@@ -614,7 +614,7 @@ function SidebarMenuGroupButton({
                         isActive && "text-blue-600 dark:text-blue-400"
                     )} />
                 )}
-                <span className="flex-1 text-left font-medium">
+                <span className="flex-1 text-left w-1 hover:overflow-visible hover:w-full hover:z-50 font-semibold truncate ">
                     {title}
                 </span>
                 {badge && (

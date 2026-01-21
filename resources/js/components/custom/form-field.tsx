@@ -248,7 +248,7 @@ const FormField: React.FC<FormFieldProps> = ({
                         </SelectTrigger>
                         <SelectContent>
                             {emptyOption && (
-                                <SelectItem value="" disabled>
+                                <SelectItem value="0" disabled>
                                     {emptyOption}
                                 </SelectItem>
                             )}

@@ -1,5 +1,3 @@
-import { NavFooter } from '@/components/nav-footer';
-import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
 import {
     Sidebar,
@@ -15,13 +13,12 @@ import { type NavItem } from '@/types';
 import { Link, router } from '@inertiajs/react';
 import {
     BarChart,
-    BookOpen,
     LayoutGrid,
-    School,
     Settings,
     ShieldIcon,
     UserPlus2Icon,
     Users,
+    Users2,
 } from 'lucide-react';
 import AppLogo from './app-logo';
 import { NavMainGroup } from './nav-main-group';
@@ -56,28 +53,35 @@ const navGroups = [
     },
     {
         title: 'Students',
-        items: [
-            {
-                title: 'All Students',
-                href: '/students',
-                icon: Users,
-                badge: '0',
-            },
-            {
-                title: 'Admissions',
-                href: '/admissions',
-                icon: Users,
-                badge: '12',
-            },
-            { title: 'Classes', href: '/classes', icon: School },
-        ],
+        // items: [
+        //     {
+        //         title: 'All Students',
+        //         href: '/students',
+        //         icon: Users,
+        //         badge: '0',
+        //     },
+        //     {
+        //         title: 'Admissions',
+        //         href: '/admissions',
+        //         icon: Users,
+        //         badge: '12',
+        //     },
+        // ],
         icon: Users,
         defaultOpen: false,
         showAddButton: true,
         addUrl: '/students/create',
         badge: 154,
     },
-    
+    {
+        title: 'Parent/Guardian',
+        icon: Users2,
+        defaultOpen: false,
+        showAddButton: true,
+        addUrl: '/guardian/create',
+        badge: 100,
+        items: [],
+    },
 ];
 const footerNavItems = [
     {
@@ -136,7 +140,6 @@ export function AppSidebar() {
                         title={group.title}
                         items={group.items}
                         defaultOpen={group.defaultOpen}
-                        
                         icon={group.icon}
                         badge={'0'}
                         groupClassName="border-t border-gray-200 dark:border-gray-800 pt-2 first:border-t-0 first:pt-0"

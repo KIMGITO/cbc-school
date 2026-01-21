@@ -71,7 +71,6 @@ export default function StudentAdmission() {
 
     // Handle form submission
     const handleSubmit = () => {
-        console.log('Form data to submit:', formData);
 
         // Here you would typically:
         // 1. Validate the form data
