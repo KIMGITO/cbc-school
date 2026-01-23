@@ -1,7 +1,10 @@
 // guardians/tabs/address-info-tab.tsx
 import FormField from '@/components/custom/form-field';
+import FormGrid from '@/components/custom/form-grid';
+import FormSection from '@/components/custom/form-section';
 
 import { GuardianFormData, GuardianFormErrors } from '@/types/guardian';
+import { School2Icon } from 'lucide-react';
 
 export default function AddressInfoTab({
     data,
@@ -14,6 +17,7 @@ export default function AddressInfoTab({
 }) {
     return (
         <div className="space-y-6">
+            <FormSection titleClassName='text-green-800' title="Address Information" Icon={{icon:School2Icon, color: 'green-500'}}>
             <div className="grid grid-cols-1 gap-6">
                 <FormField
                     name="address"
@@ -27,7 +31,7 @@ export default function AddressInfoTab({
                 />
             </div>
 
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+            <FormGrid cols={2}>
                 <FormField
                     name="county"
                     label="County"
@@ -45,9 +49,9 @@ export default function AddressInfoTab({
                     onChange={onChange}
                     placeholder="e.g., Westlands"
                 />
-            </div>
+            </FormGrid>
 
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+            <FormGrid cols={3}>
                 <FormField
                     name="ward"
                     label="Ward"
@@ -74,7 +78,8 @@ export default function AddressInfoTab({
                     onChange={onChange}
                     placeholder="e.g., Kangemi"
                 />
-            </div>
+            </FormGrid>
+            </FormSection>
         </div>
     );
 }

@@ -1,5 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
+import { Checkbox } from '@/components/ui/checkbox'; // Add this import
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -29,11 +30,29 @@ export type FieldType =
     | 'calendar-enhanced'
     | 'email'
     | 'password'
-    | 'number';
+    | 'number'
+    | 'checkbox'
+    | 'checkbox-group'; // Add checkbox-group type
 
 export interface SelectOption {
     value: string;
     label: string;
+    disabled?: boolean;
+}
+
+// Add checkbox-specific props
+interface CheckboxSpecificProps {
+    checkboxLabel?: string; // Label for individual checkbox
+    checked?: boolean;
+    indeterminate?: boolean; // For partially checked state
+    checkboxOptions?: CheckboxOption[]; // For checkbox groups
+}
+
+export interface CheckboxOption {
+    id: string;
+    label: string;
+    value: string;
+    checked?: boolean;
     disabled?: boolean;
 }
 
@@ -104,7 +123,8 @@ export type FormFieldProps = BaseFieldProps &
     InputSpecificProps &
     SelectSpecificProps &
     TextareaSpecificProps &
-    CalendarSpecificProps & {
+    CalendarSpecificProps &
+    CheckboxSpecificProps & {
         // You can add custom props here if needed
     };
 
@@ -316,6 +336,12 @@ const FormField: React.FC<FormFieldProps> = ({
     disabledDates,
     disabledDays,
     defaultMonth,
+
+    // Checkbox-specific props
+    checkboxLabel,
+    checked = false,
+    indeterminate = false,
+    checkboxOptions = [],
 }) => {
     const handleChange = (newValue: any) => {
         if (onChange && !disabled && !readOnly) {
@@ -335,6 +361,31 @@ const FormField: React.FC<FormFieldProps> = ({
 
     const handleCalendarChange = (date: Date | undefined) => {
         handleChange(date);
+    };
+
+    const handleCheckboxChange = (checked: boolean) => {
+        handleChange(checked);
+    };
+
+    const handleCheckboxGroupChange = (optionId: string, checked: boolean) => {
+        let currentValues = value || [];
+
+        if (Array.isArray(currentValues)) {
+            if (checked) {
+                // Add to array
+                currentValues = [...currentValues, optionId];
+            } else {
+                // Remove from array
+                currentValues = currentValues.filter(
+                    (id: string) => id !== optionId,
+                );
+            }
+        } else {
+            // Initialize array
+            currentValues = checked ? [optionId] : [];
+        }
+
+        handleChange(currentValues);
     };
 
     const fieldId = `${name}-field-${Math.random().toString(36).substr(2, 9)}`;
@@ -368,6 +419,95 @@ const FormField: React.FC<FormFieldProps> = ({
         };
 
         switch (type) {
+            case 'checkbox':
+                return (
+                    <div className="flex items-center space-x-2">
+                        <Checkbox
+                            id={fieldId}
+                            checked={value || checked}
+                            onCheckedChange={handleCheckboxChange}
+                            disabled={disabled}
+                            aria-invalid={!!error}
+                            aria-describedby={
+                                error
+                                    ? `${fieldId}-error`
+                                    : description
+                                      ? `${fieldId}-description`
+                                      : undefined
+                            }
+                            className={cn(
+                                error && 'border-red-500',
+                                success && 'border-green-500',
+                            )}
+                        />
+                        {checkboxLabel && (
+                            <Label
+                                htmlFor={fieldId}
+                                className={cn(
+                                    'cursor-pointer text-sm font-medium',
+                                    disabled &&
+                                        'cursor-not-allowed text-gray-400',
+                                    error && 'text-red-700',
+                                    success && 'text-green-700',
+                                )}
+                            >
+                                {checkboxLabel}
+                                {required && (
+                                    <span className="ml-1 text-red-500">*</span>
+                                )}
+                            </Label>
+                        )}
+                    </div>
+                );
+
+            case 'checkbox-group':
+                return (
+                    <div className="space-y-3">
+                        {checkboxOptions.map((option) => {
+                            const optionFieldId = `${fieldId}-${option.id}`;
+                            const isChecked = Array.isArray(value)
+                                ? value.includes(option.id)
+                                : option.checked || false;
+
+                            return (
+                                <div
+                                    key={option.id}
+                                    className="flex items-center space-x-2"
+                                >
+                                    <Checkbox
+                                        id={optionFieldId}
+                                        checked={isChecked}
+                                        onCheckedChange={(checked) =>
+                                            handleCheckboxGroupChange(
+                                                option.id,
+                                                checked as boolean,
+                                            )
+                                        }
+                                        disabled={disabled || option.disabled}
+                                        aria-invalid={!!error}
+                                        className={cn(
+                                            error && 'border-red-500',
+                                            success && 'border-green-500',
+                                        )}
+                                    />
+                                    <Label
+                                        htmlFor={optionFieldId}
+                                        className={cn(
+                                            'cursor-pointer text-sm font-medium',
+                                            (disabled || option.disabled) &&
+                                                'cursor-not-allowed text-gray-400',
+                                            error && 'text-red-700',
+                                            success && 'text-green-700',
+                                        )}
+                                    >
+                                        {option.label}
+                                    </Label>
+                                </div>
+                            );
+                        })}
+                    </div>
+                );
+
             case 'textarea':
                 return (
                     <Textarea
@@ -558,9 +698,13 @@ const FormField: React.FC<FormFieldProps> = ({
         }
     };
 
+    // Don't show label for individual checkbox as it's handled in renderField
+    const shouldShowLabel =
+        showLabel && label && type !== 'checkbox' && type !== 'checkbox-group';
+
     return (
         <div className={cn('space-y-2', containerClassName)}>
-            {showLabel && label && (
+            {shouldShowLabel && (
                 <div className="flex items-center justify-between">
                     <Label
                         htmlFor={fieldId}
@@ -590,14 +734,18 @@ const FormField: React.FC<FormFieldProps> = ({
 
             {renderField()}
 
-            {description && !error && !success && (
-                <p
-                    id={`${fieldId}-description`}
-                    className="text-xs text-gray-500"
-                >
-                    {description}
-                </p>
-            )}
+            {description &&
+                !error &&
+                !success &&
+                type !== 'checkbox' &&
+                type !== 'checkbox-group' && (
+                    <p
+                        id={`${fieldId}-description`}
+                        className="text-xs text-gray-500"
+                    >
+                        {description}
+                    </p>
+                )}
 
             {error && (
                 <p

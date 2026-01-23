@@ -25,11 +25,19 @@ export default function PersonalInfoTab({
                 title="Personal information"
                 Icon={{ icon: User, color: 'green-500' }}
             >
-                <FormSection
-                    title="Identification Data"
-                    border={false}
-                >
+                <FormSection title="Identification Data" border={false}>
                     <FormGrid cols={2}>
+                        <FormField
+                            name="sir_name"
+                            label="Sir Name"
+                            type="input"
+                            value={data.sir_name}
+                            onChange={onChange}
+                            required
+                            error={errors?.sir_name}
+                            disabled={!!selectedGuardian}
+                            placeholder="Enter Sir name"
+                        />
                         <FormField
                             name="first_name"
                             label="First Name"
@@ -43,25 +51,17 @@ export default function PersonalInfoTab({
                         />
 
                         <FormField
-                            name="middle_name"
-                            label="Middle Name"
+                            name="other_names"
+                            label="Other names"
                             type="input"
-                            value={data.middle_name}
+                            required
+                            error={errors?.other_names}
+                            disabled={!!selectedGuardian}
+                            value={data.other_names}
                             onChange={onChange}
-                            placeholder="Enter middle name"
+                            placeholder="Enter other names"
                         />
 
-                        <FormField
-                            name="last_name"
-                            label="Last Name"
-                            type="input"
-                            value={data.last_name}
-                            onChange={onChange}
-                            required
-                            error={errors?.last_name}
-                            disabled={!!selectedGuardian}
-                            placeholder="Enter last name"
-                        />
                         <FormField
                             name="national_id"
                             label="National ID / Passport"

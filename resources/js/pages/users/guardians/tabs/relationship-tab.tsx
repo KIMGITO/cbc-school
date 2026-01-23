@@ -1,13 +1,10 @@
 import FormField from '@/components/custom/form-field';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select';
+import FormGrid from '@/components/custom/form-grid';
+import FormSection from '@/components/custom/form-section';
+import SearchAutocomplete from '@/components/custom/search-autocomplete';
 import { GuardianFormData, GuardianFormErrors } from '@/types/guardian';
 import axios from 'axios';
+import { UsersRound } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 interface Student {
@@ -36,7 +33,7 @@ export default function RelationshipTab({
     const fetchStudents = async () => {
         setIsLoading(true);
         try {
-            const response = await axios.get('/api/students/active');
+            const response = await axios.get('/api/v1/students');
             setStudents(response.data.data || []);
         } catch (error) {
             console.error('Error fetching students:', error);
@@ -47,74 +44,59 @@ export default function RelationshipTab({
 
     return (
         <div className="space-y-6">
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                <div className="space-y-2">
-                    <label className="text-sm font-medium">
-                        Select Student <span className="text-red-500">*</span>
-                    </label>
-                    <Select
+            <FormSection
+                title="Relationship Data"
+                Icon={{ icon: UsersRound, color: 'green-500' }}
+            >
+                <FormGrid cols={2}>
+                    <SearchAutocomplete
+                        required
+                        label='Select Student'
+                        placeholder='Search for a student ...'
+                        name="student_id"
+                        noResultsMessage='No students with the given search term found'
+                        loadingMessage='Loading students...'
+                        error={errors?.student_id}
+                        type='student'
+                        autoSelectSingleResult={false}
+                        searchFields={['adm_no','first_name']}
                         value={data.student_id}
-                        onValueChange={(value) => onChange('student_id', value)}
-                        disabled={isLoading}
-                    >
-                        <SelectTrigger
-                            className={
-                                errors?.student_id ? 'border-red-500' : ''
-                            }
-                        >
-                            <SelectValue
-                                placeholder={
-                                    isLoading
-                                        ? 'Loading students...'
-                                        : 'Select a student'
-                                }
-                            />
-                        </SelectTrigger>
-                        <SelectContent>
-                            {students.map((student) => (
-                                <SelectItem key={student.id} value={student.id}>
-                                    {student.adm_no} - {student.first_name}{' '}
-                                    {student.sir_name}
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-                    {errors?.student_id && (
-                        <p className="text-sm text-red-500">
-                            {errors.student_id}
-                        </p>
-                    )}
-                </div>
+                        onChange={onChange}
+                        showClearButton={true}
+                        showSelectedInDropdown={false}
+                        url="/api/v1/students"
+                        inputClassName='bg-gray-700/20 border-2 border-blue-500 '
+                    />
+
+                    <FormField
+                        name="relationship_type"
+                        label="Relationship Type"
+                        type="select"
+                        value={data.relationship_type}
+                        onChange={onChange}
+                        options={[
+                            { value: 'parent', label: 'Parent' },
+                            { value: 'guardian', label: 'Guardian' },
+                            { value: 'sibling', label: 'Sibling' },
+                            { value: 'relative', label: 'Relative' },
+                            { value: 'sponsor', label: 'Sponsor' },
+                        ]}
+                        placeholder="Select relationship"
+                    />
+                </FormGrid>
 
                 <FormField
-                    name="relationship_type"
-                    label="Relationship Type"
-                    type="select"
-                    value={data.relationship_type}
-                    onChange={onChange}
-                    options={[
-                        { value: 'parent', label: 'Parent' },
-                        { value: 'guardian', label: 'Guardian' },
-                        { value: 'sibling', label: 'Sibling' },
-                        { value: 'relative', label: 'Relative' },
-                        { value: 'sponsor', label: 'Sponsor' },
-                    ]}
-                    placeholder="Select relationship"
-                />
-            </div>
-
-            <div className="flex items-center space-x-2">
-                <input
+                    name="is_primary"
                     type="checkbox"
-                    id="is_primary"
+                    checkboxLabel="Set as primary guardian"
+                    value={data.is_primary}
+                    onChange={onChange}
+                    required
+                    error={errors?.is_primary}
+                    // disabled={!!data.student_id}
                     checked={data.is_primary}
-                    onChange={(e) => onChange('is_primary', e.target.checked)}
-                    className="h-4 w-4 rounded border-gray-300"
                 />
-                <label htmlFor="is_primary" className="text-sm font-medium">
-                    Set as primary guardian
-                </label>
-            </div>
+            </FormSection>
 
             {data.student_id && (
                 <div className="rounded-lg bg-green-50 p-4">

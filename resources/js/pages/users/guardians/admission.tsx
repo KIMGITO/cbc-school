@@ -101,8 +101,8 @@ export default function GuardianAdmission() {
         setFormData({
             user_id: guardian.user_id || '',
             first_name: guardian.first_name || '',
-            middle_name: guardian.middle_name || '',
-            last_name: guardian.last_name || '',
+            other_names: guardian.other_names || '',
+            sir_name: guardian.sir_name || '',
             national_id: guardian.national_id || '',
             phone_number: guardian.phone_number || '',
             phone_number_2: guardian.phone_number_2 || '',
@@ -161,9 +161,7 @@ export default function GuardianAdmission() {
             await axios[method](endpoint, formDataToSend);
             
             // Success handling
-            alert(selectedGuardian 
-                ? 'Guardian updated successfully!' 
-                : 'New guardian created successfully!');
+            
             
             // Reset form
             handleClearSelection();
@@ -179,14 +177,12 @@ export default function GuardianAdmission() {
     // Handle save as draft
     const handleSaveDraft = () => {
         localStorage.setItem('guardianAdmissionDraft', JSON.stringify(formData));
-        alert('Draft saved!');
     };
 
     const handleClearDraft = () => {
         localStorage.removeItem('guardianAdmissionDraft');
         setFormData(emptyGuardianData);
         handleClearSelection();
-        alert('Draft cleared!');
     };
 
     // Load draft on component mount
@@ -207,7 +203,7 @@ export default function GuardianAdmission() {
         const errors: any = {};
         
         if (!data.first_name?.trim()) errors.first_name = 'First name is required';
-        if (!data.last_name?.trim()) errors.last_name = 'Last name is required';
+        if (!data.sir_name?.trim()) errors.sir_name = 'Last name is required';
         if (!data.national_id?.trim()) errors.national_id = 'National ID is required';
         if (!data.phone_number?.trim()) errors.phone_number = 'Phone number is required';
         if (!data.student_id) errors.student_id = 'Please select a student';
@@ -322,7 +318,7 @@ export default function GuardianAdmission() {
                     <CardContent className="p-6">
                         <div className="mb-4 flex items-center justify-between">
                             <CardTitle className="flex items-center text-lg">
-                                <UserCheck className="mr-2 h-5 w-5" />
+                                <UserCheck className="mr-2 h-5 w-5 " />
                                 Find Existing Guardian
                             </CardTitle>
                             {selectedGuardian && (
@@ -402,7 +398,7 @@ export default function GuardianAdmission() {
                                                                         guardian.first_name
                                                                     }{' '}
                                                                     {
-                                                                        guardian.last_name
+                                                                        guardian.sir_name
                                                                     }
                                                                 </p>
                                                                 <div className="flex gap-4 text-sm text-gray-600">
@@ -465,7 +461,7 @@ export default function GuardianAdmission() {
                                         ✓ Using existing guardian:{' '}
                                         <strong>
                                             {selectedGuardian.first_name}{' '}
-                                            {selectedGuardian.last_name}
+                                            {selectedGuardian.sir_name}
                                         </strong>
                                         . You can update their information
                                         below.

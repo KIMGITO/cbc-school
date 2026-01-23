@@ -297,6 +297,74 @@
         animation: gradient 3s ease infinite;
     }
     
+
+    @keyframes shake {
+        0%, 100% { 
+            transform: rotate(0deg); 
+        }
+        10% { 
+            transform: rotate(-15); 
+        }
+        20% { 
+            transform: rotate(15); 
+        }
+        30% { 
+            transform: rotate(-9deg); 
+        }
+        40% { 
+            transform: rotate(9deg); 
+        }
+        50% { 
+            transform: rotate(-6deg); 
+        }
+        60% { 
+            transform: rotate(6deg); 
+        }
+        70% { 
+            transform: rotate(-4deg); 
+        }
+        80% { 
+            transform: rotate(4deg); 
+        }
+        90% { 
+            transform: rotate(-2deg); 
+        }
+
+
+    }
+    
+    .animate-shake {
+        animation: shake 0.45s ease-in-out;
+    }
+    
+    /* Additional useful animations */
+    @keyframes pulse-subtle {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.7; }
+    }
+    
+    .animate-pulse-subtle {
+        animation: pulse-subtle 2s ease-in-out infinite;
+    }
+    
+    @keyframes slide-up {
+        from { transform: translateY(10px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
+    
+    .animate-slide-up {
+        animation: slide-up 0.3s ease-out;
+    }
+    
+    @keyframes fade-in {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    
+    .animate-fade-in {
+        animation: fade-in 0.2s ease-in;
+    }
+
     @keyframes gradient {
         0% {
             background-position: 0% 50%;

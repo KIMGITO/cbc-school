@@ -1,7 +1,10 @@
 // guardians/tabs/contact-info-tab.tsx
 import FormField from '@/components/custom/form-field';
+import FormGrid from '@/components/custom/form-grid';
+import FormSection from '@/components/custom/form-section';
 
 import { GuardianFormData, GuardianFormErrors } from '@/types/guardian';
+import { PhoneCall, PhoneForwarded } from 'lucide-react';
 
 export default function ContactInfoTab({
     data,
@@ -14,32 +17,36 @@ export default function ContactInfoTab({
 }) {
     return (
         <div className="space-y-6">
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                <FormField
-                    name="phone_number"
-                    label="Primary Phone Number"
-                    type="input"
-                    value={data.phone_number}
-                    onChange={onChange}
-                    required
-                    error={errors?.phone_number}
-                    placeholder="e.g., 0712345678"
-                    inputType="tel"
-                />
+                <FormSection
+                    title="Contact Information"
+                    Icon={{ icon: PhoneCall, color: 'green-500' }}
+                >
+                    <FormGrid cols={2}>
+                        <FormField
+                            name="phone_number"
+                            label="Primary Phone Number"
+                            type="input"
+                            value={data.phone_number}
+                            onChange={onChange}
+                            required
+                            error={errors?.phone_number}
+                            placeholder="e.g., 0712345678"
+                            inputType="tel"
+                        />
 
-                <FormField
-                    name="phone_number_2"
-                    label="Secondary Phone Number"
-                    type="input"
-                    value={data.phone_number_2}
-                    onChange={onChange}
-                    placeholder="e.g., 0700000000 (optional)"
-                    inputType="tel"
-                />
-            </div>
-
-            <div className="grid grid-cols-1 gap-6">
-                <FormField
+                        <FormField
+                            name="phone_number_2"
+                            label="Secondary Phone Number"
+                            type="input"
+                            value={data.phone_number_2}
+                            onChange={onChange}
+                            placeholder="e.g., 0700000000 (optional)"
+                            inputType="tel"
+                        />
+                </FormGrid>
+                
+                <FormGrid cols={2}>
+                    <FormField
                     name="email"
                     label="Email Address"
                     type="email"
@@ -47,8 +54,10 @@ export default function ContactInfoTab({
                     onChange={onChange}
                     placeholder="e.g., guardian@example.com"
                     error={errors?.email}
-                />
-            </div>
+                /></FormGrid>
+                </FormSection>
+
+            
         </div>
     );
 }

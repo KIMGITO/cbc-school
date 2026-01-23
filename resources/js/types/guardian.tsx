@@ -3,25 +3,19 @@ export interface GuardianFormData {
     // Personal Info
     user_id?: string;
     first_name: string;
-    middle_name: string;
-    last_name: string;
+    other_names: string;
+    sir_name: string;
     national_id: string;
     occupation: string;
-
-    // Contact Info
     phone_number: string;
     phone_number_2: string;
     email: string;
-
-    // Address Info
     address: string;
     county: string;
     sub_county: string;
     ward: string;
     location: string;
     sub_location: string;
-
-    // Relationship
     student_id: string;
     relationship_type: string;
     is_primary: boolean;
@@ -29,7 +23,8 @@ export interface GuardianFormData {
 
 export interface GuardianFormErrors {
     first_name?: string;
-    last_name?: string;
+    sir_name?: string;
+    other_names?: string;
     national_id?: string;
     phone_number?: string;
     email?: string;
@@ -42,8 +37,8 @@ export interface Guardian {
     id: string;
     user_id: string;
     first_name: string;
-    middle_name: string;
-    last_name: string;
+    other_names: string;
+    sir_name: string;
     national_id: string;
     phone_number: string;
     phone_number_2: string;

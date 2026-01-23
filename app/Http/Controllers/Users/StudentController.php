@@ -18,6 +18,58 @@ class StudentController extends Controller
     //     $this->authorizeResource(Student::class, 'student');
     // }
 
+    public function search(Request $request)
+    {
+        $query = $request->input('search', '');
+
+        $studentsQuery = Student::select([
+            'id',
+            'first_name',
+            'other_names',
+            'sir_name',
+            'adm_no',
+            'gender',
+            'profile_photo',
+            'stream_id',
+            'admission_date',
+            'academic_status',
+        ])
+            ->with(['stream:id,name'])->where('academic_status', 'active');
+
+        if ($query) {
+            $studentsQuery->where(function ($q) use ($query) {
+                $q->where('sir_name', 'like', "%{$query}%")
+                    ->orWhere('first_name', 'like', "%{$query}%")
+                    ->orWhere('other_names', 'like', "%{$query}%")
+                    ->orWhere('adm_no', 'like', "%{$query}%");
+            })
+                ->orWhereHas('stream', function ($q) use ($query) {
+                    $q->where('name', 'like', "%{$query}%");
+                });
+        }
+
+        // Limit search results for autocomplete (for example, 20 suggests)
+        $students = $studentsQuery->orderBy('sir_name')
+            ->limit(10)
+            ->get();
+
+        // Format for frontend
+        $results = $students->map(function ($student) {
+            return [
+                'id' => $student->id,
+                'label' => $student->name, // assuming accessor getNameAttribute
+                'value' => $student->id,
+                'avatar' => $student->profile_photo,
+                'adm_no' => $student->adm_no,
+                'name' => $student->name,
+                'grade' => $student->stream ? $student->stream->name : null,
+            ];
+        });
+
+        return response()->json([
+            'data' => $results,
+        ]);
+    }
 
     public function index(Request $request)
     {

@@ -68,10 +68,10 @@ export default function ProfessionalSchoolHome({
         shortName: 'CBS',
         motto: 'Transforming our schools to Digital Era',
         tagline: "Your trusted digital patner",
-        address: 'All over place',
+        address: 'Online',
         phone: '(254) 758127017',
         email: 'condensons@gmail.com',
-        established: '2022',
+        established: '2026',
     };
 
     // Carousel items
@@ -82,7 +82,7 @@ export default function ProfessionalSchoolHome({
             description:
                 'Modern classrooms, science labs, and sports complex providing the perfect learning environment',
             image: 'https://plus.unsplash.com/premium_photo-1724026586579-5c413598de2c?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTN8fGFmcmljYW4lMjBzY2hvb2x8ZW58MHx8MHx8fDA%3D',
-            ctaText: 'Tour Our Campus',
+            ctaText: 'Tour Our School',
             ctaLink: '#campus-tour',
         },
         {
@@ -100,7 +100,7 @@ export default function ProfessionalSchoolHome({
             description:
                 '100% university acceptance rate with students admitted to top institutions worldwide',
             image: 'https://images.unsplash.com/photo-1523580494863-6f3031224c94?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80',
-            ctaText: 'View College Acceptances',
+            ctaText: 'View Transition Late',
             ctaLink: '#success-stories',
         },
         {
@@ -155,22 +155,22 @@ export default function ProfessionalSchoolHome({
         {
             id: 1,
             name: 'Dr. Sarah Johnson',
-            role: 'Parent & University Professor',
-            text: 'The individualized attention and academic rigor at Prestige Academy prepared my daughter exceptionally well for university life.',
+            role: 'Parent ',
+            text: 'The individualized attention and academic rigor at cbs prepared my daughter exceptionally well for academic life.',
             image: 'https://images.unsplash.com/photo-1521511189395-b82252213754?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MjB8fGFmcmljYW4lMjB3b21hbnxlbnwwfHwwfHx8MA%3D%3D',
         },
         {
             id: 2,
             name: 'Michael Chen',
-            role: 'Alumni, Class of 2020',
-            text: 'The mentorship and opportunities I received here opened doors to my dream university and career path.',
+            role: 'Alumni',
+            text: 'The mentorship and opportunities I received here opened doors to my dream career path.',
             image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80',
         },
         {
             id: 3,
             name: 'Fatima',
             role: 'Current Student',
-            text: 'The diverse community and challenging curriculum push me to be my best every single day.',
+            text: 'The school community and challenging curriculum push me daily to my dreams.',
             image: 'https://images.unsplash.com/photo-1613005341945-35e159e522f1?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTB8fGFmcmljYW4lMjB3b21hbnxlbnwwfHwwfHx8MA%3D%3D',
         },
     ];
@@ -234,7 +234,7 @@ export default function ProfessionalSchoolHome({
                         <div className="flex items-center justify-between">
                             {/* Logo */}
                             <div className="flex items-center space-x-3">
-                                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-blue-600 to-indigo-800">
+                                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-linear-to-br from-blue-500 to-indigo-800">
                                     <span className="text-xl font-bold text-white">
                                         {schoolInfo.shortName}
                                     </span>
@@ -402,7 +402,7 @@ School life                                </a>
                 </section>
 
                 {/* Stats Section */}
-                <section className="bg-gradient-to-br from-blue-50 to-indigo-50 py-16">
+                <section className=" bg-linear-to-br from-blue-50/5 to-blue-200 py-16">
                     <div className="container mx-auto px-6">
                         <div className="mb-12 text-center">
                             <h2 className="mb-4 text-4xl font-bold text-gray-900">
@@ -582,7 +582,7 @@ School life                                </a>
                         </h2>
                         <p className="mx-auto mb-10 max-w-2xl text-xl text-blue-100">
                             Take the first step toward an exceptional
-                            educational journey. Applications for 2025/26
+                            educational journey. Applications for 2026
                             academic year are  open.
                         </p>
                         <div className="flex flex-col justify-center gap-6 sm:flex-row">
@@ -681,14 +681,7 @@ School life                                </a>
                                             Parent Portal
                                         </a>
                                     </li>
-                                    <li>
-                                        <a
-                                            href="#portal"
-                                            className="text-gray-400 transition-colors hover:text-white"
-                                        >
-                                            Student Portal
-                                        </a>
-                                    </li>
+                                    
                                     <li>
                                         <a
                                             href="#library"
@@ -771,7 +764,6 @@ School life                                </a>
                             </p>
                             <p className="mt-2 text-sm">
                                 Established {schoolInfo.established} •
-                                Accredited by International Schools Association
                             </p>
                         </div>
                     </div>
