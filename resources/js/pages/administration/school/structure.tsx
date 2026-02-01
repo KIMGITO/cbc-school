@@ -52,11 +52,11 @@ interface Stream {
 interface ConfigurationData {
     streams: Stream[];
     levels: Level[];
+    departments: any[];
     terms: any[];
     subjects: any[];
     houses: any[];
     notifications: any[];
-    departments: any[];
     roles: any[];
     fees: any[];
     exams: any[];
@@ -98,6 +98,14 @@ export default function ConfigurationAdmin({
             color: 'bg-green-500',
         },
         {
+            label: 'Departments',
+            value: 'departments',
+            icon: Building,
+            component: null,
+            description: 'School departments',
+            color: 'bg-indigo-500',
+        },
+        {
             label: 'Subjects',
             value: 'subjects',
             icon: GraduationCap,
@@ -121,14 +129,7 @@ export default function ConfigurationAdmin({
             description: 'Term/semester management',
             color: 'bg-yellow-500',
         },
-        {
-            label: 'Departments',
-            value: 'departments',
-            icon: Building,
-            component: null,
-            description: 'School departments',
-            color: 'bg-indigo-500',
-        },
+
         {
             label: 'Houses',
             value: 'houses',

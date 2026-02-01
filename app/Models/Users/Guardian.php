@@ -19,7 +19,6 @@ class Guardian extends Model
         'national_id',
         'phone_number',
         'phone_number_2',
-        
         'occupation',
         'address',
         'county',

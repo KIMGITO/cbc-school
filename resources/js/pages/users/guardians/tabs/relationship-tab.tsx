@@ -2,7 +2,11 @@ import FormField from '@/components/custom/form-field';
 import FormGrid from '@/components/custom/form-grid';
 import FormSection from '@/components/custom/form-section';
 import SearchAutocomplete from '@/components/custom/search-autocomplete';
-import { GuardianFormData, GuardianFormErrors } from '@/types/guardian';
+import {
+    GuardianFormData,
+    GuardianFormErrors,
+    RelationTypes,
+} from '@/types/guardian';
 import axios from 'axios';
 import { UsersRound } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -51,51 +55,72 @@ export default function RelationshipTab({
                 <FormGrid cols={2}>
                     <SearchAutocomplete
                         required
-                        label='Select Student'
-                        placeholder='Search for a student ...'
+                        label="Select Student"
+                        placeholder="Search for a student ..."
                         name="student_id"
-                        noResultsMessage='No students with the given search term found'
-                        loadingMessage='Loading students...'
+                        noResultsMessage="No students with the given search term found"
+                        loadingMessage="Loading students..."
                         error={errors?.student_id}
-                        type='student'
+                        type="student"
                         autoSelectSingleResult={false}
-                        searchFields={['adm_no','first_name']}
+                        searchFields={['adm_no', 'first_name']}
                         value={data.student_id}
                         onChange={onChange}
                         showClearButton={true}
                         showSelectedInDropdown={false}
                         url="/api/v1/students"
-                        inputClassName='bg-gray-700/20 border-2 border-blue-500 '
+                        inputClassName="bg-gray-700/20 border-2 border-blue-500 "
                     />
 
                     <FormField
                         name="relationship_type"
                         label="Relationship Type"
+                        error={errors?.relationship_type}
                         type="select"
                         value={data.relationship_type}
                         onChange={onChange}
-                        options={[
-                            { value: 'parent', label: 'Parent' },
-                            { value: 'guardian', label: 'Guardian' },
-                            { value: 'sibling', label: 'Sibling' },
-                            { value: 'relative', label: 'Relative' },
-                            { value: 'sponsor', label: 'Sponsor' },
-                        ]}
-                        placeholder="Select relationship"
+                        emptyOption="Select Relationship"
+                        options={RelationTypes}
                     />
                 </FormGrid>
 
-                <FormField
-                    name="is_primary"
-                    type="checkbox"
-                    checkboxLabel="Set as primary guardian"
-                    value={data.is_primary}
-                    onChange={onChange}
-                    required
-                    error={errors?.is_primary}
-                    // disabled={!!data.student_id}
-                    checked={data.is_primary}
-                />
+                <FormSection title="Consents">
+                    <FormGrid cols={3}>
+                        <FormField
+                            name="is_primary"
+                            type="checkbox"
+                            checkboxLabel="Set as primary guardian"
+                            value={data.is_primary}
+                            onChange={onChange}
+                            required
+                            error={errors?.is_primary}
+                            // disabled={!!data.student_id}
+                            checked={data.is_primary}
+                        />
+                        <FormField
+                            name="can_pay_fees"
+                            type="checkbox"
+                            checkboxLabel="Set can pay school fees."
+                            value={data.can_pay_fees}
+                            onChange={onChange}
+                            required
+                            error={errors?.can_pay_fees}
+                            // disabled={!!data.student_id}
+                            checked={data.can_pay_fees}
+                        />
+                        <FormField
+                            name="can_pick_student"
+                            type="checkbox"
+                            checkboxLabel="Set can pick Student."
+                            value={data.can_pick_student}
+                            onChange={onChange}
+                            required
+                            error={errors?.can_pick_student}
+                            // disabled={!!data.student_id}
+                            checked={data.can_pick_student}
+                        />
+                    </FormGrid>
+                </FormSection>
             </FormSection>
 
             {data.student_id && (

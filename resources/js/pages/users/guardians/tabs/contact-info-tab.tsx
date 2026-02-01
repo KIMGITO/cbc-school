@@ -37,10 +37,11 @@ export default function ContactInfoTab({
                         <FormField
                             name="phone_number_2"
                             label="Secondary Phone Number"
-                            type="input"
+                        type="input"
+                        required={false}
                             value={data.phone_number_2}
                             onChange={onChange}
-                            placeholder="e.g., 0700000000 (optional)"
+                            placeholder="e.g., 0700000000"
                             inputType="tel"
                         />
                 </FormGrid>

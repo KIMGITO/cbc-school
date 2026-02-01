@@ -52,8 +52,9 @@ import { GuardianFormData, GuardianFormErrors } from '@/types/guardian';
 
 export const emptyGuardianData: GuardianFormData = {
     first_name: '',
-    middle_name: '',
-    last_name: '',
+    other_names: '',
+    sir_name: '',
+    gender: '',
     national_id: '',
     occupation: '',
     phone_number: '',
@@ -67,7 +68,9 @@ export const emptyGuardianData: GuardianFormData = {
     sub_location: '',
     student_id: '',
     relationship_type: 'parent',
-    is_primary: false,
+    is_primary: true,
+    can_pick_student: true,
+    can_pay_fees: true,
 };
 
 export const emptyGuardianErrors: GuardianFormErrors = {
@@ -78,4 +81,12 @@ export const emptyGuardianErrors: GuardianFormErrors = {
     email: '',
     address: '',
     student_id: '',
+    occupation: '',
+    county: '',
+    sub_county: '',
+    ward: '',
+    location: '',
+    sub_location: '',
+    can_pay_fees: '',
+    can_pick_student: '',
 };

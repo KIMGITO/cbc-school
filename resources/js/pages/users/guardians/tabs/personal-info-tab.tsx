@@ -4,7 +4,7 @@ import FormGrid from '@/components/custom/form-grid';
 import FormSection from '@/components/custom/form-section';
 
 import { GuardianFormData, GuardianFormErrors } from '@/types/guardian';
-import { User, User2Icon } from 'lucide-react';
+import { User } from 'lucide-react';
 
 interface PersonalInfoTabProps {
     data: GuardianFormData;
@@ -49,7 +49,8 @@ export default function PersonalInfoTab({
                             disabled={!!selectedGuardian}
                             placeholder="Enter first name"
                         />
-
+                    </FormGrid>
+                    <FormGrid cols={3}>
                         <FormField
                             name="other_names"
                             label="Other names"
@@ -74,6 +75,22 @@ export default function PersonalInfoTab({
                             placeholder="e.g., 12345678"
                             inputType="number"
                         />
+                        <FormField
+                            name="gender"
+                            label="Gender"
+                            type="select"
+                            value={data.gender}
+                            onChange={onChange}
+                            required
+                            placeholder="Gender"
+                            error={errors?.gender}
+                            emptyOption='Select Gender'
+                            options={[
+                                { label: 'Male', value: 'male' },
+                                { label: 'Female', value: 'female' },
+                                { label: 'Other', value: 'other' },
+                            ]}
+                        />
                     </FormGrid>
                 </FormSection>
                 <FormSection title="Income Data" border={false}>
@@ -83,6 +100,7 @@ export default function PersonalInfoTab({
                             label="Occupation"
                             type="input"
                             value={data.occupation}
+                            error={errors?.occupation}
                             onChange={onChange}
                             placeholder="e.g., Teacher, Doctor, Business"
                         />

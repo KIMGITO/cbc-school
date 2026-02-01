@@ -97,7 +97,7 @@ export function AppSidebar() {
             icon: Users2,
             defaultOpen: false,
             showAddButton: true,
-            addUrl: '/guardian/create',
+            addUrl: '/guardians/create',
             badge: 100,
             items: [],
         },

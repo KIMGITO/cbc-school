@@ -28,6 +28,7 @@ class User extends Authenticatable
         'sir_name',
         'first_name',
         'other_names',
+        'gender',
         'email',
         'password',
     ];

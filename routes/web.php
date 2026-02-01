@@ -32,7 +32,7 @@ Route::middleware(['auth', 'web', 'verified'])->group(function () {
 
     // Students Managements.
     Route::resource('students', StudentController::class);
-    Route::resource('guardian', GuardianController::class);
+    Route::resource('guardians', GuardianController::class);
 });
 
 require __DIR__ . '/settings.php';

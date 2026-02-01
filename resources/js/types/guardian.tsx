@@ -1,3 +1,5 @@
+import { Student } from './student';
+
 // types/guardian.ts
 export interface GuardianFormData {
     // Personal Info
@@ -5,6 +7,7 @@ export interface GuardianFormData {
     first_name: string;
     other_names: string;
     sir_name: string;
+    gender: 'male' | 'female';
     national_id: string;
     occupation: string;
     phone_number: string;
@@ -19,6 +22,8 @@ export interface GuardianFormData {
     student_id: string;
     relationship_type: string;
     is_primary: boolean;
+    can_pick_student: boolean;
+    can_pay_fees: boolean;
 }
 
 export interface GuardianFormErrors {
@@ -29,7 +34,16 @@ export interface GuardianFormErrors {
     phone_number?: string;
     email?: string;
     address?: string;
+    county?: string;
+    sub_county?: string;
+    ward?: string;
+    location?: string;
+    sub_location?: string;
+    occupation?: string;
     student_id?: string;
+    is_primary?: string;
+    can_pick_student?: string;
+    can_pay_fees?: string;
     [key: string]: string | undefined;
 }
 
@@ -38,6 +52,7 @@ export interface Guardian {
     user_id: string;
     first_name: string;
     other_names: string;
+    gender: 'male' | 'female';
     sir_name: string;
     national_id: string;
     phone_number: string;
@@ -52,5 +67,26 @@ export interface Guardian {
     sub_location: string;
     created_at: string;
     updated_at: string;
-    students?: any[];
+    is_primary: boolean;
+    can_pick_student: boolean;
+    can_pay_fees: boolean;
+    students?: Student[];
 }
+
+export const RelationTypes = [
+    { value: 'father', label: 'Father' },
+    { value: 'mother', label: 'Mother' },
+    { value: 'step_father', label: 'Step Father' },
+    { value: 'step_mother', label: 'Step Mother' },
+    { value: 'grand_father', label: 'Grand Father' },
+    { value: 'grand_mother', label: 'Grand Mother' },
+    { value: 'uncle', label: 'Uncle' },
+    { value: 'aunt', label: 'Aunt' },
+    { value: 'brother', label: 'Brother' },
+    { value: 'sister', label: 'Sister' },
+    { value: 'legal_guardian', label: 'Legal Guardian' },
+    { value: 'foster_parent', label: 'Foster Parent' },
+    { value: 'caretaker', label: 'Caretaker' },
+    { value: 'sponsor', label: 'Sponsor' },
+    { value: 'other', label: 'Other' },
+];

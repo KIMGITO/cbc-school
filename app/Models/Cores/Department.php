@@ -13,7 +13,7 @@ class Department extends Model
     /** @use HasFactory<\Database\Factories\Cores\DepartmentFactory> */
     use HasFactory, HasUuids, SoftDeletes;
     protected $fillable = [
-        "name",
+        'name',
         'code',
         'description',
         'active'

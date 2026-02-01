@@ -1,21 +1,20 @@
 // pages/guardians/admission.tsx
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import AppLayout from '@/layouts/app-layout';
+import { GuardianFormData, GuardianFormErrors } from '@/types/guardian';
 import axios from 'axios';
-import { Search, Save, Send, Trash, UserPlus, UserCheck } from 'lucide-react';
+import { Save, Search, Send, Trash, UserCheck, UserPlus } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { emptyGuardianData, emptyGuardianErrors } from '../empty-data';
-// import { GuardianFormData, GuardianFormErrors } ;
-import PersonalInfoTab from './tabs/personal-info-tab';
-import ContactInfoTab from './tabs/contact-info-tab';
 import AddressInfoTab from './tabs/address-info-tab';
+import ContactInfoTab from './tabs/contact-info-tab';
+import PersonalInfoTab from './tabs/personal-info-tab';
 import RelationshipTab from './tabs/relationship-tab';
-import { Input } from '@/components/ui/input';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { GuardianFormData, GuardianFormErrors } from '@/types/guardian';
 
 // Define props for each tab component
 interface TabComponentProps {
@@ -30,21 +29,43 @@ export default function GuardianAdmission() {
             label: 'Personal Info',
             value: 'personal',
             component: PersonalInfoTab,
+            errorFields: [
+                'first_name',
+                'sir_name',
+                'national_id',
+                'other_names',
+            ],
         },
         {
             label: 'Contact Info',
             value: 'contact',
             component: ContactInfoTab,
+            errorFields: ['phone_number', 'email', 'phone_number_2'],
         },
         {
             label: 'Address Info',
             value: 'address',
             component: AddressInfoTab,
+            errorFields: [
+                'address',
+                'county',
+                'sub_county',
+                'ward',
+                'location',
+                'sub_location',
+            ],
         },
         {
             label: 'Relationship',
             value: 'relationship',
             component: RelationshipTab,
+            errorFields: [
+                'student_id',
+                'relationship_type',
+                'is_primary',
+                'can_pick_student',
+                'can_pay_fees',
+            ],
         },
     ];
 
@@ -54,10 +75,28 @@ export default function GuardianAdmission() {
     const [searchResults, setSearchResults] = useState<any[]>([]);
     const [selectedGuardian, setSelectedGuardian] = useState<any>(null);
     const [showSearchResults, setShowSearchResults] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     // Initialize form data state
-    const [formData, setFormData] = useState<GuardianFormData>(emptyGuardianData);
-    const [formDataErrors, setFormDataErrors] = useState<GuardianFormErrors>(emptyGuardianErrors);
+    const [formData, setFormData] =
+        useState<GuardianFormData>(emptyGuardianData);
+    const [formDataErrors, setFormDataErrors] =
+        useState<GuardianFormErrors>(emptyGuardianErrors);
+
+    // Check if a tab has errors
+    const getTabErrors = (tabValue: string) => {
+        const section = sections.find((s) => s.value === tabValue);
+        if (!section) return [];
+
+        return section.errorFields.filter(
+            (field) => formDataErrors[field as keyof GuardianFormErrors],
+        );
+    };
+
+    // Check if tab has any errors
+    const hasTabErrors = (tabValue: string) => {
+        return getTabErrors(tabValue).length > 0;
+    };
 
     // Handle field changes
     const handleFieldChange = (field: keyof GuardianFormData, value: any) => {
@@ -65,6 +104,13 @@ export default function GuardianAdmission() {
             ...prev,
             [field]: value,
         }));
+        // Clear error for this field when user types
+        if (formDataErrors[field as keyof GuardianFormErrors]) {
+            setFormDataErrors((prev) => ({
+                ...prev,
+                [field]: undefined,
+            }));
+        }
     };
 
     // Search for existing guardian
@@ -74,9 +120,9 @@ export default function GuardianAdmission() {
         setIsSearching(true);
         try {
             const response = await axios.get('/api/guardians/search', {
-                params: { q: searchQuery.trim() }
+                params: { q: searchQuery.trim() },
             });
-            
+
             if (response.data.data && response.data.data.length > 0) {
                 setSearchResults(response.data.data);
                 setShowSearchResults(true);
@@ -96,13 +142,14 @@ export default function GuardianAdmission() {
         setSelectedGuardian(guardian);
         setShowSearchResults(false);
         setSearchQuery('');
-        
+
         // Auto-fill form with guardian data
         setFormData({
             user_id: guardian.user_id || '',
             first_name: guardian.first_name || '',
             other_names: guardian.other_names || '',
             sir_name: guardian.sir_name || '',
+            gender: guardian.gender || null,
             national_id: guardian.national_id || '',
             phone_number: guardian.phone_number || '',
             phone_number_2: guardian.phone_number_2 || '',
@@ -114,10 +161,12 @@ export default function GuardianAdmission() {
             ward: guardian.ward || '',
             location: guardian.location || '',
             sub_location: guardian.sub_location || '',
-            // Relationship fields (if needed)
-            relationship_type: '',
-            student_id: '',
-            is_primary: false,
+            
+            relationship_type: guardian.relation_type || '',
+            student_id: guardian.student_id || null,
+            is_primary: guardian.is_primary || false,
+            can_pick_student: guardian.can_pick_student || false,
+            can_pay_fees: guardian.can_pay_fee || false,
         });
     };
 
@@ -125,6 +174,7 @@ export default function GuardianAdmission() {
     const handleClearSelection = () => {
         setSelectedGuardian(null);
         setFormData(emptyGuardianData);
+        setFormDataErrors(emptyGuardianErrors);
         setSearchQuery('');
         setSearchResults([]);
     };
@@ -134,49 +184,55 @@ export default function GuardianAdmission() {
         (section) => section.value === activeTab,
     )?.component;
 
+    
     // Handle form submission
     const handleSubmit = async () => {
-        // Validate form data
-        const errors = validateFormData(formData);
-        if (Object.keys(errors).length > 0) {
-            setFormDataErrors(errors);
-            return;
-        }
-
-        // Prepare data
-        const formDataToSend = new FormData();
-        Object.entries(formData).forEach(([key, value]) => {
-            if (value !== null && value !== undefined) {
-                formDataToSend.append(key, value);
-            }
-        });
-
+       
         try {
-            const endpoint = selectedGuardian 
-                ? `/guardians/${selectedGuardian.id}/update` 
+            // Prepare data
+            const formDataToSend = new FormData();
+            Object.entries(formData).forEach(([key, value]) => {
+                if (value !== null && value !== undefined) {
+                    formDataToSend.append(key, value);
+                }
+            });
+
+            console.log('Submitting data:', Object.fromEntries(formDataToSend));
+
+            const endpoint = selectedGuardian
+                ? `/guardians/${selectedGuardian.id}/update`
                 : '/guardians';
-            
+
             const method = selectedGuardian ? 'put' : 'post';
-            
+
             await axios[method](endpoint, formDataToSend);
-            
-            // Success handling
-            
-            
-            // Reset form
+
             handleClearSelection();
-            
         } catch (error: any) {
             if (error.response?.data?.errors) {
                 setFormDataErrors(error.response.data.errors);
+                // Scroll to first error tab
+                const firstErrorSection = sections.find((section) =>
+                    section.errorFields.some(
+                        (field) => error.response.data.errors[field],
+                    ),
+                );
+                if (firstErrorSection) {
+                    setActiveTab(firstErrorSection.value);
+                }
             }
             console.error('Submission error:', error);
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
     // Handle save as draft
     const handleSaveDraft = () => {
-        localStorage.setItem('guardianAdmissionDraft', JSON.stringify(formData));
+        localStorage.setItem(
+            'guardianAdmissionDraft',
+            JSON.stringify(formData),
+        );
     };
 
     const handleClearDraft = () => {
@@ -198,19 +254,6 @@ export default function GuardianAdmission() {
         }
     }, []);
 
-    // Validate form data
-    const validateFormData = (data: GuardianFormData): GuardianFormErrors => {
-        const errors: any = {};
-        
-        if (!data.first_name?.trim()) errors.first_name = 'First name is required';
-        if (!data.sir_name?.trim()) errors.sir_name = 'Last name is required';
-        if (!data.national_id?.trim()) errors.national_id = 'National ID is required';
-        if (!data.phone_number?.trim()) errors.phone_number = 'Phone number is required';
-        if (!data.student_id) errors.student_id = 'Please select a student';
-        
-        return errors;
-    };
-
     return (
         <AppLayout>
             <div className="flex flex-col gap-6 p-6">
@@ -226,7 +269,7 @@ export default function GuardianAdmission() {
                     <div className="flex gap-2">
                         <Button
                             variant="destructive"
-                            type="reset"
+                            type="button"
                             onClick={handleClearDraft}
                             className="gap-2"
                         >
@@ -243,12 +286,24 @@ export default function GuardianAdmission() {
                         </Button>
                         <Button
                             onClick={handleSubmit}
+                            disabled={isSubmitting}
                             className="gap-2 bg-green-600 hover:bg-green-700"
                         >
-                            <Send className="h-4 w-4" />
-                            {selectedGuardian
-                                ? 'Update Guardian'
-                                : 'Submit Application'}
+                            {isSubmitting ? (
+                                <>
+                                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
+                                    {selectedGuardian
+                                        ? 'Updating...'
+                                        : 'Submitting...'}
+                                </>
+                            ) : (
+                                <>
+                                    <Send className="h-4 w-4" />
+                                    {selectedGuardian
+                                        ? 'Update Guardian'
+                                        : 'Submit Application'}
+                                </>
+                            )}
                         </Button>
                     </div>
                 </div>
@@ -262,6 +317,10 @@ export default function GuardianAdmission() {
                                 formData[getTabCompletionKey(section.value)] ||
                                 (section.value === 'relationship' &&
                                     formData.student_id);
+                            const hasErrors = hasTabErrors(section.value);
+                            const errorCount = getTabErrors(
+                                section.value,
+                            ).length;
 
                             return (
                                 <Card
@@ -271,21 +330,28 @@ export default function GuardianAdmission() {
                                             ? 'border-primary shadow-sm'
                                             : ''
                                     } ${
-                                        isComplete
+                                        isComplete && !hasErrors
                                             ? 'border-green-200 bg-green-50'
+                                            : ''
+                                    } ${
+                                        hasErrors
+                                            ? 'border-red-300 bg-red-50'
                                             : ''
                                     }`}
                                     onClick={() => setActiveTab(section.value)}
                                 >
-                                    <CardContent className="p-4">
+                                    <CardContent className="relative p-4">
+                                        
                                         <CardTitle className="flex items-center text-lg">
                                             <Badge
                                                 className={`me-3 rounded-full shadow ${
                                                     isActive
                                                         ? 'bg-primary'
-                                                        : isComplete
-                                                          ? 'bg-green-500'
-                                                          : 'bg-gray-200 text-gray-700'
+                                                        : hasErrors
+                                                          ? 'bg-red-500'
+                                                          : isComplete
+                                                            ? 'bg-green-500'
+                                                            : 'bg-gray-200 text-gray-700'
                                                 }`}
                                             >
                                                 {index + 1}
@@ -294,13 +360,20 @@ export default function GuardianAdmission() {
                                                 className={
                                                     isActive
                                                         ? 'text-primary'
-                                                        : 'text-gray-600'
+                                                        : hasErrors
+                                                          ? 'text-red-700'
+                                                          : 'text-gray-600'
                                                 }
                                             >
                                                 {section.label}
-                                                {isComplete && (
+                                                {isComplete && !hasErrors && (
                                                     <span className="ml-2 text-xs text-green-600">
                                                         ✓
+                                                    </span>
+                                                )}
+                                                {hasErrors && (
+                                                    <span className="ml-2 text-xs text-red-600">
+                                                        ✗
                                                     </span>
                                                 )}
                                             </span>
@@ -318,7 +391,7 @@ export default function GuardianAdmission() {
                     <CardContent className="p-6">
                         <div className="mb-4 flex items-center justify-between">
                             <CardTitle className="flex items-center text-lg">
-                                <UserCheck className="mr-2 h-5 w-5 " />
+                                <UserCheck className="mr-2 h-5 w-5" />
                                 Find Existing Guardian
                             </CardTitle>
                             {selectedGuardian && (
@@ -500,6 +573,7 @@ export default function GuardianAdmission() {
                                 {selectedGuardian ? 'update' : 'register'}{' '}
                                 guardian.
                             </p>
+                            
                         </div>
                         <Button
                             variant="outline"

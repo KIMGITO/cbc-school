@@ -6,6 +6,8 @@ use App\Traits\HandlesResponses;
 use Illuminate\Http\Request;
 use App\Models\Users\Guardian;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Users\GuardianRequest;
+use App\Users\GuardianService;
 
 class GuardianController extends Controller
 {
@@ -29,9 +31,14 @@ class GuardianController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(GuardianRequest $request)
     {
-        //  
+        $validated = $request->validated();
+
+        $guardian = new GuardianService();
+        $guardian->create($validated);
+
+        return $this->success($request,  $validated);
     }
 
     /**
