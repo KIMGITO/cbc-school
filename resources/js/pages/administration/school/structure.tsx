@@ -25,6 +25,8 @@ import ConfigurationHeader from '../components/configuration-header';
 import EmptyState from '../components/empty-states';
 import LevelsTab from './tabs/levels-tab';
 import StreamsTab from './tabs/streams-tab';
+import DepartmentsTab from './tabs/departments-tab';
+import CoursesTab from './tabs/subjects-tab';
 
 // Type definitions
 interface Level {
@@ -49,12 +51,22 @@ interface Stream {
     updated_at?: string;
 }
 
+interface Department {
+    id: string;
+    name: string;
+    code: string;
+    description?: string;
+    active: boolean;
+    created_at?: string;
+    updated_at?: string;
+}
+
 interface ConfigurationData {
     streams: Stream[];
     levels: Level[];
-    departments: any[];
+    departments: Department[];
     terms: any[];
-    subjects: any[];
+    courses: any[];
     houses: any[];
     notifications: any[];
     roles: any[];
@@ -101,15 +113,15 @@ export default function ConfigurationAdmin({
             label: 'Departments',
             value: 'departments',
             icon: Building,
-            component: null,
+            component: DepartmentsTab,
             description: 'School departments',
             color: 'bg-indigo-500',
         },
         {
-            label: 'Subjects',
-            value: 'subjects',
+            label: 'Learning Areas',
+            value: 'courses',
             icon: GraduationCap,
-            component: null,
+            component: CoursesTab,
             description: 'Curriculum subjects',
             color: 'bg-purple-500',
         },
@@ -257,6 +269,7 @@ export default function ConfigurationAdmin({
 
         setIsLoading(true);
 
+        // collect data async on tab
         try {
             const response = await fetch(`/system/config/${tab}`, {
                 headers: {

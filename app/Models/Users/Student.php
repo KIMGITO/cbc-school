@@ -140,6 +140,78 @@ class Student extends Model
      * The "booted" method of the model.
      *
      */
+
+    protected function firstName(): Attribute
+    {
+        return Attribute::make(
+            get: fn($value) => ucfirst($value),
+            set: fn($value) => strtolower($value),
+        );
+    }
+    protected function otherNames(): Attribute
+    {
+        return Attribute::make(
+            get: fn($value) => ucwords($value),
+            set: fn($value) => strtolower($value),
+        );
+    }
+    protected function sirName(): Attribute
+    {
+        return Attribute::make(
+            get: fn($value) => ucfirst($value),
+            set: fn($value) => strtolower($value),
+        );
+    }
+    protected function admNo(): Attribute
+    {
+        return Attribute::make(
+            get: fn($value) => strtoupper($value),
+            set: fn($value) => strtolower($value),
+        );
+    }
+    protected function dateOfBirth(): Attribute
+    {
+        return Attribute::make(
+            get: fn($value) => Carbon::parse($value)->format('d/m/Y'),
+            set: fn($value) => Carbon::parse($value)->format('Y-m-d'),
+        );
+    }
+    protected function gender(): Attribute
+    {
+        return Attribute::make(
+            get: fn($value) => ucfirst($value),
+            set: fn($value) => strtolower($value),
+        );
+    }
+    protected function county(): Attribute
+    {
+        return Attribute::make(
+            get: fn($value) => ucfirst($value),
+            set: fn($value) => strtolower($value),
+        );
+    }
+    protected function subCounty(): Attribute
+    {
+        return Attribute::make(
+            get: fn($value) => ucfirst($value),
+            set: fn($value) => strtolower($value),
+        );
+    }
+    protected function ward(): Attribute
+    {
+        return Attribute::make(
+            get: fn($value) => ucfirst($value),
+            set: fn($value) => strtolower($value),
+        );
+    }
+    protected function admissionDate(): Attribute
+    {
+        return Attribute::make(
+            get: fn($value) => Carbon::parse($value)->format('d/m/Y'),
+            set: fn($value) => Carbon::parse($value)->format('Y-m-d'),
+        );
+    }
+    // boot functions to generate admission number.
     protected static function booted()
     {
         static::creating(function ($student) {
