@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Users;
+namespace App\Services\Users;
 
 use Throwable;
 use App\Models\User;

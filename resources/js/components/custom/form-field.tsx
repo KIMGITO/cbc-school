@@ -1,6 +1,8 @@
+'use client';
+
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
-import { Checkbox } from '@/components/ui/checkbox'; // Add this import
+import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -19,7 +21,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { CalendarIcon, ChevronLeft, ChevronRight } from 'lucide-react';
-import React, { useState } from 'react';
+import React, { useId, useState } from 'react';
+import { EnhancedCalendar } from './enhanced-calender';
+import { Dialog, DialogContent } from '../ui/dialog';
 
 export type FieldType =
     | 'input'
@@ -32,20 +36,12 @@ export type FieldType =
     | 'password'
     | 'number'
     | 'checkbox'
-    | 'checkbox-group'; // Add checkbox-group type
+    | 'checkbox-group';
 
 export interface SelectOption {
     value: string;
     label: string;
     disabled?: boolean;
-}
-
-// Add checkbox-specific props
-interface CheckboxSpecificProps {
-    checkboxLabel?: string; // Label for individual checkbox
-    checked?: boolean;
-    indeterminate?: boolean; // For partially checked state
-    checkboxOptions?: CheckboxOption[]; // For checkbox groups
 }
 
 export interface CheckboxOption {
@@ -56,7 +52,6 @@ export interface CheckboxOption {
     disabled?: boolean;
 }
 
-// Base props that all field types share
 interface BaseFieldProps {
     name: string;
     label?: string;
@@ -78,7 +73,6 @@ interface BaseFieldProps {
     autoFocus?: boolean;
 }
 
-// Input-specific props
 interface InputSpecificProps {
     inputType?:
         | 'text'
@@ -97,48 +91,39 @@ interface InputSpecificProps {
     autoComplete?: string;
 }
 
-// Select-specific props
 interface SelectSpecificProps {
     options?: SelectOption[];
     emptyOption?: string;
 }
 
-// Textarea-specific props
 interface TextareaSpecificProps {
     rows?: number;
     cols?: number;
 }
 
-// Calendar-specific props
 interface CalendarSpecificProps {
     fromDate?: Date;
     toDate?: Date;
     disabledDates?: Date[];
-    disabledDays?: number[]; // 0 = Sunday, 1 = Monday, etc.
+    disabledDays?: number[];
     defaultMonth?: Date;
 }
 
-// Combined props type
+interface CheckboxSpecificProps {
+    checkboxLabel?: string;
+    checked?: boolean;
+    indeterminate?: boolean;
+    checkboxOptions?: CheckboxOption[];
+}
+
 export type FormFieldProps = BaseFieldProps &
     InputSpecificProps &
     SelectSpecificProps &
     TextareaSpecificProps &
     CalendarSpecificProps &
-    CheckboxSpecificProps & {
-        // You can add custom props here if needed
-    };
+    CheckboxSpecificProps;
 
-// Enhanced Calendar Component with Year Selection
-const EnhancedCalendar = ({
-    selected,
-    onSelect,
-    disabled,
-    fromDate,
-    toDate,
-    disabledDates,
-    disabledDays,
-    defaultMonth,
-}: {
+interface EnhancedCalendarProps {
     selected?: Date;
     onSelect?: (date?: Date) => void;
     disabled?: boolean;
@@ -147,161 +132,168 @@ const EnhancedCalendar = ({
     disabledDates?: Date[];
     disabledDays?: number[];
     defaultMonth?: Date;
-}) => {
-    const [currentMonth, setCurrentMonth] = useState<Date>(
-        defaultMonth || selected || new Date(),
-    );
-    const [showYearPicker, setShowYearPicker] = useState(false);
+}
 
-    // Generate years range
-    const startYear = fromDate?.getFullYear() || 1900;
-    const endYear = toDate?.getFullYear() || 2100;
-    const years = Array.from(
-        { length: endYear - startYear + 1 },
-        (_, i) => startYear + i,
-    );
+// const EnhancedCalendar: React.FC<EnhancedCalendarProps> = ({
+//     selected,
+//     onSelect,
+//     disabled,
+//     fromDate,
+//     toDate,
+//     disabledDates,
+//     disabledDays,
+//     defaultMonth,
+// }) => {
+//     const [currentMonth, setCurrentMonth] = React.useState<Date>(
+//         defaultMonth || selected || new Date(),
+//     );
+//     const [showYearPicker, setShowYearPicker] = React.useState(false);
 
-    const handleYearSelect = (year: number) => {
-        const newDate = new Date(currentMonth);
-        newDate.setFullYear(year);
-        setCurrentMonth(newDate);
-        setShowYearPicker(false);
-    };
+//     const startYear = fromDate?.getFullYear() || 1900;
+//     const endYear = toDate?.getFullYear() || 2100;
+//     const years = Array.from(
+//         { length: endYear - startYear + 1 },
+//         (_, i) => startYear + i,
+//     );
 
-    const handleMonthNavigation = (direction: 'prev' | 'next') => {
-        const newDate = new Date(currentMonth);
-        newDate.setMonth(newDate.getMonth() + (direction === 'prev' ? -1 : 1));
-        setCurrentMonth(newDate);
-    };
+//     const handleYearSelect = (year: number) => {
+//         const newDate = new Date(currentMonth);
+//         newDate.setFullYear(year);
+//         setCurrentMonth(newDate);
+//         setShowYearPicker(false);
+//     };
 
-    const currentYear = currentMonth.getFullYear();
+//     const handleMonthNavigation = (direction: 'prev' | 'next') => {
+//         const newDate = new Date(currentMonth);
+//         newDate.setMonth(newDate.getMonth() + (direction === 'prev' ? -1 : 1));
+//         setCurrentMonth(newDate);
+//     };
 
-    return (
-        <div className="space-y-3">
-            {/* Custom Navigation */}
-            <div className="flex items-center justify-between px-3">
-                <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => handleMonthNavigation('prev')}
-                    disabled={disabled}
-                    className="h-7 w-7"
-                >
-                    <ChevronLeft className="h-4 w-4" />
-                </Button>
+//     const currentYear = currentMonth.getFullYear();
 
-                <div className="flex items-center gap-2">
-                    {showYearPicker ? (
-                        <Select
-                            value={currentYear.toString()}
-                            onValueChange={(value) =>
-                                handleYearSelect(parseInt(value))
-                            }
-                        >
-                            <SelectTrigger className="h-7 w-24 text-sm">
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent className="max-h-60">
-                                {years.map((year) => (
-                                    <SelectItem
-                                        key={year}
-                                        value={year.toString()}
-                                    >
-                                        {year}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    ) : (
-                        <div className="flex items-center gap-1">
-                            <span className="text-sm font-medium">
-                                {currentMonth.toLocaleDateString('en-US', {
-                                    month: 'long',
-                                })}
-                            </span>
-                            <Button
-                                type="button"
-                                variant="ghost"
-                                size="sm"
-                                className="h-7 px-2 text-sm font-medium"
-                                onClick={() => setShowYearPicker(true)}
-                            >
-                                {currentYear}
-                            </Button>
-                        </div>
-                    )}
-                </div>
+//     return (
+//         <div className="space-y-3">
+//             <div className="flex items-center justify-between px-3">
+//                 <Button
+//                     type="button"
+//                     variant="ghost"
+//                     size="icon"
+//                     onClick={() => handleMonthNavigation('prev')}
+//                     disabled={disabled}
+//                     className="h-7 w-7"
+//                 >
+//                     <ChevronLeft className="h-4 w-4" />
+//                 </Button>
 
-                <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => handleMonthNavigation('next')}
-                    disabled={disabled}
-                    className="h-7 w-7"
-                >
-                    <ChevronRight className="h-4 w-4" />
-                </Button>
-            </div>
+//                 <div className="flex items-center gap-2">
+//                     {showYearPicker ? (
+//                         <Select
+//                             value={currentYear.toString()}
+//                             onValueChange={(value) =>
+//                                 handleYearSelect(parseInt(value))
+//                             }
+//                         >
+//                             <SelectTrigger className="h-7 w-24 text-sm">
+//                                 <SelectValue />
+//                             </SelectTrigger>
+//                             <SelectContent className="max-h-60">
+//                                 {years.map((year) => (
+//                                     <SelectItem
+//                                         key={year}
+//                                         value={year.toString()}
+//                                     >
+//                                         {year}
+//                                     </SelectItem>
+//                                 ))}
+//                             </SelectContent>
+//                         </Select>
+//                     ) : (
+//                         <div className="flex items-center gap-1">
+//                             <span className="text-sm font-medium">
+//                                 {currentMonth.toLocaleDateString('en-US', {
+//                                     month: 'long',
+//                                 })}
+//                             </span>
+//                             <Button
+//                                 type="button"
+//                                 variant="ghost"
+//                                 size="sm"
+//                                 className="h-7 px-2 text-sm font-medium"
+//                                 onClick={() => setShowYearPicker(true)}
+//                             >
+//                                 {currentYear}
+//                             </Button>
+//                         </div>
+//                     )}
+//                 </div>
 
-            {/* Calendar */}
-            <Calendar
-                mode="single"
-                selected={selected}
-                onSelect={onSelect}
-                disabled={disabled}
-                fromDate={fromDate}
-                toDate={toDate}
-                disabledDates={disabledDates}
-                disabledDays={disabledDays}
-                month={currentMonth}
-                onMonthChange={setCurrentMonth}
-                className="p-0"
-                classNames={{
-                    months: 'space-y-0',
-                    month: 'space-y-3',
-                    caption: 'hidden',
-                    caption_label: 'hidden',
-                    nav: 'hidden',
-                    table: 'w-full border-collapse space-y-1',
-                    head_row: 'flex justify-between',
-                    head_cell:
-                        'text-muted-foreground rounded-md w-8 font-normal text-[0.8rem]',
-                    row: 'flex w-full justify-between mt-1',
-                    cell: cn(
-                        'relative p-0 text-center text-sm focus-within:relative focus-within:z-20',
-                        'h-8 w-8 rounded-md [&:has([aria-selected])]:bg-accent',
-                    ),
-                    day: cn(
-                        'h-8 w-8 rounded-md p-0 font-normal aria-selected:opacity-100',
-                        'hover:bg-accent hover:text-accent-foreground',
-                        'focus:bg-accent focus:text-accent-foreground',
-                        'aria-selected:bg-primary aria-selected:text-primary-foreground',
-                    ),
-                    day_selected:
-                        'bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground',
-                    day_today: 'bg-accent text-accent-foreground',
-                    day_outside: 'text-muted-foreground opacity-50',
-                    day_disabled: 'text-muted-foreground opacity-50',
-                    day_range_middle:
-                        'aria-selected:bg-accent aria-selected:text-accent-foreground',
-                    day_hidden: 'invisible',
-                }}
-            />
-        </div>
-    );
-};
+//                 <Button
+//                     type="button"
+//                     variant="ghost"
+//                     size="icon"
+//                     onClick={() => handleMonthNavigation('next')}
+//                     disabled={disabled}
+//                     className="h-7 w-7"
+//                 >
+//                     <ChevronRight className="h-4 w-4" />
+//                 </Button>
+//             </div>
+
+//             <Calendar
+//                 mode="single"
+//                 selected={selected}
+//                 onSelect={onSelect}
+//                 disabled={disabled}
+//                 fromDate={fromDate}
+//                 toDate={toDate}
+//                 disabledDates={disabledDates}
+//                 disabledDays={disabledDays}
+//                 month={currentMonth}
+//                 onMonthChange={setCurrentMonth}
+//                 className="p-0"
+//                 classNames={{
+//                     months: 'space-y-0',
+//                     month: 'space-y-3',
+//                     caption: 'hidden',
+//                     caption_label: 'hidden',
+//                     nav: 'hidden',
+//                     table: 'w-full border-collapse space-y-1',
+//                     head_row: 'flex justify-between',
+//                     head_cell:
+//                         'text-muted-foreground rounded-md w-8 font-normal text-[0.8rem]',
+//                     row: 'flex w-full justify-between mt-1',
+//                     cell: cn(
+//                         'relative p-0 text-center text-sm focus-within:relative focus-within:z-20',
+//                         'h-8 w-8 rounded-md [&:has([aria-selected])]:bg-accent',
+//                     ),
+//                     day: cn(
+//                         'h-8 w-8 rounded-md p-0 font-normal aria-selected:opacity-100',
+//                         'hover:bg-accent hover:text-accent-foreground',
+//                         'focus:bg-accent focus:text-accent-foreground',
+//                         'aria-selected:bg-primary aria-selected:text-primary-foreground',
+//                     ),
+//                     day_selected:
+//                         'bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground',
+//                     day_today: 'bg-accent text-accent-foreground',
+//                     day_outside: 'text-muted-foreground opacity-50',
+//                     day_disabled: 'text-muted-foreground opacity-50',
+//                     day_range_middle:
+//                         'aria-selected:bg-accent aria-selected:text-accent-foreground',
+//                     day_hidden: 'invisible',
+//                 }}
+//             />
+//         </div>
+//     );
+// };
 
 const FormField: React.FC<FormFieldProps> = ({
-    // Base props
     name,
     label,
     type = 'input',
     value,
     onChange,
     showLabel = true,
-    required = true,
+    required = false,
     placeholder,
     description,
     disabled = false,
@@ -314,7 +306,6 @@ const FormField: React.FC<FormFieldProps> = ({
     hint,
     autoFocus = false,
 
-    // Input-specific props
     inputType = 'text',
     min,
     max,
@@ -322,27 +313,26 @@ const FormField: React.FC<FormFieldProps> = ({
     pattern,
     autoComplete,
 
-    // Select-specific props
     options = [],
     emptyOption,
 
-    // Textarea-specific props
     rows = 3,
     cols,
 
-    // Calendar-specific props
     fromDate,
     toDate,
     disabledDates,
     disabledDays,
     defaultMonth,
 
-    // Checkbox-specific props
     checkboxLabel,
     checked = false,
     indeterminate = false,
     checkboxOptions = [],
 }) => {
+    const fieldId = useId();
+
+    const [dialogOpen, setDialogOpen] = useState(false);
     const handleChange = (newValue: any) => {
         if (onChange && !disabled && !readOnly) {
             onChange(name, newValue);
@@ -372,30 +362,23 @@ const FormField: React.FC<FormFieldProps> = ({
 
         if (Array.isArray(currentValues)) {
             if (checked) {
-                // Add to array
                 currentValues = [...currentValues, optionId];
             } else {
-                // Remove from array
                 currentValues = currentValues.filter(
                     (id: string) => id !== optionId,
                 );
             }
         } else {
-            // Initialize array
             currentValues = checked ? [optionId] : [];
         }
 
         handleChange(currentValues);
     };
 
-    const fieldId = `${name}-field-${Math.random().toString(36).substr(2, 9)}`;
-
-    // Determine input type based on field type
     const getInputType = () => {
         if (type === 'email') return 'email';
         if (type === 'password') return 'password';
         if (type === 'number') return 'number';
-        if (type === 'date') return 'date';
         return inputType;
     };
 
@@ -554,7 +537,7 @@ const FormField: React.FC<FormFieldProps> = ({
                         </SelectTrigger>
                         <SelectContent>
                             {emptyOption && (
-                                <SelectItem value="0" disabled>
+                                <SelectItem value="" disabled>
                                     {emptyOption}
                                 </SelectItem>
                             )}
@@ -573,48 +556,54 @@ const FormField: React.FC<FormFieldProps> = ({
 
             case 'calendar-enhanced':
                 return (
-                    <Popover>
-                        <PopoverTrigger asChild>
-                            <Button
-                                variant="outline"
-                                className={cn(
-                                    'w-full justify-start text-left font-normal',
-                                    !value && 'text-muted-foreground',
-                                    commonProps.className,
-                                )}
-                                disabled={disabled}
-                                aria-invalid={!!error}
-                                aria-describedby={
-                                    error
-                                        ? `${fieldId}-error`
-                                        : description
-                                          ? `${fieldId}-description`
-                                          : undefined
-                                }
-                            >
-                                <CalendarIcon className="mr-2 h-4 w-4" />
-                                {value ? (
-                                    format(value, 'PPP')
-                                ) : (
-                                    <span>
-                                        {placeholder || 'Select a date'}
-                                    </span>
-                                )}
-                            </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-3" align="start">
-                            <EnhancedCalendar
-                                selected={value}
-                                onSelect={handleCalendarChange}
-                                disabled={disabled}
-                                fromDate={fromDate}
-                                toDate={toDate}
-                                disabledDates={disabledDates}
-                                disabledDays={disabledDays}
-                                defaultMonth={defaultMonth}
-                            />
-                        </PopoverContent>
-                    </Popover>
+                    <>
+                        <Button
+                            variant="outline"
+                            className={cn(
+                                'w-full justify-start text-left font-normal',
+                                !value && 'text-muted-foreground',
+                                commonProps.className,
+                            )}
+                            onClick={() => setDialogOpen(true)}
+                            disabled={disabled}
+                            aria-invalid={!!error}
+                            aria-describedby={
+                                error
+                                    ? `${fieldId}-error`
+                                    : description
+                                      ? `${fieldId}-description`
+                                      : undefined
+                            }
+                        >
+                            <CalendarIcon className="mr-2 h-4 w-4" />
+                            {value ? (
+                                format(value, 'PPP')
+                            ) : (
+                                <span>{placeholder || 'Select a date'}</span>
+                            )}
+                        </Button>
+
+                        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+                            <DialogContent className="max-w-[320px] p-0 sm:max-w-[350px]">
+                                <div className="p-2">
+                                    <EnhancedCalendar
+                                        maxHeight="350px"
+                                        selected={value}
+                                        onSelect={(date) => {
+                                            handleCalendarChange(date);
+                                            setDialogOpen(false);
+                                        }}
+                                        disabled={disabled}
+                                        fromDate={fromDate}
+                                        toDate={toDate}
+                                        disabledDates={disabledDates}
+                                        disabledDays={disabledDays}
+                                        defaultMonth={defaultMonth}
+                                    />
+                                </div>
+                            </DialogContent>
+                        </Dialog>
+                    </>
                 );
 
             case 'calendar':
@@ -698,7 +687,6 @@ const FormField: React.FC<FormFieldProps> = ({
         }
     };
 
-    // Don't show label for individual checkbox as it's handled in renderField
     const shouldShowLabel =
         showLabel && label && type !== 'checkbox' && type !== 'checkbox-group';
 

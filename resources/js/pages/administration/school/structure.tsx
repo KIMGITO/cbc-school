@@ -23,9 +23,10 @@ import { useEffect, useState } from 'react';
 import ConfigurationCard from '../components/configuration-card';
 import ConfigurationHeader from '../components/configuration-header';
 import EmptyState from '../components/empty-states';
+import YearTab from './tabs/year-tab';
+import DepartmentsTab from './tabs/departments-tab';
 import LevelsTab from './tabs/levels-tab';
 import StreamsTab from './tabs/streams-tab';
-import DepartmentsTab from './tabs/departments-tab';
 import CoursesTab from './tabs/subjects-tab';
 
 // Type definitions
@@ -61,19 +62,42 @@ interface Department {
     updated_at?: string;
 }
 
+interface AcademicYear {
+    id: string;
+    name: string;
+    start_date: string;
+    end_date: string;
+    is_active: boolean;
+    description?: string;
+    created_at?: string;
+    updated_at?: string;
+}
+
+interface Course {
+    id: string;
+    name: string;
+    code: string;
+    department_id?: string;
+    description?: string;
+    is_active: boolean;
+    created_at?: string;
+    updated_at?: string;
+}
+
+
 interface ConfigurationData {
     streams: Stream[];
     levels: Level[];
     departments: Department[];
     terms: any[];
-    courses: any[];
+    courses: Course[];
     houses: any[];
     notifications: any[];
     roles: any[];
     fees: any[];
     exams: any[];
     grading: any[];
-    academicYears: any[];
+    years: AcademicYear[];
 }
 
 interface ConfigurationSection {
@@ -90,7 +114,6 @@ export default function ConfigurationAdmin({
 }: {
     initialData?: Partial<ConfigurationData>;
 }) {
-
     // Define sections
     const sections: ConfigurationSection[] = [
         {
@@ -127,10 +150,10 @@ export default function ConfigurationAdmin({
         },
         {
             label: 'Academic Years',
-            value: 'academicYears',
+            value: 'years',
             icon: CalendarDays,
-            component: null,
-            description: 'School years',
+            component: YearTab,
+            description: 'School academic years',
             color: 'bg-orange-500',
         },
         {
@@ -204,7 +227,7 @@ export default function ConfigurationAdmin({
             streams: [],
             levels: [],
             terms: [],
-            subjects: [],
+            courses: [],
             houses: [],
             notifications: [],
             departments: [],
@@ -212,7 +235,7 @@ export default function ConfigurationAdmin({
             fees: [],
             exams: [],
             grading: [],
-            academicYears: [],
+            year: [],
         };
 
         // Merge initial data, ensuring arrays
@@ -359,7 +382,6 @@ export default function ConfigurationAdmin({
         }
     }, []);
 
-    
     // Helper functions for stats
     const getTotalConfigurations = (): number => {
         return sections.reduce((total, section) => {
@@ -386,7 +408,6 @@ export default function ConfigurationAdmin({
         const currentData = getSafeData(activeTab);
         const isTabLoaded = loadedTabs.has(activeTab);
         const hasData = true;
-
 
         if (isLoading) {
             return (
@@ -417,7 +438,7 @@ export default function ConfigurationAdmin({
                     onAction={() => {
                         if (isTabLoaded) {
                             // Handle create new - this would need to be implemented
-                            renderContent()
+                            renderContent();
                         } else {
                             loadTabData(activeTab);
                         }

@@ -58,5 +58,8 @@ class AcademicYear extends Model
                     ->update(['is_active' => false]);
             }
         });
+        /* todo: 
+        * make sure we have only one active academic year whn saving or updating any academic year. use service for this
+        */
     }
 }

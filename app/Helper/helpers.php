@@ -33,4 +33,18 @@ if (!function_exists('decrypt_attribute')) {
             return Crypt::encrypt($value);
         };
     }
+
+    if (! function_exists('standardize_academic_year')) {
+        function standardize_academic_year(string $year)
+        {
+            if (!is_null($year) && preg_match('/^\d{4}\/(\d{2}|\d{4})$/', $year)) {
+                if (preg_match('/^(\d{4})\/(\d{4})$/', $year, $matches)) {
+                    $shortYear = substr($matches[2], -2);
+                    return "$matches[1]/$shortYear";
+                }
+                return $year;
+            }
+            return $year;
+        }
+    }
 }

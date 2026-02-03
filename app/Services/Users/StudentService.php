@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Users;
+namespace App\Services\Users;
 
 use App\Models\Users\Student;
 
@@ -15,7 +15,8 @@ class StudentService
     }
 
 
-    public static function generateAdmissionNumber(Student $student) {
+    public static function generateAdmissionNumber(Student $student)
+    {
 
         if (empty($student->adm_no)) {
             $latestStudent = Student::whereNotNull('adm_no')

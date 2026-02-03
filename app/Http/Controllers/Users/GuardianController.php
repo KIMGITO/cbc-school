@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Users\Guardian;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Users\GuardianRequest;
-use App\Users\GuardianService;
+use App\Services\Users\GuardianService;
 
 class GuardianController extends Controller
 {

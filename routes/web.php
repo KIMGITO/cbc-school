@@ -9,6 +9,8 @@ use App\Http\Controllers\Users\GuardianController;
 use App\Http\Controllers\System\Configuration\StreamController;
 use App\Http\Controllers\System\Configuration\DepartmentController;
 use App\Http\Controllers\System\Configuration\GradeLevelController;
+use App\Http\Controllers\System\Configuration\AcademicYearController;
+
 
 Route::get('/', function () {
     return Inertia::render('welcome', [
@@ -36,6 +38,10 @@ Route::middleware(['auth', 'web', 'verified'])->group(function () {
 
         Route::patch('/courses/{course}/status', [CourseController::class, 'toggleActive']);
         Route::resource('courses', CourseController::class)->names('system.config.departments');
+
+        // school academic year e.g 2026/27
+        Route::patch('/years/{year}/status', [AcademicYearController::class, 'toggleActive']);
+        Route::resource('years', AcademicYearController::class)->names('system.config.years');
     });
 
     // Students Managements.
