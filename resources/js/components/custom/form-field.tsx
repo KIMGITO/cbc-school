@@ -583,7 +583,7 @@ const FormField: React.FC<FormFieldProps> = ({
                             )}
                         </Button>
 
-                        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+                        <Dialog open={dialogOpen} onOpenChange={setDialogOpen} key="1">
                             <DialogContent className="max-w-[320px] p-0 sm:max-w-[350px]">
                                 <div className="p-2">
                                     <EnhancedCalendar

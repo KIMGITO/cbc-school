@@ -127,7 +127,8 @@ export function EnhancedCalendar({
             initialFilters[type] = true;
         });
         setEventTypeFilters(initialFilters);
-    }, [events]);
+    }, []);
+    // event can be added to dependancy
 
     // Get filtered events
     const getFilteredEvents = React.useCallback(() => {
@@ -224,9 +225,9 @@ export function EnhancedCalendar({
             <div className="space-y-2">
                 {/* Compact calendar grid */}
                 <div className="grid grid-cols-7 gap-0.5">
-                    {weekDays.map((day) => (
+                    {weekDays.map((day, i) => (
                         <div
-                            key={day}
+                            key={`${day} - ${i}`}
                             className="py-1 text-center text-xs font-medium text-gray-500"
                         >
                             {day}
@@ -663,7 +664,7 @@ export function EnhancedCalendar({
         >
             {/* Header */}
             <div className="flex items-center justify-between border-b p-2">
-                <div className="flex items-center gap">
+                <div className="gap flex items-center">
                     <Button
                         variant="ghost"
                         size="icon"
@@ -687,7 +688,7 @@ export function EnhancedCalendar({
                     </Button>
                 </div>
 
-                <div className="flex items-center    gap-1">
+                <div className="flex items-center gap-1">
                     <Button
                         size="sm"
                         variant="ghost"

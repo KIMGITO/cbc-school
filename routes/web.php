@@ -10,7 +10,8 @@ use App\Http\Controllers\System\Configuration\StreamController;
 use App\Http\Controllers\System\Configuration\DepartmentController;
 use App\Http\Controllers\System\Configuration\GradeLevelController;
 use App\Http\Controllers\System\Configuration\AcademicYearController;
-
+use App\Http\Controllers\System\Configuration\TermController;
+use App\Http\Requests\System\Configuration\TermRequest;
 
 Route::get('/', function () {
     return Inertia::render('welcome', [
@@ -42,6 +43,9 @@ Route::middleware(['auth', 'web', 'verified'])->group(function () {
         // school academic year e.g 2026/27
         Route::patch('/years/{year}/status', [AcademicYearController::class, 'toggleActive']);
         Route::resource('years', AcademicYearController::class)->names('system.config.years');
+
+        Route::patch('/terms/{term}/status', [TermController::class, 'toggleActive']);
+        Route::resource('terms', TermController::class)->names('system.config.terms');
     });
 
     // Students Managements.

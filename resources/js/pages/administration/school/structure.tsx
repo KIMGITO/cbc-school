@@ -28,6 +28,7 @@ import DepartmentsTab from './tabs/departments-tab';
 import LevelsTab from './tabs/levels-tab';
 import StreamsTab from './tabs/streams-tab';
 import CoursesTab from './tabs/subjects-tab';
+import TermsTab from './tabs/terms-tab';
 
 // Type definitions
 interface Level {
@@ -160,7 +161,7 @@ export default function ConfigurationAdmin({
             label: 'Terms/Semesters',
             value: 'terms',
             icon: Calendar,
-            component: null,
+            component: TermsTab,
             description: 'Term/semester management',
             color: 'bg-yellow-500',
         },
@@ -305,11 +306,13 @@ export default function ConfigurationAdmin({
                 },
             });
 
+
             if (!response.ok) {
                 throw new Error(`Failed to load ${tab}`);
             }
 
             const result = await response.json();
+            console.log(result);
 
             // Extract data from response - handle different response formats
             let dataArray: any[] = [];
@@ -550,7 +553,7 @@ export default function ConfigurationAdmin({
                 </div>
 
                 {/* Stats */}
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                {/* <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                     <ConfigurationCard
                         title="Total Configurations"
                         value={getTotalConfigurations()}
@@ -579,7 +582,7 @@ export default function ConfigurationAdmin({
                         description="All systems operational"
                         color="emerald"
                     />
-                </div>
+                </div> */}
             </div>
         </AppLayout>
     );

@@ -21,10 +21,14 @@ class AcademicYearController extends Controller
 
     public function toggleActive(Request $request, AcademicYear $year)
     {
-        $year->is_active = $request->is_active;
-        $year->save();
+        try {
+            $year->is_active = $request->is_active;
+            $year->save();
 
-        return $this->respond($request, ['success' => true, 'is_active' => $year->is_active]);
+            return $this->respond($request, ['success' => true, 'is_active' => $year->is_active]);
+        } catch (\Exception $e) {
+            return $this->error($request, $e->getMessage());
+        }
     }
 
     public function store(AcademicYearRequest $request)

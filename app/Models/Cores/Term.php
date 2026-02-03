@@ -13,14 +13,13 @@ class Term extends Model
     use HasFactory, HasUuids, SoftDeletes;
     protected $fillable = [
         'academic_year',
-        "name",
+        'name',
         'number',
         'start_date',
         'end_date',
         'is_active',
     ];
     protected $casts = [
-        'academic_year' => 'integer',
         'start_date' => 'date',
         'end_date' => 'date',
         'is_active' => 'boolean',
