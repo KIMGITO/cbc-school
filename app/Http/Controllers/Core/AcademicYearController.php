@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Http\Controllers\System\Configuration;
+namespace App\Http\Controllers\Core;
 
 use Illuminate\Http\Request;
 use App\Traits\HandlesResponses;
 use App\Models\Cores\AcademicYear;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\System\Configuration\AcademicYearRequest;
+use App\Http\Requests\Core\AcademicYearRequest;
 
 class AcademicYearController extends Controller
 {

@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Controllers\System\Configuration;
+namespace App\Http\Controllers\Academic;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\System\Configuration\StreamRequest;
-use App\Models\Functional\Stream;
+use App\Http\Requests\Academic\StreamRequest;
+use App\Models\Academics\Stream;
 use App\Traits\HandlesResponses;
 use Exception;
 use Illuminate\Http\Request;

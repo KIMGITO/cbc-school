@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Models\Functional;
+namespace App\Models\Academics;
 
 use App\Models\Users\Student;
 use App\Models\Users\Teacher;
-use App\Models\Functional\GradeLevel;
+use App\Models\Academics\GradeLevel;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Attributes\Boot;

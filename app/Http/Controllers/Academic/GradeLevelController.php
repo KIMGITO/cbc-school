@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Controllers\System\Configuration;
+namespace App\Http\Controllers\Academic;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\System\Configuration\GradeLevelRequest;
-use App\Models\Functional\GradeLevel;
+use App\Http\Requests\Academic\GradeLevelRequest;
+use App\Models\Academics\GradeLevel;
 use App\Traits\HandlesResponses;
 use Exception;
 

@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Models\Functional;
+namespace App\Models\Academics;
 
 use App\Models\Users\Student;
-use App\Models\Functional\Stream;
+use App\Models\Academics\Stream;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;

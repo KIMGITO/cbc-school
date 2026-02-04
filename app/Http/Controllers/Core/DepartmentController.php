@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Http\Controllers\System\Configuration;
+namespace App\Http\Controllers\Core;
 
 use Illuminate\Http\Request;
 use App\Models\Cores\Department;
 use App\Traits\HandlesResponses;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\System\Configuration\DepartmentRequest;
+use App\Http\Requests\Core\DepartmentRequest;
 
 class DepartmentController extends Controller
 {

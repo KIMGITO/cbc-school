@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Http\Controllers\System\Configuration;
+namespace App\Http\Controllers\Core;
 
 use App\Models\Cores\Term;
 use Illuminate\Http\Request;
 use App\Traits\HandlesResponses;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\System\Configuration\TermRequest;
+use App\Http\Requests\Core\TermRequest;
 
 class TermController extends Controller
 {

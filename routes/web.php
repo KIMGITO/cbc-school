@@ -1,17 +1,16 @@
 <?php
 
-use App\Http\Controllers\System\Configuration\CourseController;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Users\StudentController;
 use App\Http\Controllers\Users\GuardianController;
-use App\Http\Controllers\System\Configuration\StreamController;
-use App\Http\Controllers\System\Configuration\DepartmentController;
-use App\Http\Controllers\System\Configuration\GradeLevelController;
-use App\Http\Controllers\System\Configuration\AcademicYearController;
-use App\Http\Controllers\System\Configuration\TermController;
-use App\Http\Requests\System\Configuration\TermRequest;
+use App\Http\Controllers\Academic\StreamController;
+use App\Http\Controllers\Academic\GradeLevelController;
+use App\Http\Controllers\Core\DepartmentController;
+use App\Http\Controllers\Core\CourseController;
+use App\Http\Controllers\Core\AcademicYearController;
+use App\Http\Controllers\Core\TermController;
 
 Route::get('/', function () {
     return Inertia::render('welcome', [

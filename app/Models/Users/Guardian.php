@@ -20,12 +20,7 @@ class Guardian extends Model
         'phone_number',
         'phone_number_2',
         'occupation',
-        'address',
-        'county',
-        'sub_county',
-        'ward',
-        'location',
-        'sub_location',
+        'address_id',
     ];
 
     // Casts
@@ -62,4 +57,3 @@ class Guardian extends Model
         ])->withTimestamps();
     }
 }
- 

@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Http\Controllers\System\Configuration;
+namespace App\Http\Controllers\Core;
 
 use App\Models\Cores\Course;
 use App\Traits\HandlesResponses;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\System\Configuration\CourseRequest;
+use App\Http\Requests\Core\CourseRequest;
 
 class CourseController extends Controller
 {
