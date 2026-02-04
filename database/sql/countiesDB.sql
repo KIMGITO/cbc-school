@@ -89,10 +89,10 @@ INSERT INTO `counties` (`id`, `county_name`) VALUES
 -- --------------------------------------------------------
 
 --
--- Table structure for table `subcounties`
+-- Table structure for table `sub_counties`
 --
 
-CREATE TABLE `subcounties` (
+CREATE TABLE `sub_counties` (
   `id` int(255) NOT NULL,
   `county_id` int(20) NOT NULL,
   `constituency_name` varchar(50) NOT NULL,
@@ -101,10 +101,10 @@ CREATE TABLE `subcounties` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
--- Dumping data for table `subcounties`
+-- Dumping data for table `sub_counties`
 --
 
-INSERT INTO `subcounties` (`id`, `county_id`, `constituency_name`, `ward`, `alias`) VALUES
+INSERT INTO `sub_counties` (`id`, `county_id`, `constituency_name`, `ward`, `alias`) VALUES
 (1, 1, 'changamwe', 'port reitz', ''),
 (2, 1, 'changamwe', 'kipevu', ''),
 (3, 1, 'changamwe', 'airport', ''),
@@ -1395,7 +1395,7 @@ INSERT INTO `subcounties` (`id`, `county_id`, `constituency_name`, `ward`, `alia
 (1288, 44, 'nyatike', 'muhuru', ''),
 (1289, 44, 'kuria west', 'bukira east', ''),
 (1290, 44, 'kuria west', 'bukira centrl/ikerege', '');
-INSERT INTO `subcounties` (`id`, `county_id`, `constituency_name`, `ward`, `alias`) VALUES
+INSERT INTO `sub_counties` (`id`, `county_id`, `constituency_name`, `ward`, `alias`) VALUES
 (1291, 44, 'kuria west', 'isibania', ''),
 (1292, 44, 'kuria west', 'makerero', ''),
 (1293, 44, 'kuria west', 'masaba', ''),
@@ -1568,9 +1568,9 @@ ALTER TABLE `counties`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `subcounties`
+-- Indexes for table `sub_counties`
 --
-ALTER TABLE `subcounties`
+ALTER TABLE `sub_counties`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -1584,9 +1584,9 @@ ALTER TABLE `counties`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=48;
 
 --
--- AUTO_INCREMENT for table `subcounties`
+-- AUTO_INCREMENT for table `sub_counties`
 --
-ALTER TABLE `subcounties`
+ALTER TABLE `sub_counties`
   MODIFY `id` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1451;
 COMMIT;
 

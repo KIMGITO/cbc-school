@@ -13,7 +13,10 @@ return new class extends Migration
     {
         Schema::create('addresses', function (Blueprint $table) {
             $table->id();
-            $table->string('county');
+            $table->integer('ward_id');
+            $table->foreign('ward_id')->references('id')->on('sub_counties')->restrictOnDelete();
+            $table->string('location')->nullable();
+            $table->string('sub_location')->nullable();
             $table->timestamps();
         });
     }

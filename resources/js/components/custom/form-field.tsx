@@ -515,7 +515,7 @@ const FormField: React.FC<FormFieldProps> = ({
             case 'select':
                 return (
                     <Select
-                        value={value || ''}
+                        value={value || '-1'}
                         onValueChange={handleSelectChange}
                         disabled={disabled}
                     >
@@ -537,7 +537,7 @@ const FormField: React.FC<FormFieldProps> = ({
                         </SelectTrigger>
                         <SelectContent>
                             {emptyOption && (
-                                <SelectItem value="" disabled>
+                                <SelectItem value="-1" disabled>
                                     {emptyOption}
                                 </SelectItem>
                             )}
