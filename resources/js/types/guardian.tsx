@@ -7,7 +7,7 @@ export interface GuardianFormData {
     first_name: string;
     other_names: string;
     sir_name: string;
-    gender: 'male' | 'female';
+    gender: 'male' | 'female' | null;
     national_id: string;
     occupation: string;
     phone_number: string;
@@ -15,8 +15,11 @@ export interface GuardianFormData {
     email: string;
     address: string;
     county: string;
+    county_name:string,
     sub_county: string;
+    sub_county_name: string;
     ward: string;
+    ward_name: string;
     location: string;
     sub_location: string;
     student_id: string;

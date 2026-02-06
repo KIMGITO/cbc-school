@@ -17,7 +17,7 @@ class GuardianController extends Controller
      */
     public function index()
     {
-        //
+        $guardians = Guardian::paginate(50);
     }
 
     /**

@@ -1,16 +1,12 @@
-// pages/guardians/admission.tsx
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
+import { useGuardianAdmission } from '@/hooks/use-guardian-admission';
 import AppLayout from '@/layouts/app-layout';
-import { GuardianFormData, GuardianFormErrors } from '@/types/guardian';
-import axios from 'axios';
 import { Save, Search, Send, Trash, UserCheck, UserPlus } from 'lucide-react';
-import { useEffect, useState } from 'react';
-import { emptyGuardianData, emptyGuardianErrors } from '../empty-data';
 import AddressInfoTab from './tabs/address-info-tab';
 import ContactInfoTab from './tabs/contact-info-tab';
 import PersonalInfoTab from './tabs/personal-info-tab';
@@ -18,241 +14,58 @@ import RelationshipTab from './tabs/relationship-tab';
 
 // Define props for each tab component
 interface TabComponentProps {
-    data: GuardianFormData;
-    onChange: (field: keyof GuardianFormData, value: any) => void;
-    errors?: GuardianFormErrors;
+    data: any;
+    onChange: (field: string, value: any) => void;
+    errors?: any;
+    selectedGuardian?: any;
 }
 
 export default function GuardianAdmission() {
-    const sections = [
-        {
-            label: 'Personal Info',
-            value: 'personal',
-            component: PersonalInfoTab,
-            errorFields: [
-                'first_name',
-                'sir_name',
-                'national_id',
-                'other_names',
-            ],
-        },
-        {
-            label: 'Contact Info',
-            value: 'contact',
-            component: ContactInfoTab,
-            errorFields: ['phone_number', 'email', 'phone_number_2'],
-        },
-        {
-            label: 'Address Info',
-            value: 'address',
-            component: AddressInfoTab,
-            errorFields: [
-                'address',
-                'county',
-                'sub_county',
-                'ward',
-                'location',
-                'sub_location',
-            ],
-        },
-        {
-            label: 'Relationship',
-            value: 'relationship',
-            component: RelationshipTab,
-            errorFields: [
-                'student_id',
-                'relationship_type',
-                'is_primary',
-                'can_pick_student',
-                'can_pay_fees',
-            ],
-        },
-    ];
+    const {
+        // State
+        formData,
+        formDataErrors,
+        activeTab,
+        searchQuery,
+        isSearching,
+        searchResults,
+        selectedGuardian,
+        showSearchResults,
+        isSubmitting,
 
-    const [activeTab, setActiveTab] = useState('personal');
-    const [searchQuery, setSearchQuery] = useState('');
-    const [isSearching, setIsSearching] = useState(false);
-    const [searchResults, setSearchResults] = useState<any[]>([]);
-    const [selectedGuardian, setSelectedGuardian] = useState<any>(null);
-    const [showSearchResults, setShowSearchResults] = useState(false);
-    const [isSubmitting, setIsSubmitting] = useState(false);
+        // Actions
+        updateFormField,
+        setActiveTab,
+        setSearchQuery,
+        setIsSearching,
+        setShowSearchResults,
+        selectGuardian,
+        clearSelection,
 
-    // Initialize form data state
-    const [formData, setFormData] =
-        useState<GuardianFormData>(emptyGuardianData);
-    const [formDataErrors, setFormDataErrors] =
-        useState<GuardianFormErrors>(emptyGuardianErrors);
+        // Computed values and helpers
+        sections,
+        getTabErrors,
+        hasTabErrors,
+        getTabCompletionKey,
 
-    // Check if a tab has errors
-    const getTabErrors = (tabValue: string) => {
-        const section = sections.find((s) => s.value === tabValue);
-        if (!section) return [];
+        // Handlers
+        handleSearchGuardian,
+        handleSubmit,
+        handleSaveDraft,
+        handleClearDraft,
+    } = useGuardianAdmission();
 
-        return section.errorFields.filter(
-            (field) => formDataErrors[field as keyof GuardianFormErrors],
-        );
-    };
-
-    // Check if tab has any errors
-    const hasTabErrors = (tabValue: string) => {
-        return getTabErrors(tabValue).length > 0;
-    };
-
-    // Handle field changes
-    const handleFieldChange = (field: keyof GuardianFormData, value: any) => {
-        setFormData((prev) => ({
-            ...prev,
-            [field]: value,
-        }));
-        // Clear error for this field when user types
-        if (formDataErrors[field as keyof GuardianFormErrors]) {
-            setFormDataErrors((prev) => ({
-                ...prev,
-                [field]: undefined,
-            }));
-        }
-    };
-
-    // Search for existing guardian
-    const handleSearchGuardian = async () => {
-        if (!searchQuery.trim()) return;
-
-        setIsSearching(true);
-        try {
-            const response = await axios.get('/api/guardians/search', {
-                params: { q: searchQuery.trim() },
-            });
-
-            if (response.data.data && response.data.data.length > 0) {
-                setSearchResults(response.data.data);
-                setShowSearchResults(true);
-            } else {
-                setSearchResults([]);
-                setShowSearchResults(true);
-            }
-        } catch (error) {
-            console.error('Search error:', error);
-        } finally {
-            setIsSearching(false);
-        }
-    };
-
-    // Handle guardian selection from search results
-    const handleSelectGuardian = (guardian: any) => {
-        setSelectedGuardian(guardian);
-        setShowSearchResults(false);
-        setSearchQuery('');
-
-        // Auto-fill form with guardian data
-        setFormData({
-            user_id: guardian.user_id || '',
-            first_name: guardian.first_name || '',
-            other_names: guardian.other_names || '',
-            sir_name: guardian.sir_name || '',
-            gender: guardian.gender || null,
-            national_id: guardian.national_id || '',
-            phone_number: guardian.phone_number || '',
-            phone_number_2: guardian.phone_number_2 || '',
-            email: guardian.email || '',
-            occupation: guardian.occupation || '',
-            address: guardian.address || '',
-            county: guardian.county || '',
-            sub_county: guardian.sub_county || '',
-            ward: guardian.ward || '',
-            location: guardian.location || '',
-            sub_location: guardian.sub_location || '',
-            
-            relationship_type: guardian.relation_type || '',
-            student_id: guardian.student_id || null,
-            is_primary: guardian.is_primary || false,
-            can_pick_student: guardian.can_pick_student || false,
-            can_pay_fees: guardian.can_pay_fee || false,
-        });
-    };
-
-    // Clear selected guardian and reset form
-    const handleClearSelection = () => {
-        setSelectedGuardian(null);
-        setFormData(emptyGuardianData);
-        setFormDataErrors(emptyGuardianErrors);
-        setSearchQuery('');
-        setSearchResults([]);
+    // Map component to each tab
+    const tabComponents = {
+        personal: PersonalInfoTab,
+        contact: ContactInfoTab,
+        address: AddressInfoTab,
+        relationship: RelationshipTab,
     };
 
     // Get the active component
-    const ActiveComponent = sections.find(
-        (section) => section.value === activeTab,
-    )?.component;
-
-    
-    // Handle form submission
-    const handleSubmit = async () => {
-       
-        try {
-            // Prepare data
-            const formDataToSend = new FormData();
-            Object.entries(formData).forEach(([key, value]) => {
-                if (value !== null && value !== undefined) {
-                    formDataToSend.append(key, value);
-                }
-            });
-
-            console.log('Submitting data:', Object.fromEntries(formDataToSend));
-
-            const endpoint = selectedGuardian
-                ? `/guardians/${selectedGuardian.id}/update`
-                : '/guardians';
-
-            const method = selectedGuardian ? 'put' : 'post';
-
-            await axios[method](endpoint, formDataToSend);
-
-            handleClearSelection();
-        } catch (error: any) {
-            if (error.response?.data?.errors) {
-                setFormDataErrors(error.response.data.errors);
-                // Scroll to first error tab
-                const firstErrorSection = sections.find((section) =>
-                    section.errorFields.some(
-                        (field) => error.response.data.errors[field],
-                    ),
-                );
-                if (firstErrorSection) {
-                    setActiveTab(firstErrorSection.value);
-                }
-            }
-            console.error('Submission error:', error);
-        } finally {
-            setIsSubmitting(false);
-        }
-    };
-
-    // Handle save as draft
-    const handleSaveDraft = () => {
-        localStorage.setItem(
-            'guardianAdmissionDraft',
-            JSON.stringify(formData),
-        );
-    };
-
-    const handleClearDraft = () => {
-        localStorage.removeItem('guardianAdmissionDraft');
-        setFormData(emptyGuardianData);
-        handleClearSelection();
-    };
-
-    // Load draft on component mount
-    useEffect(() => {
-        const savedDraft = localStorage.getItem('guardianAdmissionDraft');
-        if (savedDraft) {
-            try {
-                const parsedDraft = JSON.parse(savedDraft);
-                setFormData(parsedDraft);
-            } catch (error) {
-                console.error('Error loading draft:', error);
-            }
-        }
-    }, []);
+    const ActiveComponent =
+        tabComponents[activeTab as keyof typeof tabComponents];
 
     return (
         <AppLayout>
@@ -274,7 +87,7 @@ export default function GuardianAdmission() {
                             className="gap-2"
                         >
                             <Trash className="h-4 w-4" />
-                            Clear Draft
+                            Clear All
                         </Button>
                         <Button
                             variant="outline"
@@ -282,7 +95,7 @@ export default function GuardianAdmission() {
                             className="gap-2"
                         >
                             <Save className="h-4 w-4" />
-                            Save Draft
+                            Save Progress
                         </Button>
                         <Button
                             onClick={handleSubmit}
@@ -341,7 +154,6 @@ export default function GuardianAdmission() {
                                     onClick={() => setActiveTab(section.value)}
                                 >
                                     <CardContent className="relative p-4">
-                                        
                                         <CardTitle className="flex items-center text-lg">
                                             <Badge
                                                 className={`me-3 rounded-full shadow ${
@@ -431,7 +243,7 @@ export default function GuardianAdmission() {
                                 {selectedGuardian && (
                                     <Button
                                         variant="outline"
-                                        onClick={handleClearSelection}
+                                        onClick={clearSelection}
                                         className="gap-2"
                                     >
                                         <UserPlus className="h-4 w-4" />
@@ -460,7 +272,7 @@ export default function GuardianAdmission() {
                                                                     : ''
                                                             }`}
                                                             onClick={() =>
-                                                                handleSelectGuardian(
+                                                                selectGuardian(
                                                                     guardian,
                                                                 )
                                                             }
@@ -552,7 +364,7 @@ export default function GuardianAdmission() {
                             {ActiveComponent && (
                                 <ActiveComponent
                                     data={formData}
-                                    onChange={handleFieldChange}
+                                    onChange={updateFormField}
                                     errors={formDataErrors}
                                     selectedGuardian={selectedGuardian}
                                 />
@@ -573,7 +385,6 @@ export default function GuardianAdmission() {
                                 {selectedGuardian ? 'update' : 'register'}{' '}
                                 guardian.
                             </p>
-                            
                         </div>
                         <Button
                             variant="outline"
@@ -598,20 +409,4 @@ export default function GuardianAdmission() {
             </div>
         </AppLayout>
     );
-}
-
-// Helper function to check tab completion
-function getTabCompletionKey(tabValue: string): keyof GuardianFormData {
-    switch (tabValue) {
-        case 'personal':
-            return 'first_name';
-        case 'contact':
-            return 'phone_number';
-        case 'address':
-            return 'address';
-        case 'relationship':
-            return 'student_id';
-        default:
-            return 'first_name';
-    }
 }

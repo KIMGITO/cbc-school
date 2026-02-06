@@ -50,6 +50,7 @@ Route::middleware(['auth', 'web', 'verified'])->group(function () {
     // Students Managements.
     Route::resource('students', StudentController::class);
     Route::resource('guardians', GuardianController::class);
+    // Route::class('teachers', )
 });
 
 require __DIR__ . '/settings.php';

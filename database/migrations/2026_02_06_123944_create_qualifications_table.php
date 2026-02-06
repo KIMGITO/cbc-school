@@ -11,12 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('addresses', function (Blueprint $table) {
+        Schema::create('qualifications', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->integer('ward_id');
-            $table->foreign('ward_id')->references('id')->on('sub_counties')->restrictOnDelete();
-            $table->string('location')->nullable();
-            $table->string('sub_location')->nullable();
+            $table->foreignUuid('teacher_id')->constrained('teachers')->cascadeOnDelete();
+            $table->string('name');
+            $table->string('institution');
+            $table->string('year_completed');
+            $table->boolean('tsc_registered');
             $table->timestamps();
         });
     }
@@ -26,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('addresses');
+        Schema::dropIfExists('qualifications');
     }
 };

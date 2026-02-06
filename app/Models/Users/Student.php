@@ -2,20 +2,21 @@
 
 namespace App\Models\Users;
 
+// use App\Users\StudentService;
+use Laravel\Scout\Searchable;
 use App\Enum\AssessmentRating;
-use App\Models\Functional\GradeLevel;
-use App\Models\Functional\Stream;
-use App\Users\StudentService;
-use Illuminate\Contracts\Encryption\DecryptException;
-use Illuminate\Database\Eloquent\Casts\Attribute;
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\Users\Guardian;
+use Illuminate\Support\Carbon;
+use App\Models\Academics\Stream;
+use Illuminate\Support\Facades\Crypt;
+use App\Services\Users\StudentService;
+use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Crypt;
-use Laravel\Scout\Searchable;
-use Spatie\Permission\Traits\HasRoles;
+use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Contracts\Encryption\DecryptException;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Student extends Model
 {

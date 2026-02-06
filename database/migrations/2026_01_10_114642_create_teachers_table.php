@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Validation\Rules\Unique;
 
 return new class extends Migration
 {
@@ -16,10 +17,16 @@ return new class extends Migration
             $table->foreignUuid('user_id')->nullable()->constrained('users')->nullOnDelete();
             $table->foreignUuid('department_id')->nullable()->constrained('departments')->onDelete('set null');
             $table->text('tsc_number');
-            $table->date('hire_date');
-            $table->json('qualifications')->nullable();
+            $table->string('tsc_number_hash')->unique();
+            $table->text('kra_pin');
+            $table->string('kra_pin_hash')->unique();
+            $table->date('employment_date');
             $table->text('phone_number');
+            $table->string('phone_number_hash')->unique();
             $table->text('phone_number_2');
+            $table->string('phone_number_2_hash')->unique();
+            $table->text('national_id');
+            $table->string('national_id_hash')->unique();
             $table->boolean('is_active')->default(true);
             $table->softDeletes();
             $table->timestamps();

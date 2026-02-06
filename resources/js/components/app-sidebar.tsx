@@ -20,9 +20,12 @@ import {
     UserPlus2Icon,
     Users,
     Users2,
+    UserSquareIcon,
+    UsersRoundIcon,
 } from 'lucide-react';
 import AppLogo from './app-logo';
 import { NavMainGroup } from './nav-main-group';
+import { title } from 'process';
 
 export function AppSidebar() {
     const mainNavItems: NavItem[] = [
@@ -99,7 +102,28 @@ export function AppSidebar() {
             showAddButton: true,
             addUrl: '/guardians/create',
             badge: 100,
-            items: [],
+            items: [
+                {
+                    title: 'Parents/ Guardians',
+                    href: '/guardians',
+                    icon: Users2,
+                },
+            ],
+        },
+        {
+            title: 'Teachers',
+            icon: UserSquareIcon,
+            defaultOpen: false,
+            showAddButton: true,
+            addUrl: '/teachers/create',
+            badge: 5,
+            items: [
+                {
+                    title: 'Teachers',
+                    href: '/teachers',
+                    icon: UsersRoundIcon,
+                },
+            ],
         },
     ];
     return (

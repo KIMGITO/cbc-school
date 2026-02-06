@@ -1,11 +1,12 @@
 <?php
 
-namespace Database\Factories\Functional;
+namespace Database\Factories\Academics;
 
+use App\Models\Academics\GradeLevel;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Functional\Stream>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Academics\Stream>
  */
 class StreamFactory extends Factory
 {
@@ -20,7 +21,7 @@ class StreamFactory extends Factory
             'name' => $this->faker->unique()->word(),
             'description' => $this->faker->optional()->sentence(),
             'is_active' => $this->faker->boolean(90),
-            'grade_level_id' => \App\Models\Functional\GradeLevel::factory(),
+            'grade_level_id' => GradeLevel::factory(),
             'teacher_id' => null,
         ];
     }

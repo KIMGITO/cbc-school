@@ -1,11 +1,11 @@
 <?php
 
-namespace Database\Factories\Functional;
+namespace Database\Factories\Academics;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Functional\GradeLevel>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Academics\GradeLevel>
  */
 class GradeLevelFactory extends Factory
 {

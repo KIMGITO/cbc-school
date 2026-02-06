@@ -1,13 +1,13 @@
 <?php
 
-namespace Database\Factories\People;
+namespace Database\Factories\Users;
 
 use App\Models\User;
 use App\Models\Cores\Department;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\People\Teacher>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Users\Teacher>
  */
 class TeacherFactory extends Factory
 {
@@ -19,7 +19,7 @@ class TeacherFactory extends Factory
     public function definition(): array
     {
         return [
-            'user_id' => User::factory(), 
+            'user_id' => User::factory(),
             'department_id' => Department::factory(),
             'tsc_number' => $this->faker->unique()->regexify('[A-Z0-9]{8}'),
             'hire_date' => $this->faker->date(),

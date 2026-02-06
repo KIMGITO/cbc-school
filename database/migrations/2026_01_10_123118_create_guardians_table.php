@@ -19,12 +19,7 @@ return new class extends Migration
             $table->text('phone_number_2')->nullable();
             $table->string('email')->unique()->nullable();
             $table->string('occupation')->nullable();
-            $table->string('address')->nullable();
-            $table->string('county')->nullable();
-            $table->string('sub_county')->nullable();
-            $table->string('ward')->nullable();
-            $table->string('location')->nullable();
-            $table->string('sub_location')->nullable();
+            $table->foreignUuid('address_id')->constrained('addresses')->restrictOnDelete();
             $table->softDeletes();
         });
     }

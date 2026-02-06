@@ -6,10 +6,10 @@ import {
     Book,
     Briefcase,
     Check,
+    Delete,
     GraduationCap,
     Loader2,
     Search,
-    User,
     Users,
     X,
 } from 'lucide-react';
@@ -140,9 +140,8 @@ const predefinedConfigs: Record<
     generic: {
         icon: <Search className="h-4 w-4" />,
         fields: [
-            { key: 'name', label: 'Name', priority: 1 },
-            { key: 'id', label: 'ID', priority: 2, badgeStyle: true },
-            { key: 'description', label: 'Description', priority: 3 },
+            { key: 'id', label: 'ID', priority: 1, badgeStyle: true },
+            { key: 'label', label: 'Label', priority: 2 },
         ],
     },
 };
@@ -267,7 +266,7 @@ const SearchAutocomplete: React.FC<SearchAutocompleteProps> = ({
                 const searchUrl = url.includes('?')
                     ? `${url}&${queryString}`
                     : `${url}?${queryString}`;
-
+console.log(searchUrl)
                 const response = await fetch(searchUrl, {
                     headers: {
                         Accept: 'application/json',
@@ -300,7 +299,6 @@ const SearchAutocomplete: React.FC<SearchAutocompleteProps> = ({
                     handleSelect(items[0]);
                 }
             } catch (err) {
-                console.error('Search error:', err);
                 setResults([]);
             } finally {
                 setIsLoading(false);
@@ -338,7 +336,7 @@ const SearchAutocomplete: React.FC<SearchAutocompleteProps> = ({
                 const response = await fetch(`${url}/${value}`);
                 if (response.ok) {
                     const data = await response.json();
-                    setSelectedItem(data);
+                    // setSelectedItem(data.data);
 
                     // Set search term to label field or name
                     const labelValue =
@@ -424,7 +422,9 @@ const SearchAutocomplete: React.FC<SearchAutocompleteProps> = ({
         }
     };
 
+
     const handleSelect = (item: SearchResult) => {
+
         setSelectedItem(item);
         const labelValue = item[labelField] || item.name || item.label || '';
         setSearchTerm(labelValue);
@@ -530,7 +530,7 @@ const SearchAutocomplete: React.FC<SearchAutocompleteProps> = ({
         return (
             <div className="flex items-center justify-between">
                 <div className="flex min-w-0 flex-1 items-center space-x-2">
-                    <div className="flex h-5 w-5 items-center justify-center rounded-full bg-blue-200  text-blue-600">
+                    <div className="flex h-5 w-5 items-center justify-center rounded-full bg-blue-200 text-blue-600">
                         {getTypeIcon()}
                     </div>
                     <div className="min-w-0 flex-1">
@@ -730,7 +730,7 @@ const SearchAutocomplete: React.FC<SearchAutocompleteProps> = ({
             </div>
 
             {/* Selected item display */}
-            {selectedItem && !isOpen &&  showSelectedInDropdown &&(
+            {selectedItem && !isOpen && showSelectedInDropdown && (
                 <div
                     className={cn(
                         'mt-1.5 flex items-center justify-between rounded-lg border border-blue-200 bg-blue-50/30 px-3 py-1.5',
@@ -746,9 +746,9 @@ const SearchAutocomplete: React.FC<SearchAutocompleteProps> = ({
                         <button
                             type="button"
                             onClick={handleClear}
-                            className="ml-2 shrink-0 rounded border-red-500/20 border bg-white px-2 py-0.5 text-[10px] font-medium text-red-600 transition-colors hover:bg-red-50 hover:text-red-700"
+                            className="ml-2 shrink-0 rounded  bg-white px-2 text-red-600 transition-colors hover:bg-red-50 hover:text-red-700"
                         >
-                            Clear
+                            <Delete className='h-5'/>
                         </button>
                     )}
                 </div>

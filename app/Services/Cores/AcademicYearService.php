@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\Config;
+namespace App\Services\Cores;
 
 class AcademicYearService
 {

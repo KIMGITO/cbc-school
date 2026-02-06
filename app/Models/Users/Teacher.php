@@ -4,7 +4,7 @@ namespace App\Models\Users;
 
 use App\Models\Cores\Course;
 use App\Models\Cores\Department;
-use App\Models\Functional\Stream;
+use App\Models\Academics\Stream;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -24,13 +24,9 @@ class Teacher extends Model
         'national_id',
         'home_address',
         'residential_address',
-        'county',
-        'sub_county',
-        'ward',
-        'location',
-        'sub_location',
+        'kra_pin',
         'tsc_number',
-        'hire_date',
+        'employment_date',
         'qualifications',
         'phone_number',
         'phone_number_2',
@@ -40,13 +36,20 @@ class Teacher extends Model
 
     protected $casts = [
         'is_active' => 'boolean',
-        'hire_date' => 'date',
+        'employment_date' => 'date',
         'qualifications' => 'array',
         'user_id' => 'integer',
         'department_id' => 'integer',
         'tsc_number' => 'encrypted',
+        'tsc_number_hash' => 'hash',
         'phone_number' => 'encrypted',
-        'phone_number_2' => 'encrypted'
+        'phone_number_hash' => 'hash',
+        'phone_number_2' => 'encrypted',
+        'phone_number_2_hash' => 'hash',
+        'kra_pin' => 'encrypted',
+        'kra_pin_hash' => 'hash',
+        'national_id' => 'encrypted',
+        'national_id_hash' => 'hash',
     ];
 
     /**

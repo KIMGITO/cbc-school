@@ -2,6 +2,7 @@
 
 namespace App\Models\Users;
 
+use App\Models\Support\Address;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -29,8 +30,9 @@ class Guardian extends Model
         'national_id' => 'encrypted',
         'phone_number' => 'encrypted',
         'phone_number_2' => 'encrypted',
-
     ];
+
+    protected $with = ['address'];
 
     /**
      * Many-to-One (Inverse) relationship.
@@ -56,4 +58,16 @@ class Guardian extends Model
             'is_primary'
         ])->withTimestamps();
     }
+
+    /**
+     * One-to-One relationship.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function address()
+    {
+        return $this->hasOne(Address::class);
+    }
+
+    protected static function booted() {}
 }
