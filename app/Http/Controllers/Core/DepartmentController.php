@@ -25,7 +25,7 @@ class DepartmentController extends Controller
 
         return $this->respond($request, ['success' => true, 'active' => $department->active]);
     }
-    public function store(Request $request)
+    public function store(DepartmentRequest $request)
     {
         $validated = $request->validated();
         try {

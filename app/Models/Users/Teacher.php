@@ -22,8 +22,8 @@ class Teacher extends Model
         'user_id',
         'department_id',
         'national_id',
-        'home_address',
-        'residential_address',
+        'home_address_id',
+        'residential_address_id',
         'kra_pin',
         'tsc_number',
         'employment_date',
@@ -31,6 +31,7 @@ class Teacher extends Model
         'phone_number',
         'phone_number_2',
         'is_active',
+        ''
 
     ];
 

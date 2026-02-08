@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Core\DepartmentController;
 use App\Http\Controllers\Support\AddressController;
 use App\Http\Controllers\Users\StudentController;
 use Illuminate\Http\Request;
@@ -11,3 +12,4 @@ Route::get('/user', function (Request $request) {
 
 Route::get('/students', [StudentController::class, 'search']);
 Route::get('/address/search', [AddressController::class, 'search']);
+Route::get('/departments', [DepartmentController::class, 'index']);

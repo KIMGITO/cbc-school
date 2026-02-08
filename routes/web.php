@@ -3,14 +3,15 @@
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Core\TermController;
+use App\Http\Controllers\Core\CourseController;
 use App\Http\Controllers\Users\StudentController;
+use App\Http\Controllers\Users\TeacherController;
 use App\Http\Controllers\Users\GuardianController;
 use App\Http\Controllers\Academic\StreamController;
-use App\Http\Controllers\Academic\GradeLevelController;
 use App\Http\Controllers\Core\DepartmentController;
-use App\Http\Controllers\Core\CourseController;
 use App\Http\Controllers\Core\AcademicYearController;
-use App\Http\Controllers\Core\TermController;
+use App\Http\Controllers\Academic\GradeLevelController;
 
 Route::get('/', function () {
     return Inertia::render('welcome', [
@@ -50,7 +51,7 @@ Route::middleware(['auth', 'web', 'verified'])->group(function () {
     // Students Managements.
     Route::resource('students', StudentController::class);
     Route::resource('guardians', GuardianController::class);
-    // Route::class('teachers', )
+    Route::resource('teachers', TeacherController::class );
 });
 
 require __DIR__ . '/settings.php';

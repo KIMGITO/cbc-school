@@ -18,11 +18,11 @@ class Department extends Model
         'name',
         'code',
         'description',
-        'active'
+        'is_active'
     ];
 
     protected $casts = [
-        'active' => 'boolean',
+        'is_active' => 'boolean',
     ];
 
     /**

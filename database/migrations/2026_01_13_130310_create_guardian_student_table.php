@@ -38,6 +38,7 @@ return new class extends Migration
             $table->boolean('is_primary')->default(true);
             $table->boolean('can_pay_fees')->default(true);
             $table->boolean('can_pick_student')->default(true);
+            $table->unique(['guardian_id', 'student_id']);
             $table->softDeletes();
             $table->timestamps();
         });

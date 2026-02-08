@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('email')->unique()->nullable();
             $table->string('occupation')->nullable();
             $table->foreignUuid('address_id')->constrained('addresses')->restrictOnDelete();
+            $table->timestampsTz();
             $table->softDeletes();
         });
     }

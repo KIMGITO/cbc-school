@@ -133,9 +133,6 @@ export const useGuardianAdmission = () => {
 
     // Handle save as draft (already handled by Zustand persist)
     const handleSaveDraft = () => {
-        // Already persisted automatically by Zustand
-        // Optional: Show a toast notification
-        console.log('Draft saved automatically');
     };
 
     const handleClearDraft = () => {
