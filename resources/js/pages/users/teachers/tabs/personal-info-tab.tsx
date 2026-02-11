@@ -1,22 +1,34 @@
 import FormField from '@/components/custom/form-field';
 import FormGrid from '@/components/custom/form-grid';
 import FormSection from '@/components/custom/form-section';
-import { TeacherFormDataProps } from '@/types/teacher';
+import { useTeacherAdmissionStore } from '@/stores/teacher-admission-store';
 import { User } from 'lucide-react';
 
-interface PersonalInfoTabProps {
-    data: TeacherFormDataProps;
-    onChange: (field: keyof TeacherFormDataProps, value: any) => void;
-    errors?: Record<string, string>;
-    selectedTeacher?: any;
-}
+export default function PersonalInfoTab() {
+    // Get data and actions from the store
+    const {
+        formData,
+        formDataErrors,
+        selectedTeacher,
+        updateFormField,
+        clearFormFieldError,
+    } = useTeacherAdmissionStore();
 
-export default function PersonalInfoTab({
-    data,
-    onChange,
-    errors,
-    selectedTeacher,
-}: PersonalInfoTabProps) {
+    const handleFieldChange = (field: keyof any, value: any) => {
+        updateFormField(field, value);
+    };
+
+    // Helper to get error message - handles both string and array errors
+    const getErrorMessage = (field: string): string => {
+        const error = formDataErrors[field];
+
+        if (Array.isArray(error)) {
+            return error[0] || '';
+        }
+
+        return error || '';
+    };
+
     return (
         <div className="space-y-6">
             <FormSection
@@ -29,10 +41,10 @@ export default function PersonalInfoTab({
                             name="sir_name"
                             label="Surname"
                             type="input"
-                            value={data.sir_name}
-                            onChange={onChange}
+                            value={formData.sir_name}
+                            onChange={handleFieldChange}
                             required
-                            error={errors?.sir_name}
+                            error={getErrorMessage('sir_name')}
                             disabled={!!selectedTeacher}
                             placeholder="Enter surname"
                         />
@@ -40,10 +52,10 @@ export default function PersonalInfoTab({
                             name="first_name"
                             label="First Name"
                             type="input"
-                            value={data.first_name}
-                            onChange={onChange}
+                            value={formData.first_name}
+                            onChange={handleFieldChange}
                             required
-                            error={errors?.first_name}
+                            error={getErrorMessage('first_name')}
                             disabled={!!selectedTeacher}
                             placeholder="Enter first name"
                         />
@@ -51,9 +63,9 @@ export default function PersonalInfoTab({
                             name="other_names"
                             label="Other Names"
                             type="input"
-                            value={data.other_names}
-                            onChange={onChange}
-                            error={errors?.other_names}
+                            value={formData.other_names}
+                            onChange={handleFieldChange}
+                            error={getErrorMessage('other_names')}
                             disabled={!!selectedTeacher}
                             placeholder="Enter other names"
                         />
@@ -64,10 +76,13 @@ export default function PersonalInfoTab({
                             name="national_id"
                             label="National ID"
                             type="input"
-                            value={data.national_id}
-                            onChange={onChange}
+                            value={formData.national_id}
+                            onChange={handleFieldChange}
                             required
-                            error={errors?.national_id}
+                            error={
+                                getErrorMessage('national_id') ||
+                                getErrorMessage('national_id_hash')
+                            }
                             disabled={!!selectedTeacher}
                             placeholder="e.g., 12345678"
                             inputType="number"
@@ -76,11 +91,11 @@ export default function PersonalInfoTab({
                             name="gender"
                             label="Gender"
                             type="select"
-                            value={data.gender}
-                            onChange={onChange}
+                            value={formData.gender}
+                            onChange={handleFieldChange}
                             required
                             placeholder="Select Gender"
-                            error={errors?.gender}
+                            error={getErrorMessage('gender')}
                             emptyOption="Select Gender"
                             options={[
                                 { label: 'Male', value: 'male' },

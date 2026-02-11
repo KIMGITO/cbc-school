@@ -64,3 +64,35 @@ export interface TeacherFormDataErrorProps {
     qualifications?: string;
     department_id?: string;
 }
+
+
+// types/teacher.ts
+export interface Teacher {
+    id: string;
+    user_id: string;
+    department_id?: string;
+    first_name: string;
+    sir_name: string;
+    other_names?: string;
+    email: string;
+    gender: string;
+    name?: string; // Will be computed from first_name + sir_name
+    tsc_number: string;
+    phone_number: string;
+    phone_number_2?: string;
+    employment_date: string;
+    is_active: boolean;
+    national_id: string;
+    kra_pin: string;
+    department?: {
+        id: string;
+        name: string;
+    };
+    user?: {
+        id: string;
+        first_name: string;
+        sir_name: string;
+        email: string;
+        gender: string;
+    };
+}

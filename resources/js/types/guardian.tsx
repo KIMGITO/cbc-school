@@ -50,7 +50,7 @@ export interface GuardianFormErrors {
     [key: string]: string | undefined;
 }
 
-export interface Guardian {
+export interface GuardianFormProps {
     id: string;
     user_id: string;
     first_name: string;
@@ -74,6 +74,46 @@ export interface Guardian {
     can_pick_student: boolean;
     can_pay_fees: boolean;
     students?: Student[];
+}
+
+// types/guardian.ts
+export interface Guardian {
+    id: string;
+    user_id: string;
+    first_name: string;
+    sir_name: string;
+    other_names?: string;
+    email: string;
+    gender: string;
+    phone: string;
+    phone_2?: string;
+    national_id: string;
+    relationship: string; // Father, Mother, Guardian, etc.
+    occupation?: string;
+    employer?: string;
+    is_active: boolean;
+    created_at: string;
+    updated_at: string;
+    
+    // Computed
+    name?: string;
+    
+    students?: Array<{
+        id: string;
+        name: string;
+        adm_no: string;
+    }>;
+    
+    students_count?: number;
+    
+    address?: {
+        id: string;
+        street: string;
+        city: string;
+        state: string;
+        country: string;
+        postal_code: string;
+    };
 }
 
 export const RelationTypes = [

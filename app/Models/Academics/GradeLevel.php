@@ -30,7 +30,7 @@ class GradeLevel extends Model
      */
     public function streams()
     {
-        return $this->hasMany(Stream::class);
+        return $this->hasMany(Stream::class,'level_id', 'id');
     }
 
     /**

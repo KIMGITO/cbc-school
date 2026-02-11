@@ -1,7 +1,9 @@
 import FormField from '@/components/custom/form-field';
 import FormGrid from '@/components/custom/form-grid';
 import FormSection from '@/components/custom/form-section';
+import InputError from '@/components/input-error';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import {
     Dialog,
     DialogContent,
@@ -9,46 +11,29 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
+import { useStudentAdmission } from '@/hooks/use-student-admission';
 import { Camera, ImageOffIcon, Upload, UserCircle2Icon, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import Webcam from 'react-webcam';
 import CaptureImageDialog from '../capture-dialog';
-import InputError from '@/components/input-error';
 
-interface ProfileInfoTabProps {
-    data?: {
-        first_name?: string;
-        other_names?: string;
-        sir_name?: string;
-        date_of_birth?: Date;
-        gender?: string;
-        profile_photo?: File | null;
-    };
-    errors?: {
-        first_name?: string ;
-        other_names?: string ;
-        sir_name?: string ;
-        date_of_birth?: string ;
-        gender?: string ;
-        profile_photo?: string ;
-    };
-    onChange?: (field: string, value: any) => void;
-}
+export default function ProfileInfoTab() {
+    const {
+        formData,
+        formDataErrors,
+        updateFormField,
+        activeTab,
+        goToNextTab,
+        validateCurrentTab,
+    } = useStudentAdmission();
 
-export default function ProfileInfoTab({
-    data = {},
-    errors = {},
-    onChange,
-}: ProfileInfoTabProps) {
     const [showWebcam, setShowWebcam] = useState(false);
     const [capturedImage, setCapturedImage] = useState<string | null>(null);
     const webcamRef = useRef<Webcam>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const handleChange = (field: string, value: any) => {
-        if (onChange) {
-            onChange(field, value);
-        }
+        updateFormField(field as keyof typeof formData, value);
     };
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -106,6 +91,7 @@ export default function ProfileInfoTab({
     };
 
     const deleteImage = () => {
+        handleChange('profile_photo', null);
         setCapturedImage(null);
     };
 
@@ -113,6 +99,12 @@ export default function ProfileInfoTab({
         width: 720,
         height: 720,
         facingMode: 'user',
+    };
+
+    const handleNext = () => {
+        if (validateCurrentTab()) {
+            goToNextTab();
+        }
     };
 
     // Cleanup webcam on unmount
@@ -123,6 +115,17 @@ export default function ProfileInfoTab({
             }
         };
     }, [showWebcam]);
+
+    // Get image URL for preview
+    const getImagePreviewUrl = () => {
+        if (capturedImage) {
+            return capturedImage;
+        }
+        if (formData.profile_photo instanceof File) {
+            return URL.createObjectURL(formData.profile_photo);
+        }
+        return null;
+    };
 
     return (
         <div className="space-y-6">
@@ -135,10 +138,10 @@ export default function ProfileInfoTab({
             >
                 <FormGrid cols={2} gap="md">
                     <FormField
-                        error={errors.sir_name}
+                        error={formDataErrors.sir_name}
                         name="sir_name"
                         label="Sir Name"
-                        value={data.sir_name || ''}
+                        value={formData.sir_name || ''}
                         onChange={handleChange}
                         required={true}
                         placeholder="Enter sir name"
@@ -147,10 +150,10 @@ export default function ProfileInfoTab({
                     />
 
                     <FormField
-                        error={errors.first_name}
+                        error={formDataErrors.first_name}
                         name="first_name"
                         label="First Name"
-                        value={data.first_name || ''}
+                        value={formData.first_name || ''}
                         onChange={handleChange}
                         required={true}
                         placeholder="Enter first name"
@@ -161,10 +164,10 @@ export default function ProfileInfoTab({
 
                 <FormGrid cols={2} gap="md">
                     <FormField
-                        error={errors.other_names}
+                        error={formDataErrors.other_names}
                         name="other_names"
                         label="Other Names"
-                        value={data.other_names || ''}
+                        value={formData.other_names || ''}
                         onChange={handleChange}
                         required
                         placeholder="Enter other names"
@@ -173,11 +176,11 @@ export default function ProfileInfoTab({
                     />
 
                     <FormField
-                        error={errors.gender}
+                        error={formDataErrors.gender}
                         name="gender"
                         label="Gender"
                         type="select"
-                        value={data.gender || ''}
+                        value={formData.gender || ''}
                         onChange={handleChange}
                         required={true}
                         placeholder="Select gender"
@@ -200,10 +203,10 @@ export default function ProfileInfoTab({
             >
                 <FormGrid cols={2} gap="md">
                     <FormField
-                        error={errors.date_of_birth}
+                        error={formDataErrors.date_of_birth}
                         name="date_of_birth"
                         label="Date Of Birth"
-                        value={data.date_of_birth || ''}
+                        value={formData.date_of_birth || ''}
                         onChange={handleChange}
                         required
                         placeholder="Pick a date"
@@ -211,7 +214,7 @@ export default function ProfileInfoTab({
                     />
 
                     <div
-                        className={`space-y-2 rounded border p-2 ${errors.profile_photo ? 'border-red-500' : ''}`}
+                        className={`space-y-2 rounded border p-2 ${formDataErrors.profile_photo ? 'border-red-500' : ''}`}
                     >
                         <div className="flex items-center justify-between">
                             <label className="text-sm font-medium">
@@ -251,15 +254,10 @@ export default function ProfileInfoTab({
                         <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center">
                             <div className="relative">
                                 <div className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-full border-2 border-dashed border-gray-300 bg-gray-50">
-                                    {data.profile_photo || capturedImage ? (
+                                    {getImagePreviewUrl() ? (
                                         <img
-                                            src={
-                                                capturedImage ||
-                                                URL.createObjectURL(
-                                                    data.profile_photo!,
-                                                )
-                                            }
-                                            alt="Preview"
+                                            src={getImagePreviewUrl()!}
+                                            alt="Profile preview"
                                             className="h-full w-full object-cover"
                                         />
                                     ) : (
@@ -267,10 +265,10 @@ export default function ProfileInfoTab({
                                             <ImageOffIcon className="mx-auto h-10 w-10" />
                                         </div>
                                     )}
-                                    {capturedImage != null && (
+                                    {getImagePreviewUrl() && (
                                         <Badge
                                             onClick={deleteImage}
-                                            className="absolute top-3 -right-0.5 bg-red-500 p-0.5"
+                                            className="absolute top-3 -right-0.5 cursor-pointer bg-red-500 p-0.5"
                                         >
                                             <X className="" />{' '}
                                         </Badge>
@@ -279,7 +277,7 @@ export default function ProfileInfoTab({
                                     <div className="absolute -bottom-0.5 flex">
                                         <Badge
                                             onClick={openWebcamDialog}
-                                            className="relative -left-4 rounded-full bg-green-500 p-0.5"
+                                            className="relative -left-4 cursor-pointer rounded-full bg-green-500 p-0.5"
                                         >
                                             <Camera className="" />{' '}
                                         </Badge>
@@ -287,7 +285,7 @@ export default function ProfileInfoTab({
                                             onClick={() =>
                                                 fileInputRef.current?.click()
                                             }
-                                            className="relative -right-4 rounded-full bg-blue-500 p-0.5"
+                                            className="relative -right-4 cursor-pointer rounded-full bg-blue-500 p-0.5"
                                         >
                                             {' '}
                                             <Upload className="" />{' '}
@@ -308,9 +306,9 @@ export default function ProfileInfoTab({
                                     />
                                 </div>
 
-                                {errors.profile_photo ? (
+                                {formDataErrors.profile_photo ? (
                                     <InputError
-                                        message={errors.profile_photo  }
+                                        message={formDataErrors.profile_photo}
                                     />
                                 ) : (
                                     <div className="space-y-1 text-xs text-gray-500">
@@ -329,6 +327,18 @@ export default function ProfileInfoTab({
                     </div>
                 </FormGrid>
             </FormSection>
+
+            {/* Navigation buttons */}
+            <div className="flex justify-end gap-4 border-t pt-4">
+                <Button
+                    variant="outline"
+                    onClick={handleNext}
+                    size="lg"
+                    className="px-8"
+                >
+                    Continue to Address Info →
+                </Button>
+            </div>
         </div>
     );
 }

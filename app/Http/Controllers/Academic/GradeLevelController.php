@@ -14,8 +14,7 @@ class GradeLevelController extends Controller
     use HandlesResponses;
     public function index(Request $request)
     {
-        $levels = GradeLevel::get();
-
+        $levels = GradeLevel::with('streams')->get();
         return $this->respond(
             request: $request,
             data: $levels,

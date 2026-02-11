@@ -57,7 +57,7 @@ class StudentController extends Controller
         $results = $students->map(function ($student) {
             return [
                 'id' => $student->id,
-                'label' => $student->name, // assuming accessor getNameAttribute
+                'label' => $student->name, 
                 'value' => $student->id,
                 'avatar' => $student->profile_photo,
                 'adm_no' => $student->adm_no,

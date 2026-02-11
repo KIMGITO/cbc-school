@@ -4,6 +4,7 @@ namespace App\Models\Users;
 
 use App\Models\Support\Address;
 use App\Models\User;
+use App\Traits\MergesUserAttributes;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -14,7 +15,7 @@ use Spatie\Permission\Traits\HasRoles;
 class Guardian extends Model
 {
     /** @use HasFactory<\Database\Factories\People\GuardianFactory> */
-    use HasFactory, HasUuids, SoftDeletes, Searchable;
+    use HasFactory, HasUuids, SoftDeletes, Searchable, MergesUserAttributes;
     protected $fillable = [
         'user_id',
         'national_id',
@@ -26,7 +27,6 @@ class Guardian extends Model
 
     // Casts
     protected $casts = [
-        'user_id' => 'integer',
         'national_id' => 'encrypted',
         'phone_number' => 'encrypted',
         'phone_number_2' => 'encrypted',

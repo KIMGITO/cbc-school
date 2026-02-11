@@ -20,13 +20,7 @@ return new class extends Migration
             $table->text('date_of_birth');
             $table->enum('gender', ['male', 'female']);
             $table->string('profile_photo')->nullable();
-
-            // residential address
-            $table->string('county')->nullable();
-            $table->string('sub_county')->nullable();
-            $table->string('ward')->nullable();
-            $table->string('location')->nullable();
-            $table->string('sub_location')->nullable();
+            $table->foreignUuid('address_id')->constrained('addresses')->restrictOnDelete();
             $table->text('upi_number')->nullable();
 
             // medical safety

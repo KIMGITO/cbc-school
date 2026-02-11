@@ -2,23 +2,20 @@ import FormField from '@/components/custom/form-field';
 import FormGrid from '@/components/custom/form-grid';
 import FormSection from '@/components/custom/form-section';
 import SearchAutocomplete from '@/components/custom/search-autocomplete';
-import { TeacherFormDataProps } from '@/types/teacher';
+import { useTeacherAdmissionStore } from '@/stores/teacher-admission-store';
 import { Building, Home, MapPin } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-interface LocationInfoTabProps {
-    data: TeacherFormDataProps;
-    onChange: (field: keyof TeacherFormDataProps, value: any) => void;
-    errors?: Record<string, string>;
-    selectedTeacher?: any;
-}
+export default function LocationInfoTab() {
+    // Get data and actions from the store
+    const {
+        formData,
+        formDataErrors,
+        selectedTeacher,
+        updateFormField,
+        clearFormFieldError,
+    } = useTeacherAdmissionStore();
 
-export default function LocationInfoTab({
-    data,
-    onChange,
-    errors,
-    selectedTeacher,
-}: LocationInfoTabProps) {
     // Home address states
     const [homeCounty, setHomeCounty] = useState<{
         name: string | undefined;
@@ -53,74 +50,90 @@ export default function LocationInfoTab({
 
     // Initialize home address states
     useEffect(() => {
-        if (data.home_county) {
+        if (formData.home_county) {
             setHomeCounty({
-                id: data.home_county,
-                name: data.home_county_name,
+                id: formData.home_county,
+                name: formData.home_county_name,
             });
         }
-        if (data.home_sub_county) {
+        if (formData.home_sub_county) {
             setHomeSubCounty({
-                id: data.home_sub_county,
-                name: data.home_sub_county_name,
+                id: formData.home_sub_county,
+                name: formData.home_sub_county_name,
             });
         }
-        if (data.home_ward) {
+        if (formData.home_ward) {
             setHomeWard({
-                id: data.home_ward,
-                name: data.home_ward_name,
+                id: formData.home_ward,
+                name: formData.home_ward_name,
             });
         }
     }, [
-        data.home_county,
-        data.home_sub_county,
-        data.home_ward,
-        data.home_county_name,
-        data.home_ward_name,
-        data.home_sub_county_name,
+        formData.home_county,
+        formData.home_sub_county,
+        formData.home_ward,
+        formData.home_county_name,
+        formData.home_ward_name,
+        formData.home_sub_county_name,
     ]);
 
-    // Initialize residential address states (you'll need to add these fields to your TeacherFormDataProps)
+    // Initialize residential address states
     useEffect(() => {
-        if (data.residential_county) {
+        if (formData.residential_county) {
             setResidentialCounty({
-                id: data.residential_county,
-                name: data.residential_county_name,
+                id: formData.residential_county,
+                name: formData.residential_county_name,
             });
         }
-        if (data.residential_sub_county) {
+        if (formData.residential_sub_county) {
             setResidentialSubCounty({
-                id: data.residential_sub_county,
-                name: data.residential_sub_county_name,
+                id: formData.residential_sub_county,
+                name: formData.residential_sub_county_name,
             });
         }
-        if (data.residential_ward) {
+        if (formData.residential_ward) {
             setResidentialWard({
-                id: data.residential_ward,
-                name: data.residential_ward_name,
+                id: formData.residential_ward,
+                name: formData.residential_ward_name,
             });
         }
     }, [
-        data.residential_county,
-        data.residential_sub_county,
-        data.residential_ward,
-        data.residential_county_name,
-        data.residential_ward_name,
-        data.residential_sub_county_name,
+        formData.residential_county,
+        formData.residential_sub_county,
+        formData.residential_ward,
+        formData.residential_county_name,
+        formData.residential_ward_name,
+        formData.residential_sub_county_name,
     ]);
+
+    // Helper to get error message
+    const getErrorMessage = (field: string): string => {
+        const error = formDataErrors[field];
+
+        if (Array.isArray(error)) {
+            return error[0] || '';
+        }
+
+        return error || '';
+    };
 
     // Home address handlers
     const handleHomeCountyChange = (name: string, value: string, item: any) => {
-        onChange('home_county', item?.id || '');
-        onChange('home_county_name', item?.name || '');
+        updateFormField('home_county', item?.id || '');
+        updateFormField('home_county_name', item?.name || '');
         setHomeCounty({ name: item?.name, id: item?.id });
+
+        // Clear errors for home county fields
+        clearFormFieldError('home_county');
+        clearFormFieldError('home_county_name');
+
         // Reset dependent fields
         setHomeSubCounty(null);
         setHomeWard(null);
-        onChange('home_sub_county', '');
-        onChange('home_sub_county_name', '');
-        onChange('home_ward', '');
-        onChange('home_ward_name', '');
+        updateFormField('home_sub_county', '');
+        updateFormField('home_sub_county_name', '');
+        updateFormField('home_ward', '');
+        updateFormField('home_ward_name', '');
     };
 
     const handleHomeSubCountyChange = (
@@ -128,36 +141,51 @@ export default function LocationInfoTab({
         value: string,
         item: any,
     ) => {
-        onChange('home_sub_county', item?.id || '');
-        onChange('home_sub_county_name', item?.name || '');
+        updateFormField('home_sub_county', item?.id || '');
+        updateFormField('home_sub_county_name', item?.name || '');
         setHomeSubCounty({ id: item?.id, name: item?.name });
 
+        // Clear errors
+        clearFormFieldError('home_sub_county');
+        clearFormFieldError('home_sub_county_name');
+
+        // Reset dependent field
         setHomeWard(null);
-        onChange('home_ward', '');
-        onChange('home_ward_name', '');
+        updateFormField('home_ward', '');
+        updateFormField('home_ward_name', '');
     };
 
     const handleHomeWardChange = (name: string, value: string, item: any) => {
-        onChange('home_ward', item?.id || '');
-        onChange('home_ward_name', item?.name || '');
+        updateFormField('home_ward', item?.id || '');
+        updateFormField('home_ward_name', item?.name || '');
         setHomeWard({ id: item?.id, name: item?.name });
+
+        // Clear errors
+        clearFormFieldError('home_ward');
+        clearFormFieldError('home_ward_name');
     };
 
-    // Residential address handlers (you'll need to add these fields to your TeacherFormDataProps)
+    // Residential address handlers
     const handleResidentialCountyChange = (
         name: string,
         value: string,
         item: any,
     ) => {
-        onChange('residential_county', item?.id || '');
-        onChange('residential_county_name', item?.name || '');
+        updateFormField('residential_county', item?.id || '');
+        updateFormField('residential_county_name', item?.name || '');
         setResidentialCounty({ name: item?.name, id: item?.id });
+
+        // Clear errors
+        clearFormFieldError('residential_county');
+        clearFormFieldError('residential_county_name');
+
+        // Reset dependent fields
         setResidentialSubCounty(null);
         setResidentialWard(null);
-        onChange('residential_sub_county', '');
-        onChange('residential_sub_county_name', '');
-        onChange('residential_ward', '');
-        onChange('residential_ward_name', '');
+        updateFormField('residential_sub_county', '');
+        updateFormField('residential_sub_county_name', '');
+        updateFormField('residential_ward', '');
+        updateFormField('residential_ward_name', '');
     };
 
     const handleResidentialSubCountyChange = (
@@ -165,13 +193,18 @@ export default function LocationInfoTab({
         value: string,
         item: any,
     ) => {
-        onChange('residential_sub_county', item?.id || '');
-        onChange('residential_sub_county_name', item?.name || '');
+        updateFormField('residential_sub_county', item?.id || '');
+        updateFormField('residential_sub_county_name', item?.name || '');
         setResidentialSubCounty({ id: item?.id, name: item?.name });
 
+        // Clear errors
+        clearFormFieldError('residential_sub_county');
+        clearFormFieldError('residential_sub_county_name');
+
+        // Reset dependent field
         setResidentialWard(null);
-        onChange('residential_ward', '');
-        onChange('residential_ward_name', '');
+        updateFormField('residential_ward', '');
+        updateFormField('residential_ward_name', '');
     };
 
     const handleResidentialWardChange = (
@@ -179,9 +212,13 @@ export default function LocationInfoTab({
         value: string,
         item: any,
     ) => {
-        onChange('residential_ward', item?.id || '');
-        onChange('residential_ward_name', item?.name || '');
+        updateFormField('residential_ward', item?.id || '');
+        updateFormField('residential_ward_name', item?.name || '');
         setResidentialWard({ id: item?.id, name: item?.name });
+
+        // Clear errors
+        clearFormFieldError('residential_ward');
+        clearFormFieldError('residential_ward_name');
     };
 
     // Clear functions
@@ -190,15 +227,29 @@ export default function LocationInfoTab({
         setHomeSubCounty(null);
         setHomeWard(null);
 
-        onChange('home_county', '');
-        onChange('home_county_name', '');
-        onChange('home_sub_county', '');
-        onChange('home_sub_county_name', '');
-        onChange('home_ward', '');
-        onChange('home_ward_name', '');
-        onChange('home_location', '');
-        onChange('home_sub_location', '');
-        onChange('home_address', '');
+        updateFormField('home_county', '');
+        updateFormField('home_county_name', '');
+        updateFormField('home_sub_county', '');
+        updateFormField('home_sub_county_name', '');
+        updateFormField('home_ward', '');
+        updateFormField('home_ward_name', '');
+        updateFormField('home_location', '');
+        updateFormField('home_sub_location', '');
+        updateFormField('home_address', '');
+
+        // Clear all home-related errors
+        const homeFields = [
+            'home_county',
+            'home_county_name',
+            'home_sub_county',
+            'home_sub_county_name',
+            'home_ward',
+            'home_ward_name',
+            'home_location',
+            'home_sub_location',
+            'home_address',
+        ];
+        homeFields.forEach((field) => clearFormFieldError(field));
     };
 
     const handleClearResidentialAddress = () => {
@@ -206,15 +257,40 @@ export default function LocationInfoTab({
         setResidentialSubCounty(null);
         setResidentialWard(null);
 
-        onChange('residential_county', '');
-        onChange('residential_county_name', '');
-        onChange('residential_sub_county', '');
-        onChange('residential_sub_county_name', '');
-        onChange('residential_ward', '');
-        onChange('residential_ward_name', '');
-        onChange('residential_location', '');
-        onChange('residential_sub_location', '');
-        onChange('residential_address', '');
+        updateFormField('residential_county', '');
+        updateFormField('residential_county_name', '');
+        updateFormField('residential_sub_county', '');
+        updateFormField('residential_sub_county_name', '');
+        updateFormField('residential_ward', '');
+        updateFormField('residential_ward_name', '');
+        updateFormField('residential_location', '');
+        updateFormField('residential_sub_location', '');
+        updateFormField('residential_address', '');
+
+        // Clear all residential-related errors
+        const residentialFields = [
+            'residential_county',
+            'residential_county_name',
+            'residential_sub_county',
+            'residential_sub_county_name',
+            'residential_ward',
+            'residential_ward_name',
+            'residential_location',
+            'residential_sub_location',
+            'residential_address',
+        ];
+        residentialFields.forEach((field) => clearFormFieldError(field));
+    };
+
+    // Handle location field changes
+    const handleHomeLocationChange = (field: string, value: string) => {
+        clearFormFieldError(field);
+        updateFormField(field, value);
+    };
+
+    const handleResidentialLocationChange = (field: string, value: string) => {
+        clearFormFieldError(field);
+        updateFormField(field, value);
     };
 
     return (
@@ -222,6 +298,7 @@ export default function LocationInfoTab({
             <FormSection
                 title="Location Information"
                 Icon={{ icon: MapPin, color: 'purple-500' }}
+                border={false}
             >
                 {/* Home Address Section */}
                 <FormSection
@@ -235,16 +312,18 @@ export default function LocationInfoTab({
                                 name="home_address"
                                 label="Home Address Details"
                                 type="textarea"
-                                value={`COUNTY:\t\t\t\t\t\t${data.home_county_name.toUpperCase() || ''}
-CONSTITUENCY:\t${data.home_sub_county.toUpperCase() || ''}
-WARD:\t\t\t\t\t\t\t${data.home_ward_name.toUpperCase() || ''}
-LOCATION:\t\t\t\t${data.home_location.toUpperCase() || ''}
-SUB-LOCATION:\t${data.home_sub_location.toUpperCase() || ''}`}
+                                value={`COUNTY:\t\t\t\t\t\t${formData.home_county_name?.toUpperCase() || ''}
+CONSTITUENCY:\t${formData.home_sub_county?.toUpperCase() || ''}
+WARD:\t\t\t\t\t\t\t${formData.home_ward_name?.toUpperCase() || ''}
+LOCATION:\t\t\t\t${formData.home_location?.toUpperCase() || ''}
+SUB-LOCATION:\t${formData.home_sub_location?.toUpperCase() || ''}`}
                                 onChange={(field, value) =>
-                                    onChange('home_address', value)
+                                    handleHomeLocationChange(
+                                        'home_address',
+                                        value,
+                                    )
                                 }
                                 required
-                                error={errors?.home_address}
                                 placeholder="Enter detailed permanent home address..."
                                 rows={5}
                                 disabled
@@ -263,6 +342,7 @@ SUB-LOCATION:\t${data.home_sub_location.toUpperCase() || ''}`}
                                     label="County"
                                     value={''}
                                     required
+                                    autoSelectSingleResult
                                     placeholder="Search for a county ..."
                                     noResultsMessage="No county found"
                                     loadingMessage="Loading counties..."
@@ -280,7 +360,7 @@ SUB-LOCATION:\t${data.home_sub_location.toUpperCase() || ''}`}
                                             priority: 2,
                                         },
                                     ]}
-                                    error={errors?.county}
+                                    error={getErrorMessage('home_county')}
                                     type="generic"
                                     showClearButton={true}
                                     showSelectedInDropdown={false}
@@ -302,6 +382,7 @@ SUB-LOCATION:\t${data.home_sub_location.toUpperCase() || ''}`}
                                     value={''}
                                     label="Constituency"
                                     required
+                                    autoSelectSingleResult
                                     placeholder="Search for a constituency ..."
                                     noResultsMessage="No constituency found"
                                     loadingMessage="Loading constituencies..."
@@ -309,7 +390,7 @@ SUB-LOCATION:\t${data.home_sub_location.toUpperCase() || ''}`}
                                     resultFields={[
                                         { key: 'name', label: 'Name' },
                                     ]}
-                                    error={errors?.sub_county}
+                                    error={getErrorMessage('home_sub_county')}
                                     type="generic"
                                     showClearButton={true}
                                     selectedFields={[
@@ -333,6 +414,7 @@ SUB-LOCATION:\t${data.home_sub_location.toUpperCase() || ''}`}
                                     value={''}
                                     label="Ward"
                                     required
+                                    autoSelectSingleResult
                                     placeholder="Search for a ward ..."
                                     noResultsMessage="No ward found"
                                     loadingMessage="Loading wards..."
@@ -340,7 +422,7 @@ SUB-LOCATION:\t${data.home_sub_location.toUpperCase() || ''}`}
                                     resultFields={[
                                         { key: 'name', label: 'Name' },
                                     ]}
-                                    error={errors?.ward}
+                                    error={getErrorMessage('home_ward')}
                                     type="generic"
                                     showClearButton={true}
                                     showSelectedInDropdown={false}
@@ -357,27 +439,33 @@ SUB-LOCATION:\t${data.home_sub_location.toUpperCase() || ''}`}
                                 />
 
                                 <FormField
-                                    name="location"
+                                    name="home_location"
                                     label="Location"
                                     required
                                     type="input"
-                                    value={data.home_location || ''}
-                                    error={errors?.home_location}
+                                    value={formData.home_location || ''}
+                                    error={getErrorMessage('home_location')}
                                     onChange={(name, value) =>
-                                        onChange('home_location', value)
+                                        handleHomeLocationChange(
+                                            'home_location',
+                                            value,
+                                        )
                                     }
                                     placeholder="e.g., Kangemi"
                                 />
 
                                 <FormField
                                     required
-                                    name="sub_location"
+                                    name="home_sub_location"
                                     label="Sub-Location"
                                     type="input"
-                                    value={data.home_sub_location || ''}
-                                    error={errors?.home_sub_location}
+                                    value={formData.home_sub_location || ''}
+                                    error={getErrorMessage('home_sub_location')}
                                     onChange={(name, value) =>
-                                        onChange('home_sub_location', value)
+                                        handleHomeLocationChange(
+                                            'home_sub_location',
+                                            value,
+                                        )
                                     }
                                     placeholder="e.g., Kangemi Centre"
                                 />
@@ -409,15 +497,18 @@ SUB-LOCATION:\t${data.home_sub_location.toUpperCase() || ''}`}
                                 label="Residential Address Details"
                                 type="textarea"
                                 readOnly
-                                value={`COUNTY:\t\t\t\t\t\t${data.residential_county_name.toUpperCase() || ''}
-CONSTITUENCY:\t${data.residential_sub_county.toUpperCase() || ''}
-WARD:\t\t\t\t\t\t\t${data.residential_ward_name.toUpperCase() || ''}
-LOCATION:\t\t\t\t${data.residential_location.toUpperCase() || ''}
-SUB- LOCATION:\t${data.residential_sub_location.toUpperCase() || ''}`}
+                                value={`COUNTY:\t\t\t\t\t\t${formData.residential_county_name?.toUpperCase() || ''}
+CONSTITUENCY:\t${formData.residential_sub_county?.toUpperCase() || ''}
+WARD:\t\t\t\t\t\t\t${formData.residential_ward_name?.toUpperCase() || ''}
+LOCATION:\t\t\t\t${formData.residential_location?.toUpperCase() || ''}
+SUB- LOCATION:\t${formData.residential_sub_location?.toUpperCase() || ''}`}
                                 onChange={(field, value) =>
-                                    onChange('residential_address', value)
+                                    handleResidentialLocationChange(
+                                        'residential_address',
+                                        value,
+                                    )
                                 }
-                                error={errors?.residential_address}
+                                error={getErrorMessage('residential_address')}
                                 placeholder="Enter current residential address..."
                                 rows={5}
                                 disabled
@@ -431,6 +522,8 @@ SUB- LOCATION:\t${data.residential_sub_location.toUpperCase() || ''}`}
 
                             <FormGrid cols={2}>
                                 <SearchAutocomplete
+                                    required
+                                    autoSelectSingleResult
                                     name="residential_county"
                                     onChange={handleResidentialCountyChange}
                                     label="County"
@@ -452,7 +545,9 @@ SUB- LOCATION:\t${data.residential_sub_location.toUpperCase() || ''}`}
                                             priority: 2,
                                         },
                                     ]}
-                                    error={errors?.residential_county}
+                                    error={getErrorMessage(
+                                        'residential_county',
+                                    )}
                                     type="generic"
                                     showClearButton={true}
                                     showSelectedInDropdown={false}
@@ -469,6 +564,8 @@ SUB- LOCATION:\t${data.residential_sub_location.toUpperCase() || ''}`}
                                 />
 
                                 <SearchAutocomplete
+                                    required
+                                    autoSelectSingleResult
                                     name="residential_sub_county"
                                     onChange={handleResidentialSubCountyChange}
                                     value={''}
@@ -480,7 +577,9 @@ SUB- LOCATION:\t${data.residential_sub_location.toUpperCase() || ''}`}
                                     resultFields={[
                                         { key: 'name', label: 'Name' },
                                     ]}
-                                    error={errors?.residential_sub_county}
+                                    error={getErrorMessage(
+                                        'residential_sub_county',
+                                    )}
                                     type="generic"
                                     showClearButton={true}
                                     selectedFields={[
@@ -496,63 +595,83 @@ SUB- LOCATION:\t${data.residential_sub_location.toUpperCase() || ''}`}
                                 />
                             </FormGrid>
 
-                            <FormGrid cols={3}>
-                                <SearchAutocomplete
-                                    name="residential_ward"
-                                    minChars={1}
-                                    onChange={handleResidentialWardChange}
-                                    value={''}
-                                    label="Ward"
-                                    placeholder="Search for a ward ..."
-                                    noResultsMessage="No ward found"
-                                    loadingMessage="Loading wards..."
-                                    searchFields={['name']}
-                                    resultFields={[
-                                        { key: 'name', label: 'Name' },
-                                    ]}
-                                    error={errors?.residential_ward}
-                                    type="generic"
-                                    showClearButton={true}
-                                    showSelectedInDropdown={false}
-                                    selectedFields={[
-                                        {
-                                            label: 'name',
-                                            key: 'name',
-                                            priority: 1,
-                                        },
-                                    ]}
-                                    disabled={!residentialSubCounty?.id}
-                                    url={`/api/v1/address/search?county_id=${residentialCounty?.id}&constituency=${residentialSubCounty?.id}`}
-                                    inputClassName="bg-gray-700/20 border-2 border-green-500"
-                                />
+                            <FormSection border>
+                                <FormGrid cols={3}>
+                                    <SearchAutocomplete
+                                        required
+                                        autoSelectSingleResult
+                                        name="residential_ward"
+                                        minChars={1}
+                                        onChange={handleResidentialWardChange}
+                                        value={''}
+                                        label="Ward"
+                                        placeholder="Search for a ward ..."
+                                        noResultsMessage="No ward found"
+                                        loadingMessage="Loading wards..."
+                                        searchFields={['name']}
+                                        resultFields={[
+                                            { key: 'name', label: 'Name' },
+                                        ]}
+                                        error={getErrorMessage(
+                                            'residential_ward',
+                                        )}
+                                        type="generic"
+                                        showClearButton={true}
+                                        showSelectedInDropdown={false}
+                                        selectedFields={[
+                                            {
+                                                label: 'name',
+                                                key: 'name',
+                                                priority: 1,
+                                            },
+                                        ]}
+                                        disabled={!residentialSubCounty?.id}
+                                        url={`/api/v1/address/search?county_id=${residentialCounty?.id}&constituency=${residentialSubCounty?.id}`}
+                                        inputClassName="bg-gray-700/20 border-2 border-green-500"
+                                    />
 
-                                <FormField
-                                    name="residential_location"
-                                    label="Location"
-                                    type="input"
-                                    value={data.residential_location || ''}
-                                    error={errors?.residential_location}
-                                    onChange={(name, value) =>
-                                        onChange('residential_location', value)
-                                    }
-                                    placeholder="e.g., Westlands"
-                                />
+                                    <FormField
+                                        name="residential_location"
+                                        label="Location"
+                                        type="input"
+                                        required
+                                        value={
+                                            formData.residential_location || ''
+                                        }
+                                        error={getErrorMessage(
+                                            'residential_location',
+                                        )}
+                                        onChange={(name, value) =>
+                                            handleResidentialLocationChange(
+                                                'residential_location',
+                                                value,
+                                            )
+                                        }
+                                        placeholder="e.g., Westlands"
+                                    />
 
-                                <FormField
-                                    name="residential_sub_location"
-                                    label="Sub-Location"
-                                    type="input"
-                                    value={data.residential_sub_location || ''}
-                                    error={errors?.residential_sub_location}
-                                    onChange={(name, value) =>
-                                        onChange(
+                                    <FormField
+                                        name="residential_sub_location"
+                                        label="Sub-Location"
+                                        type="input"
+                                        required
+                                        value={
+                                            formData.residential_sub_location ||
+                                            ''
+                                        }
+                                        error={getErrorMessage(
                                             'residential_sub_location',
-                                            value,
-                                        )
-                                    }
-                                    placeholder="e.g., Westlands Centre"
-                                />
-                            </FormGrid>
+                                        )}
+                                        onChange={(name, value) =>
+                                            handleResidentialLocationChange(
+                                                'residential_sub_location',
+                                                value,
+                                            )
+                                        }
+                                        placeholder="e.g., Westlands Centre"
+                                    />
+                                </FormGrid>
+                            </FormSection>
 
                             <div className="flex justify-end">
                                 <button

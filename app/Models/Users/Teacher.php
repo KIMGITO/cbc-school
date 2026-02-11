@@ -6,6 +6,8 @@ use App\Models\Cores\Course;
 use App\Models\Cores\Department;
 use App\Models\Academics\Stream;
 use App\Models\User;
+use App\Traits\FlattensRelations;
+use App\Traits\MergesUserAttributes;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -15,42 +17,41 @@ use Laravel\Scout\Searchable;
 class Teacher extends Model
 {
     /** @use HasFactory<\Database\Factories\People\TeacherFactory> */
-    use HasFactory, HasUuids, SoftDeletes, Searchable;
-
-
+    use HasFactory, HasUuids, SoftDeletes, Searchable, MergesUserAttributes;
     protected $fillable = [
         'user_id',
         'department_id',
         'national_id',
+        'national_id_hash',
         'home_address_id',
         'residential_address_id',
         'kra_pin',
+        'kra_pin_hash',
+
         'tsc_number',
+        'tsc_number_hash',
+
         'employment_date',
-        'qualifications',
         'phone_number',
+        'phone_number_hash',
+
         'phone_number_2',
+        'phone_number_2_hash',
+
         'is_active',
-        ''
+
 
     ];
 
     protected $casts = [
         'is_active' => 'boolean',
         'employment_date' => 'date',
-        'qualifications' => 'array',
-        'user_id' => 'integer',
         'department_id' => 'integer',
         'tsc_number' => 'encrypted',
-        'tsc_number_hash' => 'hash',
         'phone_number' => 'encrypted',
-        'phone_number_hash' => 'hash',
         'phone_number_2' => 'encrypted',
-        'phone_number_2_hash' => 'hash',
         'kra_pin' => 'encrypted',
-        'kra_pin_hash' => 'hash',
         'national_id' => 'encrypted',
-        'national_id_hash' => 'hash',
     ];
 
     /**
@@ -60,7 +61,7 @@ class Teacher extends Model
      */
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id', 'id');
     }
 
     /**

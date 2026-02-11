@@ -37,7 +37,7 @@ class Stream extends Model
      */
     public function gradeLevel()
     {
-        return $this->belongsTo(GradeLevel::class);
+        return $this->belongsTo(GradeLevel::class, 'level_id', 'id');
     }
 
     /**

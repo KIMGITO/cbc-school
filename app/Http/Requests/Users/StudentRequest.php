@@ -32,9 +32,11 @@ class StudentRequest extends FormRequest
             'date_of_birth' => ['required', 'date', 'before:today'],
             'gender' => ['required', 'in:male,female,other'],
             'profile_photo' => ['nullable', 'image', 'max:2048'],
-            'county' => ['required', 'string', 'max:100'],
-            'sub_county' => ['required', 'string', 'max:100'],
-            'ward' => ['required', 'string', 'max:100'],
+            'county_id' => ['required', 'string', 'exists:counties,id'],
+            'county_name' => ['required', 'string', 'exists:counties,county_name'],
+            'sub_county_name' => ['required', 'string', 'exists:sub_counties,constituency_name'],
+            'ward_name' => ['required', 'string', 'exists:sub_counties,ward'],
+            'ward_id' => ['required', 'string', 'exists:sub_counties,id'],
             'location' => ['required', 'string', 'max:100'],
             'sub_location' => ['required', 'string', 'max:100'],
             'upi_number' => [
@@ -49,7 +51,7 @@ class StudentRequest extends FormRequest
             'special_medical_needs' => ['required', 'string', 'max:255'],
 
             'stream_id' => ['required', 'exists:streams,id'],
-            'admission_date' => ['required', 'date'],
+            'admission_date' => ['required', 'date', 'before_or_equal:today'],
             'enrollment_type' => ['required', 'in:new,transferred'],
             'boarding_status' => ['required', 'in:day,boarding'],
             'created_by' => ['required', 'string', 'exists:users,id'],
@@ -70,7 +72,6 @@ class StudentRequest extends FormRequest
             'profile_photo.max' => ' Profile photo size must not exceed 2MB.',
             'county.required' => ' County is required.',
             'sub_county.required' => ' Sub-county is required.',
-            'ward.string' => ' Ward must be a string.',
             'location.string' => ' Location must be a string.',
             'sub_location.string' => ' Sub location must be a string.',
             'blood_group.string' => ' Blood group must be a string.',
@@ -96,6 +97,21 @@ class StudentRequest extends FormRequest
             $this->merge([
                 'created_by' => Auth::id(),
             ]);
+        }
+
+        try {
+            $birthDate = new \DateTime($this->input('date_of_birth'));
+            $this->merge([
+                'date_of_birth' => $birthDate->format('Y-m-d'),
+            ]);
+        } catch (\Exception $e) {
+        }
+        try {
+            $employmentDate = new \DateTime($this->input('admission_date'));
+            $this->merge([
+                'admission_date' => $employmentDate->format('Y-m-d'),
+            ]);
+        } catch (\Exception $e) {
         }
     }
 }

@@ -14,20 +14,22 @@ return new class extends Migration
     {
         Schema::create('teachers', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->foreignUuid('user_id')->nullable()->constrained('users')->nullOnDelete();
+            $table->foreignUuid('user_id')->constrained('users')->restrictOnDelete();
             $table->foreignUuid('department_id')->nullable()->constrained('departments')->onDelete('set null');
-            $table->text('tsc_number');
-            $table->string('tsc_number_hash')->unique();
+            $table->text('tsc_number')->nullable();
+            $table->string('tsc_number_hash')->nullable()->unique();
             $table->text('kra_pin');
             $table->string('kra_pin_hash')->unique();
-            $table->date('employment_date');
+            $table->date('employment_date')->nullable();
             $table->text('phone_number');
             $table->string('phone_number_hash')->unique();
-            $table->text('phone_number_2');
-            $table->string('phone_number_2_hash')->unique();
+            $table->text('phone_number_2')->nullable();
+            $table->string('phone_number_2_hash')->nullable()->unique();
             $table->text('national_id');
             $table->string('national_id_hash')->unique();
             $table->boolean('is_active')->default(true);
+            $table->foreignUuid('home_address_id')->constrained('addresses')->cascadeOnDelete();
+            $table->foreignUuid('residential_address_id')->constrained('addresses')->cascadeOnDelete();
             $table->softDeletes();
             $table->timestamps();
         });

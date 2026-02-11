@@ -4,8 +4,9 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 
-use App\Models\People\Guardian;
-use App\Models\People\Teacher;
+
+use App\Models\Users\Teacher;
+use App\Models\Users\Guardian;
 use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
@@ -24,6 +25,9 @@ class User extends Authenticatable
      *
      * @var list<string>
      */
+
+    protected $keyType = 'string';
+    public $incrementing = false;
     protected $fillable = [
         'sir_name',
         'first_name',
@@ -95,6 +99,6 @@ class User extends Authenticatable
      */
     public function teacher()
     {
-        return $this->hasOne(Teacher::class);
+        return $this->hasOne(Teacher::class, 'user_id', 'id');
     }
 }

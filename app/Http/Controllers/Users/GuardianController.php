@@ -8,6 +8,7 @@ use App\Models\Users\Guardian;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Users\GuardianRequest;
 use App\Services\Users\GuardianService;
+use App\Traits\MergesUserAttributes;
 
 class GuardianController extends Controller
 {
@@ -15,9 +16,40 @@ class GuardianController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $guardians = Guardian::paginate(50);
+        $query = Guardian::with(['user', 'students', 'address'])
+            ->withCount('students');
+
+        // Apply filters
+        if ($request->has('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('national_id', 'like', "%{$search}%")
+                    ->orWhere('phone', 'like', "%{$search}%")
+                    ->orWhereHas('user', function ($userQuery) use ($search) {
+                        $userQuery->where('first_name', 'like', "%{$search}%")
+                            ->orWhere('sir_name', 'like', "%{$search}%")
+                            ->orWhere('email', 'like', "%{$search}%");
+                    });
+            });
+        }
+
+        if ($request->has('relationship') && $request->relationship !== 'all') {
+            $query->where('relationship', $request->relationship);
+        }
+
+        if ($request->has('status')) {
+            $isActive = $request->status === 'active';
+            $query->where('is_active', $isActive);
+        }
+
+        $guardians = $query->paginate(15);
+
+        return $this->respond($request, [],'users/guardians/index', [
+            'guardians' => $guardians,
+            'guardianCount' => Guardian::count(),
+        ]);
     }
 
     /**

@@ -80,10 +80,10 @@ export function DataTable<T>({
     if (isLoading) {
         return (
             <div className="space-y-2">
-                {[1, 2, 3].map((i) => (
+                {[1, 2].map((i) => (
                     <div
                         key={i}
-                        className="h-12 animate-pulse rounded-lg bg-gray-200"
+                        className="h-10 animate-pulse rounded bg-gray-200"
                     />
                 ))}
             </div>

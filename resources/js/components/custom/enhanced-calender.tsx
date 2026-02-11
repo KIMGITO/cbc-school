@@ -40,6 +40,7 @@ import {
 } from 'lucide-react';
 import * as React from 'react';
 import { useState } from 'react';
+import { Select, SelectContent, SelectItem, SelectTrigger } from '../ui/select';
 
 export interface CalendarEvent {
     id: string;
@@ -59,6 +60,7 @@ interface EnhancedCalendarProps {
     disabledDates?: Date[];
     disabledDays?: number[];
     defaultMonth?: Date;
+    defaultYear?: Date;
     events?: CalendarEvent[];
     onEventClick?: (event: CalendarEvent) => void;
     onEventEdit?: (event: CalendarEvent) => void;
@@ -98,6 +100,7 @@ export function EnhancedCalendar({
     disabledDates = [],
     disabledDays = [],
     defaultMonth = new Date(),
+    defaultYear = new Date(),
     events = [],
     onEventClick,
     onEventEdit,
@@ -110,6 +113,7 @@ export function EnhancedCalendar({
     className = '',
 }: EnhancedCalendarProps) {
     const [currentMonth, setCurrentMonth] = useState<Date>(defaultMonth);
+    const [currentYear, setCurrentYear] = useState<Date>()
     const [viewMode, setViewMode] = useState<'month' | 'agenda'>(
         initialViewMode,
     );
@@ -191,6 +195,13 @@ export function EnhancedCalendar({
         const today = new Date();
         setCurrentMonth(today);
         if (onSelect) onSelect(today);
+    };
+
+    // go to year
+    const goToYear = (year: string) => {
+
+       const month =  new Date(Number(year), 0, 1)
+        setCurrentMonth(month)
     };
 
     // Check if date is disabled
@@ -674,10 +685,28 @@ export function EnhancedCalendar({
                         <ChevronLeft className="h-3 w-3" />
                     </Button>
 
-                    <span className="min-w-[100px] text-center text-sm font-medium">
-                        {format(currentMonth, 'MMM yyyy')}
-                    </span>
-
+                    {/* <span className="min-w-[100px] bg-red-500 text-center text-sm font-medium"></span> */}
+                    <Select onValueChange={(year) => goToYear(year)} >
+                        <SelectTrigger className="h-8 w-full border px-2 text-xs active:bg-secondary">
+                            {format(currentMonth, 'MMM, yyyy')}
+                        </SelectTrigger>
+                        <SelectContent className="max-w-5">
+                            {Array.from({ length: 200 }, (_, i) => {
+                                const year = new Date().getFullYear() - 100 + i;
+                                const isCurrent =
+                                    year === new Date().getFullYear();
+                                return (
+                                    <SelectItem
+                                        key={year}
+                                        value={year.toString()}
+                                        className={`text-xs ${isCurrent ? 'bg-secondary font-semibold' : ''}`}
+                                    >
+                                        {year} {isCurrent && '★'}
+                                    </SelectItem>
+                                );
+                            })}
+                        </SelectContent>
+                    </Select>
                     <Button
                         variant="ghost"
                         size="icon"

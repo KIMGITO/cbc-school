@@ -176,7 +176,7 @@ const SearchAutocomplete: React.FC<SearchAutocompleteProps> = ({
     error,
     success,
     hint,
-    minChars = 2,
+    minChars = 1,
     debounceTime = 300,
     showClearButton = true,
     showSelectedInDropdown = false,

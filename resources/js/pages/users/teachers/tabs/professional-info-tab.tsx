@@ -1,8 +1,10 @@
-import FormField, { SelectOption } from '@/components/custom/form-field';
+import FormField from '@/components/custom/form-field';
 import FormGrid from '@/components/custom/form-grid';
 import FormSection from '@/components/custom/form-section';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { QualificationsProps, TeacherFormDataProps } from '@/types/teacher';
+import { useDepartmentStore } from '@/stores/department-store';
+import { useTeacherAdmissionStore } from '@/stores/teacher-admission-store';
 import {
     BadgeCheck,
     Briefcase,
@@ -10,71 +12,68 @@ import {
     Plus,
     Trash2,
 } from 'lucide-react';
-import { useDepartmentStore } from '@/stores/department-store'; 
 import { useEffect } from 'react';
 
+export default function ProfessionalInfoTab() {
+    // Get data and actions from the store
+    const {
+        formData,
+        formDataErrors,
+        selectedTeacher,
+        updateFormField,
+        addQualification,
+        updateQualification,
+        removeQualification,
+        clearFormFieldError,
+    } = useTeacherAdmissionStore();
 
-interface ProfessionalInfoTabProps {
-    data: TeacherFormDataProps;
-    onChange: (field: keyof TeacherFormDataProps, value: any) => void;
-    errors?: Record<string, string>;
-    selectedTeacher?: any;
-    onAddQualification?: (qualification: QualificationsProps) => void;
-    onUpdateQualification?: (
-        index: number,
-        qualification: QualificationsProps,
-    ) => void;
-    onRemoveQualification?: (index: number) => void;
-}
+    const { departments, fetchDepartments } = useDepartmentStore();
 
-export default function ProfessionalInfoTab({
-    data,
-    onChange,
-    errors,
-    selectedTeacher,
-    onAddQualification,
-    onRemoveQualification,
-}: ProfessionalInfoTabProps) {
-    const handleAddNewQualification = () => {
-        if (onAddQualification) {
-            onAddQualification({
-                name: '',
-                institution: '',
-                year_completed: '',
-                tsc_registered: false,
-            });
-        }
-    };
+    useEffect(() => {
+        fetchDepartments();
+    }, [fetchDepartments]);
 
     const handleQualificationChange = (
         index: number,
-        field: keyof QualificationsProps,
+        field: string,
         value: any,
     ) => {
-        if (data.qualifications && data.qualifications[index]) {
-            const updatedQualifications = [...data.qualifications];
-            updatedQualifications[index] = {
-                ...updatedQualifications[index],
-                [field]: value,
-            };
-            onChange('qualifications', updatedQualifications);
-        }
+        // Update qualification in store
+        updateQualification(index, { [field]: value });
+
+        // Clear any existing error for this qualification field
+        const errorKey = `qualifications.${index}.${field}`;
+        clearFormFieldError(errorKey);
     };
 
-    
+    const handleFormFieldChange = (field: keyof any, value: any) => {
+        updateFormField(field, value);
+    };
+
+    const handleAddNewQualification = () => {
+        addQualification({
+            name: '',
+            institution: '',
+            year_completed: '',
+            tsc_registered: false,
+        });
+    };
 
     const handleRemoveQualification = (index: number) => {
-        if (onRemoveQualification) {
-            onRemoveQualification(index);
-        }
+        removeQualification(index);
     };
 
-  const { departments, fetchDepartments } = useDepartmentStore();
+    // Helper to extract qualification error messages
+    const getQualificationError = (index: number, field: string): string => {
+        const errorKey = `qualifications.${index}.${field}`;
+        const error = formDataErrors[errorKey];
 
-  useEffect(() => {
-      fetchDepartments();
-  }, [fetchDepartments]);
-    
+        if (Array.isArray(error)) {
+            return error[0] || '';
+        }
+
+        return error || '';
+    };
 
     return (
         <div className="space-y-6">
@@ -83,37 +82,49 @@ export default function ProfessionalInfoTab({
                 Icon={{ icon: Briefcase, color: 'orange-500' }}
             >
                 <FormSection title="Official Details" border={false}>
-                    <FormGrid cols={3}>
+                    <FormGrid cols={2}>
                         <FormField
                             name="tsc_number"
                             label="TSC Number"
                             type="input"
-                            value={data.tsc_number}
-                            onChange={onChange}
+                            value={formData.tsc_number}
+                            onChange={handleFormFieldChange}
                             required
-                            error={errors?.tsc_number}
+                            error={formDataErrors.tsc_number || formDataErrors.tsc_number_hash}
                             placeholder="e.g., 1234567"
                         />
                         <FormField
                             name="kra_pin"
                             label="KRA PIN"
                             type="input"
-                            value={data.kra_pin}
-                            onChange={onChange}
+                            value={formData.kra_pin}
+                            onChange={handleFormFieldChange}
                             required
-                            error={errors?.kra_pin}
+                            error={formDataErrors.kra_pin || formDataErrors.kra_pin_hash}
                             placeholder="e.g., A123456789A"
                         />
+                    </FormGrid>
+                    <FormGrid cols={2}>
                         <FormField
                             name="department_id"
                             label="Department"
                             type="select"
-                            value={data.department_id || ''}
+                            value={formData.department_id || ''}
                             emptyOption="Select Department"
                             options={departments}
-                            onChange={onChange}
-                            error={errors?.department_id}
+                            onChange={handleFormFieldChange}
+                            error={formDataErrors.department_id as string}
                             placeholder="e.g., Mathematics Department"
+                        />
+
+                        <FormField
+                            name="employment_date"
+                            required
+                            label="Hire Date"
+                            type="calendar"
+                            value={formData.employment_date || ''}
+                            onChange={handleFormFieldChange}
+                            error={formDataErrors.employment_date}
                         />
                     </FormGrid>
                 </FormSection>
@@ -135,100 +146,135 @@ export default function ProfessionalInfoTab({
                     }
                 >
                     <div className="space-y-4">
-                        {data.qualifications &&
-                        data.qualifications.length > 0 ? (
-                            data.qualifications.map((qualification, index) => (
-                                <div
-                                    key={index}
-                                    className="rounded-lg border bg-gray-50 p-4"
-                                >
-                                    <div className="mb-4 flex items-center justify-between">
-                                        <div className="flex items-center gap-2">
-                                            <GraduationCap className="h-5 w-5 text-gray-600" />
-                                            <h4 className="font-medium">
-                                                Qualification #{index + 1}
-                                            </h4>
-                                            {qualification.tsc_registered && (
-                                                <BadgeCheck className="h-4 w-4 text-green-600" />
-                                            )}
-                                        </div>
-                                        <Button
-                                            type="button"
-                                            variant="ghost"
-                                            size="sm"
-                                            onClick={() =>
-                                                handleRemoveQualification(index)
-                                            }
-                                            className="h-8 w-8 p-0 text-red-600 hover:bg-red-50"
+                        {formData.qualifications &&
+                        formData.qualifications.length > 0 ? (
+                            <div className="relative">
+                                {formData.qualifications.map(
+                                    (qualification, index) => (
+                                        <div
+                                            key={index}
+                                            className="mb-4 rounded-lg border bg-gray-50 p-4"
                                         >
-                                            <Trash2 className="h-4 w-4" />
-                                        </Button>
-                                    </div>
+                                            <div className="mb-4 flex items-center justify-between">
+                                                <div className="flex items-center gap-2">
+                                                    <GraduationCap className="h-5 w-5 text-gray-600" />
+                                                    <h4 className="font-medium">
+                                                        Qualification #
+                                                        {index + 1}
+                                                    </h4>
+                                                    {qualification.tsc_registered && (
+                                                        <BadgeCheck className="h-4 w-4 text-green-600" />
+                                                    )}
+                                                </div>
+                                                <Button
+                                                    type="button"
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    onClick={() =>
+                                                        handleRemoveQualification(
+                                                            index,
+                                                        )
+                                                    }
+                                                    className="h-8 w-8 p-0 text-red-600 hover:bg-red-50"
+                                                >
+                                                    <Trash2 className="h-4 w-4" />
+                                                </Button>
+                                            </div>
 
-                                    <FormGrid cols={3}>
-                                        <FormField
-                                            name={`qualifications[${index}].name`}
-                                            label="Qualification Name"
-                                            type="input"
-                                            value={qualification.name}
-                                            onChange={(field, value) =>
-                                                handleQualificationChange(
-                                                    index,
-                                                    'name',
-                                                    value,
-                                                )
-                                            }
-                                            placeholder="e.g., Bachelor of Education"
-                                        />
-                                        <FormField
-                                            name={`qualifications[${index}].institution`}
-                                            label="Institution"
-                                            type="input"
-                                            value={qualification.institution}
-                                            onChange={(field, value) =>
-                                                handleQualificationChange(
-                                                    index,
-                                                    'institution',
-                                                    value,
-                                                )
-                                            }
-                                            placeholder="e.g., University of Nairobi"
-                                        />
-                                        <FormField
-                                            name={`qualifications[${index}].year_completed`}
-                                            label="Year Completed"
-                                            type="input"
-                                            value={qualification.year_completed}
-                                            onChange={(field, value) =>
-                                                handleQualificationChange(
-                                                    index,
-                                                    'year_completed',
-                                                    value,
-                                                )
-                                            }
-                                            placeholder="e.g., 2020"
-                                            inputType="number"
-                                        />
-                                    </FormGrid>
+                                            <FormGrid cols={3}>
+                                                <FormField
+                                                    name={`qualifications[${index}].name`}
+                                                    label="Qualification Name"
+                                                    type="input"
+                                                    value={qualification.name}
+                                                    error={getQualificationError(
+                                                        index,
+                                                        'name',
+                                                    )}
+                                                    onChange={(field, value) =>
+                                                        handleQualificationChange(
+                                                            index,
+                                                            'name',
+                                                            value,
+                                                        )
+                                                    }
+                                                    placeholder="e.g., Bachelor of Education"
+                                                />
+                                                <FormField
+                                                    name={`qualifications[${index}].institution`}
+                                                    label="Institution"
+                                                    type="input"
+                                                    value={
+                                                        qualification.institution
+                                                    }
+                                                    onChange={(field, value) =>
+                                                        handleQualificationChange(
+                                                            index,
+                                                            'institution',
+                                                            value,
+                                                        )
+                                                    }
+                                                    placeholder="e.g., University of Nairobi"
+                                                    error={getQualificationError(
+                                                        index,
+                                                        'institution',
+                                                    )}
+                                                />
+                                                <FormField
+                                                    name={`qualifications[${index}].year_completed`}
+                                                    label="Year Completed"
+                                                    type="input"
+                                                    value={
+                                                        qualification.year_completed
+                                                    }
+                                                    onChange={(field, value) =>
+                                                        handleQualificationChange(
+                                                            index,
+                                                            'year_completed',
+                                                            value,
+                                                        )
+                                                    }
+                                                    placeholder="e.g., 2020"
+                                                    inputType="number"
+                                                    error={getQualificationError(
+                                                        index,
+                                                        'year_completed',
+                                                    )}
+                                                />
+                                            </FormGrid>
 
-                                    <div className="mt-3">
-                                        <FormField
-                                            name={`qualifications[${index}].tsc_registered`}
-                                            label="TSC Registered"
-                                            type="checkbox"
-                                            value={qualification.tsc_registered}
-                                            onChange={(field, value) =>
-                                                handleQualificationChange(
-                                                    index,
-                                                    'tsc_registered',
-                                                    value,
-                                                )
-                                            }
-                                            labelClassName="text-end"
-                                        />
-                                    </div>
-                                </div>
-                            ))
+                                            <div className="mt-3 flex items-center justify-between">
+                                                <FormField
+                                                    name={`qualifications[${index}].tsc_registered`}
+                                                    label="TSC Registered?"
+                                                    checkboxLabel="TSC Approved?"
+                                                    type="checkbox"
+                                                    value={
+                                                        qualification.tsc_registered
+                                                    }
+                                                    onChange={(field, value) =>
+                                                        handleQualificationChange(
+                                                            index,
+                                                            'tsc_registered',
+                                                            value,
+                                                        )
+                                                    }
+                                                    labelClassName="text-blue-500"
+                                                />
+                                            </div>
+                                        </div>
+                                    ),
+                                )}
+                                <Button
+                                    type="button"
+                                    variant="solid"
+                                    size="sm"
+                                    onClick={handleAddNewQualification}
+                                    className="fixed right-6 bottom-2 z-10 flex gap-2 bg-green-600 text-white shadow-md hover:bg-green-700 md:absolute"
+                                >
+                                    <Plus className="h-4 w-4" />
+                                </Button>
+                            </div>
                         ) : (
                             <div className="rounded-lg border-2 border-dashed border-gray-300 p-8 text-center">
                                 <GraduationCap className="mx-auto h-12 w-12 text-gray-400" />

@@ -1,30 +1,32 @@
 import FormField from '@/components/custom/form-field';
 import FormGrid from '@/components/custom/form-grid';
+import { Button } from '@/components/ui/button';
+import { useStudentAdmission } from '@/hooks/use-student-admission';
 import { AlertTriangle } from 'lucide-react';
 
-interface MedicalInfoTabProps {
-    data?: {
-        blood_group?: string;
-        allergies?: string;
-        special_medical_needs?: string;
-    };
-    errors?: {
-        blood_group?: string;
-        allergies?: string;
-        special_medical_needs?: string;
-    };
-    onChange?: (field: string, value: string) => void;
-}
+export default function MedicalInfoTab() {
+    const {
+        formData,
+        formDataErrors,
+        updateFormField,
+        activeTab,
+        goToNextTab,
+        goToPreviousTab,
+        validateCurrentTab,
+    } = useStudentAdmission();
 
-export default function MedicalInfoTab({
-    data = {},
-    errors = {},
-    onChange,
-}: MedicalInfoTabProps) {
     const handleChange = (field: string, value: string) => {
-        if (onChange) {
-            onChange(field, value);
+        updateFormField(field as keyof typeof formData, value);
+    };
+
+    const handleNext = () => {
+        if (validateCurrentTab()) {
+            goToNextTab();
         }
+    };
+
+    const handlePrevious = () => {
+        goToPreviousTab();
     };
 
     // Array of blood groups for rendering SelectItem with map
@@ -39,6 +41,7 @@ export default function MedicalInfoTab({
         { value: 'O-', label: 'O-' },
         { value: 'unknown', label: 'Unknown' },
     ];
+
     return (
         <div className="space-y-6">
             <div className="flex items-center gap-3">
@@ -54,12 +57,12 @@ export default function MedicalInfoTab({
 
             <FormGrid gap="lg" cols={3}>
                 <FormField
-                    error={errors.blood_group}
+                    error={formDataErrors.blood_group}
                     name="blood_group"
                     label="Blood Group"
                     type="select"
                     required={false}
-                    value={data.blood_group || ''}
+                    value={formData.blood_group || ''}
                     onChange={handleChange}
                     options={bloodGroups}
                 />
@@ -67,23 +70,23 @@ export default function MedicalInfoTab({
 
             <FormGrid gap="lg" cols={2}>
                 <FormField
-                    error={errors.allergies}
+                    error={formDataErrors.allergies}
                     label="Allergies?"
                     name="allergies"
                     type="textarea"
                     placeholder="No if none"
-                    value={data.allergies || ''}
+                    value={formData.allergies || ''}
                     onChange={handleChange}
                     rows={4}
                     description="Specify allergens and reactions e.g (Eggs, Meat, Beans)"
                 />
 
                 <FormField
-                    error={errors.special_medical_needs}
+                    error={formDataErrors.special_medical_needs}
                     label="Special Medical Needs/Conditions ?"
                     name="special_medical_needs"
                     type="textarea"
-                    value={data.special_medical_needs || ''}
+                    value={formData.special_medical_needs || ''}
                     required={false}
                     onChange={handleChange}
                     placeholder="Describe any chronic conditions, disabilities, or special needs"
@@ -102,6 +105,24 @@ export default function MedicalInfoTab({
                     student's health and safety. Please ensure all information
                     is accurate and up-to-date.
                 </p>
+            </div>
+
+            {/* Navigation buttons */}
+            <div className="flex justify-between gap-4 border-t pt-4">
+                <div>
+                    <Button
+                        variant="outline"
+                        onClick={handlePrevious}
+                        size="lg"
+                    >
+                        ← Back to Address Info
+                    </Button>
+                </div>
+                <div>
+                    <Button onClick={handleNext} size="lg" className="px-8">
+                        Continue to School Data →
+                    </Button>
+                </div>
             </div>
         </div>
     );

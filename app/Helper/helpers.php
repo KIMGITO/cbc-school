@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Contracts\Encryption\DecryptException;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Crypt;
 
 
@@ -45,6 +46,27 @@ if (!function_exists('decrypt_attribute')) {
                 return $year;
             }
             return $year;
+        }
+    }
+
+    if (! function_exists('merge_user_data')) {
+        function merge_user_data(Model $model)
+        {
+            // see if model has user id, 
+
+            if (isset($model->user_id)) {
+                $model->load('user');
+                // then flatten.
+                if ($model->relationLoaded('user') && $model->user) {
+                    foreach ($model->user->toArray() as $key => $value) {
+                        $model->setAttribute( $key, $value);
+                    }
+                    return $model;
+                }
+                return $model;
+            }
+
+            return $model;
         }
     }
 }

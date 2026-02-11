@@ -21,23 +21,22 @@ export const useTeacherAdmission = () => {
         {
             label: 'Contact Info',
             value: 'contact',
-            errorFields: [
-                'phone_number',
-                'phone_number_2',
-                'email',
-            ],
+            errorFields: ['phone_number', 'phone_number_2', 'email'],
         },
         {
             label: 'Location Info',
             value: 'location',
             errorFields: [
-                'county',
-                'sub_county',
-                'ward',
-                'location',
-                'sub_location',
-                'home_address',
-                'residential_address'
+                'home_county',
+                'home_sub_county',
+                'home_ward',
+                'home_location',
+                'home_sub_location',
+                'residential_address_county',
+                'residential_address_sub_county',
+                'residential_address_ward',
+                'residential_address_location',
+                'residential_address_sub_location',
             ],
         },
         {
@@ -46,9 +45,10 @@ export const useTeacherAdmission = () => {
             errorFields: [
                 'tsc_number',
                 'kra_pin',
-                'employee_number',
+                'tsc_number',
                 'qualifications',
                 'department_id',
+                'employment_date',
             ],
         },
     ];
@@ -91,7 +91,7 @@ export const useTeacherAdmission = () => {
 
         store.setIsSearching(true);
         try {
-            const response = await axios.get('/api/teachers/search', {
+            const response = await axios.get('/api/v1/teachers/search', {
                 params: { q: store.searchQuery.trim() },
             });
 
@@ -115,28 +115,6 @@ export const useTeacherAdmission = () => {
     const handleSubmit = async () => {
         // Validate required fields
         const errors: Record<string, string> = {};
-
-        // Basic validation
-        if (!store.formData.first_name?.trim()) {
-            errors.first_name = 'First name is required';
-        }
-        if (!store.formData.sir_name?.trim()) {
-            errors.sir_name = 'Surname is required';
-        }
-        if (!store.formData.national_id?.trim()) {
-            errors.national_id = 'National ID is required';
-        }
-        if (!store.formData.phone_number?.trim()) {
-            errors.phone_number = 'Phone number is required';
-        }
-        if (!store.formData.tsc_number?.trim()) {
-            errors.tsc_number = 'TSC number is required';
-        }
-        if (!store.formData.email?.trim()) {
-            errors.email = 'Email is required';
-        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(store.formData.email)) {
-            errors.email = 'Invalid email format';
-        }
 
         if (Object.keys(errors).length > 0) {
             store.setFormDataErrors(errors);
@@ -180,8 +158,8 @@ export const useTeacherAdmission = () => {
             );
 
             const endpoint = store.selectedTeacher
-                ? `/api/teachers/${store.selectedTeacher.id}`
-                : '/api/teachers';
+                ? `/teachers/${store.selectedTeacher.id}`
+                : '/teachers';
 
             const method = store.selectedTeacher ? 'put' : 'post';
 
@@ -262,11 +240,11 @@ export const useTeacherAdmission = () => {
         switch (field) {
             case 'email':
                 if (!value?.trim()) return 'Email is required';
-               
+
                 return null;
             case 'phone_number':
                 if (!value?.trim()) return 'Phone number is required';
-              
+
                 return null;
             case 'national_id':
                 if (!value?.trim()) return 'National ID is required';
@@ -281,17 +259,19 @@ export const useTeacherAdmission = () => {
     };
 
     // Check if form is valid for submission
-    const isFormValid = () => {
-        return (
-            store.formData.first_name?.trim() &&
-            store.formData.sir_name?.trim() &&
-            store.formData.national_id?.trim() &&
-            store.formData.phone_number?.trim() &&
-            store.formData.email?.trim() &&
-            store.formData.tsc_number?.trim() &&
-            Object.keys(store.formDataErrors).length === 0
-        );
-    };
+    const isFormValid = () => true;
+    // {
+    // return (
+    //     store.formData.first_name?.trim() &&
+    //     store.formData.sir_name?.trim() &&
+    //     store.formData.national_id?.trim() &&
+    //     store.formData.phone_number?.trim() &&
+    //     store.formData.email?.trim() &&
+    //     store.formData.tsc_number?.trim() &&
+    //     Object.keys(store.formDataErrors).length === 0
+    // );
+
+    // };
 
     return {
         // State
@@ -329,7 +309,7 @@ export const useTeacherAdmission = () => {
                 case 'contact':
                     return 'phone_number';
                 case 'location':
-                    return 'county';
+                    return 'home_county';
                 case 'professional':
                     return 'tsc_number';
                 default:

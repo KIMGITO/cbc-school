@@ -1,4 +1,3 @@
-// pages/students/index.tsx
 import { Column, DataTable } from '@/components/custom/data-table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -12,17 +11,19 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import { getStreamsOptions } from '@/helpers/selection-options';
+import { getDepartmentsOptions } from '@/helpers/selection-options';
 import AppLayout from '@/layouts/app-layout';
 import { PaginatedResponse } from '@/types/pagination-interface';
-import { Student } from '@/types/student';
+import { Teacher } from '@/types/teacher';
 import { formatDate } from '@/utils/date-formatter';
 import { router } from '@inertiajs/react';
 import {
+    BookOpen,
     Calendar,
     Download,
     Edit,
     Eye,
+    GraduationCap,
     Plus,
     Search,
     Trash2,
@@ -31,35 +32,33 @@ import {
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-interface StudentsIndexInterface {
-    students: PaginatedResponse<Student>;
-    studentCount: number;
+interface TeachersIndexInterface {
+    teachers: PaginatedResponse<Teacher>;
+    teacherCount: number;
 }
 
-export default function StudentsIndex({
-    students: initialStudents,
-    studentCount,
-}: StudentsIndexInterface) {
-    console.log('Students count', studentCount);
-
+export default function TeachersIndex({
+    teachers: initialTeachers,
+    teacherCount,
+}: TeachersIndexInterface) {
     // Store the paginated response
-    const [studentsResponse, setStudentsResponse] =
-        useState<PaginatedResponse<Student>>(initialStudents);
+    const [teachersResponse, setTeachersResponse] =
+        useState<PaginatedResponse<Teacher>>(initialTeachers);
 
     const [search, setSearch] = useState('');
     const [statusFilter, setStatusFilter] = useState<string>('all');
-    const [streamFilter, setStreamFilter] = useState<string>('all');
+    const [departmentFilter, setDepartmentFilter] = useState<string>('all');
     const [isLoading, setIsLoading] = useState(false);
 
     // Extract data and pagination info from response
-    const students = studentsResponse?.data || [];
-    const pagination = studentsResponse
+    const teachers = teachersResponse?.data || [];
+    const pagination = teachersResponse
         ? {
-              currentPage: studentsResponse.current_page,
-              totalPages: studentsResponse.last_page,
-              totalItems: studentsResponse.total,
+              currentPage: teachersResponse.current_page,
+              totalPages: teachersResponse.last_page,
+              totalItems: teachersResponse.total,
               onPageChange: handlePageChange,
-              pageSize: studentsResponse.per_page,
+              pageSize: teachersResponse.per_page,
           }
         : undefined;
 
@@ -67,13 +66,13 @@ export default function StudentsIndex({
     function handlePageChange(page: number) {
         setIsLoading(true);
         router.get(
-            '/students',
+            '/teachers',
             { page },
             {
                 preserveState: true,
                 preserveScroll: true,
                 onSuccess: (page) => {
-                    setStudentsResponse(page.props.students);
+                    setTeachersResponse(page.props.teachers);
                     setIsLoading(false);
                 },
                 onError: () => {
@@ -83,82 +82,55 @@ export default function StudentsIndex({
         );
     }
 
-    const [streamOptions, setStreamOptions] = useState([
+    const [departmentOptions, setDepartmentOptions] = useState([
         {
             value: '0',
-            label: 'streams',
+            label: 'Loading...',
         },
     ]);
+
     useEffect(() => {
-        async function fetchStreams() {
-            const streams = await getStreamsOptions()();
-            setStreamOptions(streams);
+        async function fetchDepartments() {
+            const departments = await getDepartmentsOptions()();
+            setDepartmentOptions(departments);
         }
-        fetchStreams();
+        fetchDepartments();
     }, []);
 
-    const getRowNumber = (index: number) => {
-        if (
-            !studentsResponse ||
-            !studentsResponse.current_page ||
-            !studentsResponse.per_page
-        ) {
-            return index + 1;
-        }
-
-        return (
-            (studentsResponse.current_page - 1) * studentsResponse.per_page +
-            index +
-            1
-        );
-    };
-
-    // Filter students client-side (optional - or do it server-side)
-    const filteredStudents = students.filter((student) => {
+    // Filter teachers client-side (optional)
+    const filteredTeachers = teachers.filter((teacher) => {
         const matchesSearch =
             search === '' ||
-            student.name?.toLowerCase().includes(search.toLowerCase()) ||
-            student.adm_no?.toLowerCase().includes(search.toLowerCase());
+            teacher.name?.toLowerCase().includes(search.toLowerCase()) ||
+            teacher.tsc_number?.toLowerCase().includes(search.toLowerCase()) ||
+            teacher.phone_number?.toLowerCase().includes(search.toLowerCase());
 
         const matchesStatus =
-            statusFilter === 'all' || student.academic_status === statusFilter;
+            statusFilter === 'all' ||
+            teacher.is_active === (statusFilter === 'active');
 
-        const matchesStream =
-            streamFilter === 'all' || student.stream?.id === streamFilter;
+        const matchesDepartment =
+            departmentFilter === 'all' ||
+            teacher.department_id?.toString() === departmentFilter;
 
-        return matchesSearch && matchesStatus && matchesStream;
+        return matchesSearch && matchesStatus && matchesDepartment;
     });
 
-    // For server-side filtering, you would remove the above and pass filters to router.get
-
     // Columns definition
-    const columns: Column<Student>[] = [
-        // {
-        //     header: '#',
-        //     accessor: 'id',
-        //     cell: ( index) => {
-
-        //         return (
-        //             <div className="w-8 text-center font-medium text-gray-500">
-        //                 {index+1}
-        //             </div>
-        //         );
-        //     },
-        //     className: 'w-12',
-        // },
+    const columns: Column<Teacher>[] = [
         {
-            header: 'Admission No',
-            accessor: 'adm_no',
+            header: 'TSC No',
+            accessor: 'tsc_number',
             className: 'font-medium',
         },
         {
             header: 'Full Name',
-            accessor: (row) => row.name,
+            accessor: (row) => row.name || `${row.first_name} ${row.sir_name}`,
         },
         {
-            header: 'Stream/Class',
-            accessor: (row) => row.stream?.name || 'Not Assigned',
-            cellClassName: (row) => (!row.stream ? 'text-gray-400' : ''),
+            header: 'Department',
+            accessor: (row) => row.department?.name || 'Not Assigned',
+            cellClassName: (row) => (!row.department ? 'text-gray-400' : ''),
         },
         {
             header: 'Gender',
@@ -177,48 +149,34 @@ export default function StudentsIndex({
             ),
         },
         {
+            header: 'Email',
+            accessor: 'email',
+        },
+        {
+            header: 'Phone',
+            accessor: 'phone_number',
+        },
+        {
             header: 'Status',
-            accessor: 'academic_status',
+            accessor: 'is_active',
             cell: (value) => {
-                const variants = {
-                    active: {
-                        bg: 'bg-green-100',
-                        text: 'text-green-800',
-                        label: 'Active',
-                    },
-                    inactive: {
-                        bg: 'bg-gray-100',
-                        text: 'text-gray-800',
-                        label: 'Inactive',
-                    },
-                    transferred: {
-                        bg: 'bg-blue-100',
-                        text: 'text-blue-800',
-                        label: 'Transferred',
-                    },
-                    graduated: {
-                        bg: 'bg-purple-100',
-                        text: 'text-purple-800',
-                        label: 'Graduated',
-                    },
-                };
-
-                const variant = variants[value as keyof typeof variants] || {
-                    bg: 'bg-gray-100',
-                    text: 'text-gray-800',
-                    label: value,
-                };
+                if (value) {
+                    return (
+                        <Badge className="bg-green-100 text-green-800">
+                            Active
+                        </Badge>
+                    );
+                }
                 return (
-                    <Badge className={`${variant.bg} ${variant.text}`}>
-                        {variant.label}
+                    <Badge className="bg-gray-100 text-gray-800">
+                        Inactive
                     </Badge>
                 );
             },
         },
-
         {
-            header: 'Admission Date',
-            accessor: 'admission_date',
+            header: 'Employment Date',
+            accessor: 'employment_date',
             cell: (value) => (
                 <div className="flex items-center">
                     <Calendar className="mr-2 h-3 w-3 text-gray-400" />
@@ -232,22 +190,25 @@ export default function StudentsIndex({
     const actions = [
         {
             label: 'View Profile',
-            onClick: (student: Student) =>
-                router.get(`/students/${student.id}`),
+            onClick: (teacher: Teacher) =>
+                router.get(`/teachers/${teacher.id}`),
             icon: <Eye className="h-4 w-4" />,
         },
         {
             label: 'Edit',
-            onClick: (student: Student) =>
-                router.get(`/students/${student.id}/edit`),
+            onClick: (teacher: Teacher) =>
+                router.get(`/teachers/${teacher.id}/edit`),
             icon: <Edit className="h-4 w-4" />,
         },
-
         {
             label: 'Delete',
-            onClick: (student: Student) => {
-                if (confirm('Are you sure you want to delete this student?')) {
-                    console.log('Delete', student);
+            onClick: (teacher: Teacher) => {
+                if (confirm('Are you sure you want to delete this teacher?')) {
+                    router.delete(`/teachers/${teacher.id}`, {
+                        onSuccess: () => {
+                            router.reload();
+                        },
+                    });
                 }
             },
             icon: <Trash2 className="h-4 w-4" />,
@@ -258,28 +219,28 @@ export default function StudentsIndex({
     // Stats cards - use actual data
     const stats = [
         {
-            label: 'Total Students',
-            value: studentCount.toLocaleString(),
+            label: 'Total Teachers',
+            value: teacherCount.toLocaleString(),
             icon: UserCheck,
             color: 'bg-blue-500',
         },
         {
-            label: 'Present Today',
-            value: studentCount,
-            icon: Calendar,
+            label: 'Active Teachers',
+            value: teachers.filter((t) => t.is_active).length.toLocaleString(),
+            icon: BookOpen,
             color: 'bg-green-500',
         },
         {
-            label: 'New This Year',
-            value: '35', // You can calculate this from admission_date
-            icon: Plus,
+            label: 'Departments',
+            value: new Set(
+                teachers.map((t) => t.department_id),
+            ).size.toString(),
+            icon: GraduationCap,
             color: 'bg-purple-500',
         },
         {
             label: 'Inactive',
-            value: students
-                .filter((s) => s.academic_status === 'inactive')
-                .length.toLocaleString(),
+            value: teachers.filter((t) => !t.is_active).length.toLocaleString(),
             icon: UserX,
             color: 'bg-amber-500',
         },
@@ -290,13 +251,13 @@ export default function StudentsIndex({
         const timer = setTimeout(() => {
             if (search.trim()) {
                 router.get(
-                    '/students',
+                    '/teachers',
                     { search },
                     {
                         preserveState: true,
                         preserveScroll: true,
                         onSuccess: (page) => {
-                            // setStudentsResponse(page.props.students);
+                            setTeachersResponse(page.props.teachers);
                         },
                     },
                 );
@@ -313,10 +274,10 @@ export default function StudentsIndex({
                 <div className="flex items-center justify-between">
                     <div>
                         <h1 className="text-3xl font-bold text-gray-900">
-                            Student Management
+                            Teacher Management
                         </h1>
                         <p className="text-gray-600">
-                            Manage student records, admissions, and profiles
+                            Manage teacher records, employment, and profiles
                         </p>
                     </div>
                     <div className="flex gap-3">
@@ -325,11 +286,11 @@ export default function StudentsIndex({
                             Export
                         </Button>
                         <Button
-                            onClick={() => router.get('/students/create')}
+                            onClick={() => router.get('/teachers/create')}
                             className="gap-2 bg-green-600 hover:bg-green-700"
                         >
                             <Plus className="h-4 w-4" />
-                            New Admission
+                            New Teacher
                         </Button>
                     </div>
                 </div>
@@ -373,7 +334,7 @@ export default function StudentsIndex({
                                 <div className="relative flex-1">
                                     <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-400" />
                                     <Input
-                                        placeholder="Search students by name, admission number"
+                                        placeholder="Search teachers by name, TSC number, phone"
                                         value={search}
                                         onChange={(e) =>
                                             setSearch(e.target.value)
@@ -389,7 +350,7 @@ export default function StudentsIndex({
                                     onValueChange={(value) => {
                                         setStatusFilter(value);
                                         router.get(
-                                            '/students',
+                                            '/teachers',
                                             {
                                                 status:
                                                     value !== 'all'
@@ -400,8 +361,8 @@ export default function StudentsIndex({
                                                 preserveState: true,
                                                 preserveScroll: true,
                                                 onSuccess: (page) => {
-                                                    setStudentsResponse(
-                                                        page.props.students,
+                                                    setTeachersResponse(
+                                                        page.props.teachers,
                                                     );
                                                 },
                                             },
@@ -421,23 +382,17 @@ export default function StudentsIndex({
                                         <SelectItem value="inactive">
                                             Inactive
                                         </SelectItem>
-                                        <SelectItem value="graduated">
-                                            Graduated
-                                        </SelectItem>
-                                        <SelectItem value="transferred">
-                                            Transferred
-                                        </SelectItem>
                                     </SelectContent>
                                 </Select>
 
                                 <Select
-                                    value={streamFilter}
+                                    value={departmentFilter}
                                     onValueChange={(value) => {
-                                        setStreamFilter(value);
+                                        setDepartmentFilter(value);
                                         router.get(
-                                            '/students',
+                                            '/teachers',
                                             {
-                                                stream:
+                                                department:
                                                     value !== 'all'
                                                         ? value
                                                         : undefined,
@@ -446,8 +401,8 @@ export default function StudentsIndex({
                                                 preserveState: true,
                                                 preserveScroll: true,
                                                 onSuccess: (page) => {
-                                                    setStudentsResponse(
-                                                        page.props.students,
+                                                    setTeachersResponse(
+                                                        page.props.teachers,
                                                     );
                                                 },
                                             },
@@ -455,18 +410,18 @@ export default function StudentsIndex({
                                     }}
                                 >
                                     <SelectTrigger className="w-[150px]">
-                                        <SelectValue placeholder="Stream" />
+                                        <SelectValue placeholder="Department" />
                                     </SelectTrigger>
                                     <SelectContent>
                                         <SelectItem value="all">
-                                            All Streams
+                                            All Departments
                                         </SelectItem>
-                                        {streamOptions.map((stream) => (
+                                        {departmentOptions.map((dept) => (
                                             <SelectItem
-                                                key={stream.value}
-                                                value={stream.value}
+                                                key={dept.value}
+                                                value={dept.value}
                                             >
-                                                {stream.label}
+                                                {dept.label}
                                             </SelectItem>
                                         ))}
                                     </SelectContent>
@@ -478,52 +433,20 @@ export default function StudentsIndex({
 
                 {/* Data Table */}
                 <DataTable
-                    data={filteredStudents} // Use filteredStudents for client-side filtering
+                    data={filteredTeachers}
                     columns={columns}
-                    keyExtractor={(student) => student.id}
-                    onRowClick={(student) =>
-                        router.get(`/students/${student.id}`)
+                    keyExtractor={(teacher) => teacher.id}
+                    onRowClick={(teacher) =>
+                        router.get(`/teachers/${teacher.id}`)
                     }
                     pagination={pagination}
                     actions={actions}
-                    emptyMessage="No students found. Try adjusting your filters."
+                    emptyMessage="No teachers found. Try adjusting your filters."
                     isLoading={isLoading}
-                    rowClassName={(student) =>
-                        student.academic_status === 'inactive'
-                            ? 'bg-gray-50'
-                            : ''
+                    rowClassName={(teacher) =>
+                        !teacher.is_active ? 'bg-gray-50' : ''
                     }
                 />
-
-                {/* Quick Actions */}
-                {/* <Card className="border-t-4 border-t-primary">
-                    <CardContent className="p-6">
-                        <CardTitle className="mb-4 flex items-center text-lg">
-                            <Badge className="me-3 rounded-full bg-primary shadow">
-                                !
-                            </Badge>
-                            <span>Quick Actions</span>
-                        </CardTitle>
-                        <div className="flex flex-wrap gap-3">
-                            <Button variant="outline" className="gap-2">
-                                <UserCheck className="h-4 w-4" />
-                                Bulk Status Update
-                            </Button>
-                            <Button variant="outline" className="gap-2">
-                                <Download className="h-4 w-4" />
-                                Download Report
-                            </Button>
-                            <Button variant="outline" className="gap-2">
-                                <Calendar className="h-4 w-4" />
-                                Attendance Summary
-                            </Button>
-                            <Button variant="outline" className="gap-2">
-                                <Edit className="h-4 w-4" />
-                                Mass Edit
-                            </Button>
-                        </div>
-                    </CardContent>
-                </Card> */}
             </div>
         </AppLayout>
     );

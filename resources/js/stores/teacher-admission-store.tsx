@@ -24,20 +24,27 @@ export interface TeacherFormDataProps {
     phone_number: string;
     phone_number_2: string;
     email: string;
-    home_address: string;
-    residential_address: string;
-    county: string;
-    county_name: string;
-    sub_county: string;
-    sub_county_name: string;
-    ward: string;
-    ward_name: string;
-    location: string;
-    sub_location: string;
+    home_county: string;
+    home_county_name: string;
+    home_sub_county: string;
+    home_sub_county_name: string;
+    home_ward: string;
+    home_ward_name: string;
+    home_location: string;
+    home_sub_location: string;
+    residential_county: string;
+    residential_county_name: string;
+    residential_sub_county: string;
+    residential_sub_county_name: string;
+    residential_ward: string;
+    residential_ward_name: string;
+    residential_location: string;
+    residential_sub_location: string;
     tsc_number: string;
     kra_pin: string;
     qualifications: QualificationsProps[];
-    department_id:string;
+    department_id: string;
+    employment_date: string;
 }
 
 export interface TeacherFormDataErrorProps {
@@ -100,20 +107,27 @@ const initialFormData: TeacherFormDataProps = {
     phone_number: '',
     phone_number_2: '',
     email: '',
-    home_address: '',
-    residential_address: '',
-    county: '',
-    county_name: '',
-    sub_county: '',
-    sub_county_name: '',
-    ward: '',
-    ward_name: '',
-    location: '',
-    sub_location: '',
+    home_county: '',
+    home_county_name: '',
+    home_sub_county: '',
+    home_sub_county_name: '',
+    home_ward: '',
+    home_ward_name: '',
+    home_location: '',
+    home_sub_location: '',
+    residential_county: '',
+    residential_county_name: '',
+    residential_sub_county: '',
+    residential_sub_county_name: '',
+    residential_ward: '',
+    residential_ward_name: '',
+    residential_location: '',
+    residential_sub_location: '',
     tsc_number: '',
     kra_pin: '',
     qualifications: [],
     department_id: '',
+    employment_date:'',
 };
 
 export const useTeacherAdmissionStore = create<TeacherAdmissionState>()(
@@ -277,21 +291,11 @@ export const useTeacherAdmissionStore = create<TeacherAdmissionState>()(
                             phone_number: teacher.phone_number || '',
                             phone_number_2: teacher.phone_number_2 || '',
                             email: teacher.email || '',
-                            home_address: teacher.home_address || '',
-                            residential_address:
-                                teacher.residential_address || '',
-                            county: teacher.county || '',
-                            county_name: teacher.county_name || '',
-                            sub_county: teacher.sub_county || '',
-                            sub_county_name: teacher.sub_county_name || '',
-                            ward: teacher.ward || '',
-                            ward_name: teacher.ward_name || '',
-                            location: teacher.location || '',
-                            sub_location: teacher.sub_location || '',
+                           employment_date: teacher.employment_date || '',
                             tsc_number: teacher.tsc_number || '',
                             kra_pin: teacher.kra_pin || '',
                             qualifications: teacher.qualifications || [],
-                            department_id: teacher.department_id
+                            department_id: teacher.department_id,
                         };
                     }),
                 ),
